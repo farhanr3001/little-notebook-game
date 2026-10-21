@@ -2,7 +2,7 @@
 
 A cosy learning game for Windows, with a notebook to draw in and a little radio to keep you company.
 
-![Little Notebook](docs/images/home.png)
+![Choose your character and enter your name](docs/images/setup.png)
 
 Play English, maths, puzzles and general-knowledge questions. Choose your topics and difficulty, practise with English and Arabic speech, and review your mistakes at your own pace. Earn stars for characters, pets and decorations.
 
@@ -16,6 +16,7 @@ Run the **LittleNotebook-Setup** installer from the latest release. Supports **6
 
 The game checks for updates when opened. Updates keep your character, progress and notebook. You can also check manually in Game settings.
 
+![Choose topics, question types and difficulty](docs/images/home.png)
 ![Gameplay](docs/images/gameplay.png)
 ![Drawing notebook](docs/images/notebook.png)
 

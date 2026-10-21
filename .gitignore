@@ -1,0 +1,39 @@
+dist/
+test-output/
+*.user
+*.tmp
+
+Little Notebook/
+Little Notebook v0.1/
+Little-Notebook-v0.1.zip
+
+Little Notebook v0.2/
+Little-Notebook-v0.2.zip
+
+Little Notebook v0.2.1/
+Little-Notebook-v0.2.1.zip
+
+Little Notebook v0.3/
+Little-Notebook-v0.3.zip
+tools/__pycache__/
+
+Little Notebook v0.3.1/
+Little-Notebook-v0.3.1.zip
+
+Little Notebook v0.3.2/
+Little-Notebook-v0.3.2.zip
+tools/tts_vendor/
+tools/tts_models/
+tools/speech-runtime/
+
+Little Notebook v0.3.3/
+Little-Notebook-v0.3.3.zip
+
+Little Notebook*/
+Little-Notebook*.zip
+releases/
+tools/install-build/
+*.log
+
+RELEASE_WORK.md
+release-build/

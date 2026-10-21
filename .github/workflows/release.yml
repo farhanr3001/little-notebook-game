@@ -1,0 +1,50 @@
+name: Build Windows release
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Read game version
+        shell: pwsh
+        run: |
+          $versionMatch = [regex]::Match((Get-Content src/AppInfo.cs -Raw),'Version="([0-9.]+)"')
+          "LN_VERSION=$($versionMatch.Groups[1].Value)" | Out-File -FilePath $env:GITHUB_ENV -Append
+      - name: Prepare offline voices
+        run: python tools/prepare_speech_runtime.py
+      - name: Build
+        shell: pwsh
+        run: ./build.ps1 -OutputDirectory 'release-build'
+      - name: Focused verification
+        shell: pwsh
+        run: |
+          foreach ($mode in @('--revision-test','--health-test')) {
+            $run = Start-Process '.\release-build\LittleNotebook.exe' -ArgumentList $mode -Wait -PassThru
+            if ($run.ExitCode -ne 0) { throw "Failed $mode" }
+          }
+      - name: Package verified update components
+        run: python tools/build_release.py --source release-build --version $env:LN_VERSION
+      - name: Install Inno Setup
+        run: choco install innosetup --yes --no-progress
+      - name: Prepare signed Microsoft prerequisites
+        shell: pwsh
+        run: ./tools/prepare_prerequisites.ps1
+      - name: Compile installer and verify lifecycle
+        shell: pwsh
+        run: |
+          & 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe' "/DAppVersion=$env:LN_VERSION" installer/LittleNotebook.iss
+          if ($LASTEXITCODE -ne 0) { throw 'Installer compilation failed' }
+          python tools/test_install_update.py
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: pwsh
+        run: |
+          $releaseAssets = @("releases/LittleNotebook-Setup-$env:LN_VERSION.exe",'releases/update-manifest.json') + @(Get-ChildItem -LiteralPath releases/update-packs -Filter '*.zip' | ForEach-Object FullName)
+          gh release create "v$env:LN_VERSION" @releaseAssets --title "Little Notebook $env:LN_VERSION" --notes-file RELEASE_NOTES.md

@@ -1,0 +1,41 @@
+using System;
+using System.Collections.Generic;
+using System.Windows;
+using System.Windows.Media;
+
+namespace LittleNotebook {
+ public static class Doodles {
+  public static Dictionary<string,string[]> Paths=new Dictionary<string,string[]>{
+   {"flower",new[]{"M80,28 C64,0 40,16 48,39 C17,28 12,61 36,71 C13,89 36,115 59,99 C59,128 98,128 101,99 C124,114 148,87 123,71 C149,59 141,27 112,39 C123,15 97,0 80,28 Z","M96,63 A16,16 0 1 1 64,63 A16,16 0 1 1 96,63","M80,118 L80,156 M80,140 Q53,114 47,134 Q57,151 80,148 M80,131 Q111,111 117,128 Q109,143 80,140"}},
+   {"cup",new[]{"M32,57 L112,57 L106,129 Q72,143 39,129 Z","M113,67 Q149,60 140,92 Q133,108 109,107","M54,43 C38,28 65,27 54,12 M79,43 C66,28 92,27 79,12 M33,140 Q76,150 119,140"}},
+   {"eye",new[]{"M15,84 Q80,10 145,84 Q80,143 15,84 Z","M105,82 A25,29 0 1 1 55,82 A25,29 0 1 1 105,82","M90,81 A10,15 0 1 1 70,81 A10,15 0 1 1 90,81","M25,70 L16,55 M44,53 L37,38 M70,43 L69,26 M96,46 L103,29 M122,60 L135,43"}},
+   {"butterfly",new[]{"M74,75 C47,6 7,20 23,65 C-1,88 30,143 73,98 Z M86,75 C113,6 153,20 137,65 C161,88 130,143 87,98 Z","M80,65 C73,65 73,115 80,122 C87,115 87,65 80,65 Z M77,65 Q63,43 57,46 M83,65 Q97,43 103,46"}},
+   {"cat",new[]{"M43,55 L34,15 L68,35 Q81,30 95,35 L125,14 L118,60 C143,113 116,141 80,139 C40,141 16,111 43,55 Z","M54,72 L55,77 M101,72 L102,77 M74,90 L85,90 L80,96 Z M80,96 Q69,109 61,100 M80,96 Q91,109 99,100 M42,89 L15,83 M42,98 L12,102 M118,89 L146,83 M118,98 L149,102"}},
+   {"rabbit",new[]{"M52,68 C26,4 58,-2 70,62 M89,62 C91,-1 126,4 108,70 M44,68 C17,109 44,143 79,141 C120,145 143,105 113,70 Q80,49 44,68 Z","M59,92 L60,97 M99,92 L100,97 M76,109 L85,109 L81,116 M81,116 Q66,129 61,117 M81,116 Q97,129 102,117"}},
+   {"fish",new[]{"M32,80 Q68,22 120,80 Q68,138 32,80 L9,49 L9,111 Z","M97,61 Q87,81 97,100 M108,77 L109,79 M66,53 L68,31 L86,50 M65,105 L69,126 L88,108"}},
+   {"bird",new[]{"M46,65 C31,19 103,10 113,55 L142,67 L113,75 C124,125 70,153 37,121 L14,130 L31,99 Q28,74 46,65 Z","M49,82 Q84,67 91,101 Q67,113 49,82 M96,51 L97,54 M62,137 L58,151 M80,139 L84,152"}},
+   {"tree",new[]{"M66,92 L61,146 L94,146 L91,92","M79,15 C55,-1 39,25 41,41 C11,38 8,81 34,87 C24,113 58,124 79,105 C100,129 134,109 123,86 C150,77 142,38 118,41 C125,16 95,-3 79,15 Z"}},
+   {"clock",new[]{"M143,81 A63,63 0 1 1 17,81 A63,63 0 1 1 143,81","M80,30 L80,39 M80,124 L80,133 M30,81 L40,81 M122,81 L132,81 M80,46 L80,82 L108,98"}},
+   {"key",new[]{"M75,47 A30,30 0 1 1 15,47 A30,30 0 1 1 75,47","M56,47 A11,11 0 1 1 34,47 A11,11 0 1 1 56,47","M66,66 L140,138 L130,148 L113,130 L104,139 L91,125 L100,116 L57,76"}},
+   {"pencil",new[]{"M31,113 L105,24 L129,45 L55,134 L20,150 Z M31,113 L55,134 M105,24 L114,13 Q121,7 132,16 L140,24 Q147,30 139,39 L129,45 M43,124 L117,35 M20,150 L26,132"}},
+   {"car",new[]{"M20,80 L38,43 L106,43 L132,79 L147,88 L147,121 L12,121 L12,88 Z","M43,51 L34,79 L73,79 L73,51 Z M81,51 L81,79 L121,79 L102,51 Z","M57,124 A17,17 0 1 1 23,124 A17,17 0 1 1 57,124 M133,124 A17,17 0 1 1 99,124 A17,17 0 1 1 133,124"}},
+   {"umbrella",new[]{"M13,80 C20,3 140,3 147,80 Q126,60 103,80 Q80,60 57,80 Q35,60 13,80 Z","M80,15 L80,126 Q80,152 59,144 Q49,139 53,125 M80,15 Q52,41 57,80 M80,15 Q108,41 103,80"}},
+   {"bag",new[]{"M32,48 L127,48 L139,144 L20,144 Z","M57,48 L57,30 Q80,2 103,30 L103,48 M46,65 L46,78 M115,65 L115,78"}},
+   {"ball",new[]{"M141,80 A61,61 0 1 1 19,80 A61,61 0 1 1 141,80","M65,57 L94,57 L105,84 L80,102 L55,84 Z M65,57 L53,29 M94,57 L113,29 M105,84 L140,87 M80,102 L78,141 M55,84 L21,88"}},
+   {"hat",new[]{"M47,96 L52,38 Q80,17 108,38 L116,96 M30,100 Q80,78 132,100 Q159,126 80,137 Q3,126 30,100 Z M50,76 Q80,90 112,76"}},
+   {"banana",new[]{"M113,20 C151,73 121,137 62,140 C39,138 19,124 15,109 C68,131 118,83 104,29 Z","M19,112 Q86,131 126,55 M104,29 L101,15 L110,10 L116,21"}},
+   {"cloud",new[]{"M38,121 C-2,117 3,68 35,67 C29,19 92,9 109,54 C146,38 170,102 132,118 Z"}},
+   {"shoe",new[]{"M22,47 L64,45 Q66,80 121,87 Q146,90 145,122 L16,122 Z M17,123 L146,123 L146,139 L14,139 Z","M63,70 L85,61 M77,83 L99,74 M89,92 L111,83"}},
+   {"heart",new[]{"M80,142 C55,121 -2,76 19,38 C38,6 69,20 80,42 C91,20 122,6 141,38 C162,76 105,121 80,142 Z"}},
+   {"star",new[]{"M80,10 L98,58 L150,61 L109,95 L122,147 L80,117 L38,147 L51,95 L10,61 L62,58 Z"}}
+  };
+  public static void Draw(DrawingContext d,string kind,double w,double h,Palette palette,bool outline=false){
+   string[] paths;if(!Paths.TryGetValue(kind,out paths))return;d.PushTransform(new ScaleTransform(w/160,h/160));
+   for(int i=0;i<paths.Length;i++){Brush fill=outline?null:i==0?new SolidColorBrush(kind=="flower"?Color.FromRgb(232,188,167):kind=="fish"?Color.FromRgb(145,183,195):palette.Light):null;d.DrawGeometry(fill,new Pen(new SolidColorBrush(palette.Ink),2.8){StartLineCap=PenLineCap.Round,EndLineCap=PenLineCap.Round,LineJoin=PenLineJoin.Round},Geometry.Parse(paths[i]));}d.Pop();
+  }
+ }
+ public class TraceArt:FrameworkElement{
+  string kind;Palette p;public TraceArt(string kind,Palette p,double w,double h){this.kind=kind;this.p=p;Width=w;Height=h;IsHitTestVisible=false;Opacity=.38;}
+  protected override void OnRender(DrawingContext d){Doodles.Draw(d,kind,Width,Height,p,true);}
+ }
+}

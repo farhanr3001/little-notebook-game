@@ -1,0 +1,482 @@
+{
+  "engine": "Kokoro-82M v1.0",
+  "voice": "af_heart",
+  "language": "en-us",
+  "speed": 0.96,
+  "wrapper": "kokoro-onnx 0.6.1",
+  "source_urls": {
+    "kokoro-v1.0.onnx": "https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.1/kokoro-v1.0.onnx",
+    "voices-v1.0.bin": "https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.1/voices-v1.0.bin"
+  },
+  "model_sha256": {
+    "kokoro-v1.0.onnx": "beb0d1848dee9a49da392cc3df26958d46cfa35d321edf434f52949153f0df3a",
+    "voices-v1.0.bin": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d"
+  },
+  "clips": [
+    {
+      "text": "answer",
+      "file": "0db52f4076c08251.wav",
+      "seconds": 1.11
+    },
+    {
+      "text": "bag",
+      "file": "c018019b6a8b01ab.wav",
+      "seconds": 0.982
+    },
+    {
+      "text": "ball",
+      "file": "e9de08263f4ad491.wav",
+      "seconds": 0.961
+    },
+    {
+      "text": "banana",
+      "file": "b493d48364afe44d.wav",
+      "seconds": 1.046
+    },
+    {
+      "text": "beautiful",
+      "file": "c6a1427d7119cd3c.wav",
+      "seconds": 1.195
+    },
+    {
+      "text": "bedroom",
+      "file": "a05e6feb79c85416.wav",
+      "seconds": 1.131
+    },
+    {
+      "text": "big",
+      "file": "2a21fe6d592a19b7.wav",
+      "seconds": 0.961
+    },
+    {
+      "text": "bird",
+      "file": "7a5179eecc0fe187.wav",
+      "seconds": 1.003
+    },
+    {
+      "text": "blue",
+      "file": "16477688c0e00699.wav",
+      "seconds": 1.025
+    },
+    {
+      "text": "bread",
+      "file": "985604c2b6024312.wav",
+      "seconds": 0.939
+    },
+    {
+      "text": "breakfast",
+      "file": "7c58ea253628feed.wav",
+      "seconds": 1.153
+    },
+    {
+      "text": "brother",
+      "file": "0b4bd77cec705cf5.wav",
+      "seconds": 0.982
+    },
+    {
+      "text": "butterfly",
+      "file": "fcfd075cbe367c15.wav",
+      "seconds": 1.195
+    },
+    {
+      "text": "car",
+      "file": "2b2961a431b23c90.wav",
+      "seconds": 1.025
+    },
+    {
+      "text": "careful",
+      "file": "191c415261817259.wav",
+      "seconds": 1.067
+    },
+    {
+      "text": "cat",
+      "file": "77af778b51abd4a3.wav",
+      "seconds": 0.981
+    },
+    {
+      "text": "clean",
+      "file": "3b066804f6d1d077.wav",
+      "seconds": 1.046
+    },
+    {
+      "text": "clock",
+      "file": "d8198efa3604d164.wav",
+      "seconds": 1.025
+    },
+    {
+      "text": "cloud",
+      "file": "56681010b753e1ab.wav",
+      "seconds": 1.089
+    },
+    {
+      "text": "cold",
+      "file": "e272deecde720ffc.wav",
+      "seconds": 1.025
+    },
+    {
+      "text": "comfortable",
+      "file": "46fd05f35b5591e2.wav",
+      "seconds": 1.131
+    },
+    {
+      "text": "confident",
+      "file": "26c8cca6e668df65.wav",
+      "seconds": 1.215
+    },
+    {
+      "text": "cup",
+      "file": "c6171781d65f3ccc.wav",
+      "seconds": 0.957
+    },
+    {
+      "text": "curious",
+      "file": "a9e7a8af89a3e21f.wav",
+      "seconds": 1.174
+    },
+    {
+      "text": "delicious",
+      "file": "3c29fc3464377a28.wav",
+      "seconds": 1.174
+    },
+    {
+      "text": "different",
+      "file": "9d6f965ac832e40a.wav",
+      "seconds": 1.067
+    },
+    {
+      "text": "difficult",
+      "file": "1e4453a98c9d7417.wav",
+      "seconds": 1.153
+    },
+    {
+      "text": "dinner",
+      "file": "dda209044ad44962.wav",
+      "seconds": 0.949
+    },
+    {
+      "text": "discover",
+      "file": "5b90071aea261a5b.wav",
+      "seconds": 1.099
+    },
+    {
+      "text": "dog",
+      "file": "cd6357efdd966de8.wav",
+      "seconds": 1.003
+    },
+    {
+      "text": "door",
+      "file": "2534e2de1dec24fe.wav",
+      "seconds": 0.961
+    },
+    {
+      "text": "early",
+      "file": "f408830bcc7fab37.wav",
+      "seconds": 1.046
+    },
+    {
+      "text": "enough",
+      "file": "6f6465f9dd068585.wav",
+      "seconds": 1.013
+    },
+    {
+      "text": "family",
+      "file": "d34a569ab7aaa54d.wav",
+      "seconds": 1.089
+    },
+    {
+      "text": "father",
+      "file": "88a1881f0025cf71.wav",
+      "seconds": 1.046
+    },
+    {
+      "text": "fish",
+      "file": "b474a99a2705e23c.wav",
+      "seconds": 0.982
+    },
+    {
+      "text": "flower",
+      "file": "c06b0cfe0cc5e900.wav",
+      "seconds": 1.067
+    },
+    {
+      "text": "garden",
+      "file": "23eeb69c681dfdb8.wav",
+      "seconds": 1.131
+    },
+    {
+      "text": "green",
+      "file": "ba4788b226aa8dc2.wav",
+      "seconds": 1.025
+    },
+    {
+      "text": "happy",
+      "file": "489f719cadf91909.wav",
+      "seconds": 1.056
+    },
+    {
+      "text": "hat",
+      "file": "18e1dd392168f601.wav",
+      "seconds": 0.979
+    },
+    {
+      "text": "hot",
+      "file": "7f5d1618e7d28cc7.wav",
+      "seconds": 1.023
+    },
+    {
+      "text": "hungry",
+      "file": "ca4176138ea4086f.wav",
+      "seconds": 1.067
+    },
+    {
+      "text": "important",
+      "file": "34a989eb3e220e6b.wav",
+      "seconds": 1.205
+    },
+    {
+      "text": "journey",
+      "file": "cde56892bbebbf6c.wav",
+      "seconds": 1.025
+    },
+    {
+      "text": "key",
+      "file": "2c70e12b7a0646f9.wav",
+      "seconds": 0.961
+    },
+    {
+      "text": "kitchen",
+      "file": "3171d89ad00530ff.wav",
+      "seconds": 1.067
+    },
+    {
+      "text": "knowledge",
+      "file": "e0f895872d65b252.wav",
+      "seconds": 1.11
+    },
+    {
+      "text": "language",
+      "file": "a4ef304ba42a200b.wav",
+      "seconds": 1.174
+    },
+    {
+      "text": "late",
+      "file": "089001a35679a33e.wav",
+      "seconds": 1.003
+    },
+    {
+      "text": "library",
+      "file": "b718f1354f724731.wav",
+      "seconds": 1.238
+    },
+    {
+      "text": "listen",
+      "file": "6f8860eb5103a16b.wav",
+      "seconds": 1.067
+    },
+    {
+      "text": "milk",
+      "file": "8825e76530f87ff5.wav",
+      "seconds": 1.003
+    },
+    {
+      "text": "morning",
+      "file": "c23b31a0179b550f.wav",
+      "seconds": 1.046
+    },
+    {
+      "text": "mother",
+      "file": "cf0622ef2a661cd2.wav",
+      "seconds": 0.938
+    },
+    {
+      "text": "mountain",
+      "file": "3b80d38f7686a8b5.wav",
+      "seconds": 1.131
+    },
+    {
+      "text": "necessary",
+      "file": "80ea8bc4ba2d5f41.wav",
+      "seconds": 1.238
+    },
+    {
+      "text": "neighbour",
+      "file": "968ccf654c356f62.wav",
+      "seconds": 1.002
+    },
+    {
+      "text": "one",
+      "file": "7692c3ad3540bb80.wav",
+      "seconds": 0.928
+    },
+    {
+      "text": "patient",
+      "file": "2295ff7a8bd8b3f2.wav",
+      "seconds": 1.153
+    },
+    {
+      "text": "pencil",
+      "file": "13809668fb436386.wav",
+      "seconds": 1.067
+    },
+    {
+      "text": "possible",
+      "file": "c4773daf2e6a2e27.wav",
+      "seconds": 1.153
+    },
+    {
+      "text": "practice",
+      "file": "ada750e3f8464e9e.wav",
+      "seconds": 1.174
+    },
+    {
+      "text": "question",
+      "file": "1f5087db919ced5c.wav",
+      "seconds": 1.131
+    },
+    {
+      "text": "quiet",
+      "file": "008f0747f4e27c84.wav",
+      "seconds": 1.056
+    },
+    {
+      "text": "rabbit",
+      "file": "d37d96b42ad43384.wav",
+      "seconds": 1.067
+    },
+    {
+      "text": "red",
+      "file": "b1f51a511f1da0cd.wav",
+      "seconds": 0.961
+    },
+    {
+      "text": "remember",
+      "file": "35379d9c009e290d.wav",
+      "seconds": 1.077
+    },
+    {
+      "text": "restaurant",
+      "file": "ee275d64dafcd283.wav",
+      "seconds": 1.195
+    },
+    {
+      "text": "school",
+      "file": "d64debd942d7dc26.wav",
+      "seconds": 1.046
+    },
+    {
+      "text": "shoe",
+      "file": "efda1c925291a74c.wav",
+      "seconds": 0.928
+    },
+    {
+      "text": "sister",
+      "file": "1980d3927f07fec9.wav",
+      "seconds": 1.056
+    },
+    {
+      "text": "small",
+      "file": "81db8ebbbbc69c6c.wav",
+      "seconds": 1.003
+    },
+    {
+      "text": "sometimes",
+      "file": "28e5c066055aeb3d.wav",
+      "seconds": 1.217
+    },
+    {
+      "text": "strong",
+      "file": "eda15ce4834ac303.wav",
+      "seconds": 1.025
+    },
+    {
+      "text": "summer",
+      "file": "e83664255c6963e9.wav",
+      "seconds": 0.949
+    },
+    {
+      "text": "table",
+      "file": "0d4fc4a78d3706ed.wav",
+      "seconds": 1.025
+    },
+    {
+      "text": "teacher",
+      "file": "1057a9604e04b274.wav",
+      "seconds": 1.055
+    },
+    {
+      "text": "thirsty",
+      "file": "03f3ef306333f494.wav",
+      "seconds": 1.067
+    },
+    {
+      "text": "three",
+      "file": "8b5b9db0c13db242.wav",
+      "seconds": 1.025
+    },
+    {
+      "text": "together",
+      "file": "0c24734d7bf5954f.wav",
+      "seconds": 1.067
+    },
+    {
+      "text": "tomorrow",
+      "file": "bafd151a86f9a573.wav",
+      "seconds": 1.089
+    },
+    {
+      "text": "travel",
+      "file": "0209442e115ad7bc.wav",
+      "seconds": 1.046
+    },
+    {
+      "text": "tree",
+      "file": "dc9c5edb8b2d479e.wav",
+      "seconds": 1.003
+    },
+    {
+      "text": "umbrella",
+      "file": "2974744982f08b20.wav",
+      "seconds": 1.11
+    },
+    {
+      "text": "understand",
+      "file": "f9dc689e6d50ad6f.wav",
+      "seconds": 1.281
+    },
+    {
+      "text": "usually",
+      "file": "ceb1e2514a1f1b45.wav",
+      "seconds": 1.195
+    },
+    {
+      "text": "vegetable",
+      "file": "4715b734085d8d9c.wav",
+      "seconds": 1.163
+    },
+    {
+      "text": "weather",
+      "file": "e5e72beb4e3c6926.wav",
+      "seconds": 0.959
+    },
+    {
+      "text": "winter",
+      "file": "30c5461fc27b84f1.wav",
+      "seconds": 1.056
+    },
+    {
+      "text": "wonderful",
+      "file": "ee04228c5c6d8b08.wav",
+      "seconds": 1.195
+    },
+    {
+      "text": "yellow",
+      "file": "c685a2c9bab235cc.wav",
+      "seconds": 1.025
+    },
+    {
+      "text": "yesterday",
+      "file": "9523d9fbe79bcf3e.wav",
+      "seconds": 1.195
+    }
+  ]
+}

@@ -17,22 +17,21 @@ namespace LittleNotebook {
    ProfileFeatures.Normalize(Profile);Header(T("NOTEBOOK","دفتر الرسم"),paperDesignDraft!=null?T("Edit background paper","تعديل ورقة الخلفية"):T("My notebook","دفتري"),T("Draw, write and arrange your notes.","ارسم واكتب ورتّب ملاحظاتك."));
    if(notebookPageId!=CurrentNotebookPage.Id){notebookUndo.Clear();notebookRedo.Clear();}notebookPageId=CurrentNotebookPage.Id;
    notebookEditing=null;notebookTools.Clear();
-   string[] tools={"pencil","pen","brush","highlighter","eraser"};string[] names={T("Pencil","رصاص"),T("Pen","قلم"),T("Brush","فرشاة"),T("Highlight","تظليل"),T("Eraser","ممحاة")};
-   for(int i=0;i<tools.Length;i++){string tool=tools[i];var b=NotebookIconButton(tool,names[i],()=>ConfigureNotebookTool(tool),79,39);notebookTools[tool]=b;Put(body,b,58+i*84,126);}
+   string[] tools={"pencil","pen","brush","highlighter","fill","eraser"};string[] names={T("Pencil","رصاص"),T("Pen","قلم"),T("Brush","فرشاة"),T("Highlight","تظليل"),T("Fill","تعبئة"),T("Eraser","ممحاة")};
+   for(int i=0;i<tools.Length;i++){string tool=tools[i];var b=NotebookIconButton(tool,names[i],()=>ConfigureNotebookTool(tool),79,39);notebookTools[tool]=b;Put(body,b,138+i*83,126);}
    var select=NotebookIconButton("cursor",T("Select","تحديد"),()=>ConfigureNotebookTool("select"),44,39);notebookTools["select"]=select;Put(body,select,8,126);
-   Put(body,NotebookDropdown("selection",T("Area","منطقة"),"selection",94),484,126);
-   var text=Button(T("T  Text","T نص"),()=>ConfigureNotebookTool("text"),77,39);notebookTools["text"]=text;Put(body,text,584,126);
-   Put(body,NotebookDropdown("bullet",T("Bullets","تعداد"),"bullet",85),667,126);
-   Put(body,NotebookDropdown("shape",T("Shapes","أشكال"),"shapes",95),758,126);
-   Put(body,NotebookDropdown("stamp",T("Stamps","طوابع"),"stamps",95),859,126);
+   Put(body,NotebookDropdown("selection",T("Area","منطقة"),"selection",78),56,126);
+   var text=Button(T("T  Text","T نص"),()=>ConfigureNotebookTool("text"),65,39);notebookTools["text"]=text;Put(body,text,636,126);
+   Put(body,NotebookDropdown("bullet",T("Bullets","تعداد"),"bullet",73),705,126);
+   Put(body,NotebookDropdown("shape",T("Shapes","أشكال"),"shapes",84),782,126);
+   Put(body,NotebookDropdown("stamp",T("Stamps","طوابع"),"stamps",84),870,126);
    Color[] colors={Color.FromRgb(41,56,74),Color.FromRgb(119,161,112),Color.FromRgb(83,132,177),Color.FromRgb(184,108,105),Color.FromRgb(215,170,65),Color.FromRgb(150,122,179)};
    for(int i=0;i<colors.Length;i++){Color color=colors[i];var b=Button("",()=>{notebookColor=color;ConfigureNotebookTool(notebookTool);},27,29);b.Content=new Ellipse{Width=18,Height=18,Fill=B(color),Stroke=B(p.Ink),StrokeThickness=1};AutomationProperties.SetName(b,T("Drawing colour ","لون الرسم ")+(i+1));Put(body,b,9+i*31,179);}
    Put(body,NotebookIconButton("colors",T("Custom colour wheel","عجلة الألوان"),NotebookColorWheel,28,29),195,179);
    Label(body,T("Size","الحجم"),231,182,14,45);var size=PaperSlider(1,30,notebookSize,99);AutomationProperties.SetName(size,T("Drawing size","حجم الرسم"));size.ValueChanged+=(s,e)=>{notebookSize=size.Value;ConfigureNotebookTool(notebookTool);};Put(body,size,279,176);
    Btn(body,T("↶ Undo","↶ تراجع"),389,175,()=>NotebookHistory(false),86,37);Btn(body,T("Redo ↷","إعادة ↷"),482,175,()=>NotebookHistory(true),86,37);
    Put(body,NotebookIconButton("clear",T("Clear paper","مسح الصفحة"),ClearNotebookPage,137,37),576,175);
-   Btn(body,T("Tracing…","تتبّع…"),721,175,NotebookTemplates,122,37);
-   var fill=NotebookIconButton("fill",T("Fill","تعبئة"),()=>ConfigureNotebookTool("fill"),93,37);notebookTools["fill"]=fill;Put(body,fill,853,175);
+   Btn(body,T("Tracing…","تتبّع…"),721,175,NotebookTemplates,225,37);
    notebookTextTools=new Canvas{Width=310,Height=37};Put(body,notebookTextTools,8,223);
    notebookBoldButton=Button("B",ToggleNotebookBold,38,34);notebookBoldButton.FontWeight=FontWeights.Bold;notebookBoldButton.ToolTip=T("Bold text","نص عريض");Put(notebookTextTools,notebookBoldButton,0,0);
    Label(notebookTextTools,T("Text size","حجم النص"),49,6,13,80);notebookFontSlider=PaperSlider(10,72,notebookFontSize,123);AutomationProperties.SetName(notebookFontSlider,T("Text font size","حجم خط النص"));notebookFontSlider.ValueChanged+=(s,e)=>ChangeNotebookFontSize(notebookFontSlider.Value);Put(notebookTextTools,notebookFontSlider,133,-1);notebookFontLabel=Label(notebookTextTools,((int)notebookFontSize).ToString(),268,6,13,45,true);

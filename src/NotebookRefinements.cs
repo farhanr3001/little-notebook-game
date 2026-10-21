@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
+using System.Windows.Automation;
 using System.Windows.Controls;
 using System.Windows.Ink;
 using System.Windows.Input;
@@ -47,9 +48,15 @@ namespace LittleNotebook {
     var wheel=new HueWheel();wheel.SetColor(pending);Put(c,wheel,105,110);var swatch=new Border{Width=175,Height=86,CornerRadius=new CornerRadius(10),BorderBrush=B(p.Ink),BorderThickness=new Thickness(1.3),Background=B(pending)};Put(c,swatch,415,119);
     Label(c,T("Hex colour","رمز اللون"),416,224,17,230);var hex=new TextBox{Text="#"+pending.R.ToString("X2")+pending.G.ToString("X2")+pending.B.ToString("X2"),Width=190,Height=42,FontFamily=new FontFamily("Segoe Print"),FontSize=20,Background=B(p.Paper),Foreground=B(p.Ink),BorderBrush=B(p.Ink),Padding=new Thickness(7,3,7,3)};Put(c,hex,415,259);
     Label(c,T("Brightness","السطوع"),99,354,17,200);var brightness=PaperSlider(0,1,wheel.Value,464);Put(c,brightness,228,348);bool syncing=false;Action refresh=()=>{pending=wheel.Selected;swatch.Background=B(pending);syncing=true;hex.Text="#"+pending.R.ToString("X2")+pending.G.ToString("X2")+pending.B.ToString("X2");syncing=false;};wheel.Changed+=color=>refresh();brightness.ValueChanged+=(s,e)=>{wheel.Value=brightness.Value;refresh();};hex.TextChanged+=(s,e)=>{if(syncing||hex.Text.Length!=7)return;try{pending=(Color)ColorConverter.ConvertFromString(hex.Text);wheel.SetColor(pending);swatch.Background=B(pending);syncing=true;brightness.Value=wheel.Value;syncing=false;}catch{}};
-    Label(c,T("Recent colours","الألوان الأخيرة"),100,403,18,590);for(int i=0;i<Profile.Settings.RecentColors.Count&&i<12;i++){string value=Profile.Settings.RecentColors[i];var button=Button("",()=>{try{wheel.SetColor((Color)ColorConverter.ConvertFromString(value));brightness.Value=wheel.Value;refresh();}catch{}},37,34);button.Background=(Brush)new BrushConverter().ConvertFromString(value);button.ToolTip=value;Put(c,button,100+i*46,447);}
-    Btn(c,T("Cancel","إلغاء"),104,528,CloseModal,265,49);Btn(c,T("Use colour","استخدام اللون"),399,528,()=>{string value=pending.ToString();Profile.Settings.RecentColors.Remove(value);Profile.Settings.RecentColors.Insert(0,value);Profile.Settings.RecentColors=Profile.Settings.RecentColors.Take(12).ToList();Save();confirm(pending);},293,49,true);
-   },628);
+    Action<Color> pick=color=>{wheel.SetColor(color);brightness.Value=wheel.Value;refresh();};
+    Label(c,T("More colours","ألوان إضافية"),100,402,18,590);
+    Color[] presets={Colors.White,Colors.Black,Color.FromRgb(145,145,145),Color.FromRgb(246,192,153),Color.FromRgb(242,133,57),Color.FromRgb(244,133,128),Color.FromRgb(244,168,203),Color.FromRgb(198,77,147),Color.FromRgb(199,179,230),Color.FromRgb(57,183,186),Color.FromRgb(170,221,196),Color.FromRgb(139,94,60)};
+    string[] presetNames={T("White","أبيض"),T("Black","أسود"),T("Grey","رمادي"),T("Peach","خوخي"),T("Orange","برتقالي"),T("Coral","مرجاني"),T("Pink","وردي"),T("Magenta","أرجواني"),T("Lilac","ليلكي"),T("Turquoise","فيروزي"),T("Mint","نعناعي"),T("Brown","بني")};
+    for(int i=0;i<presets.Length;i++){Color color=presets[i];var button=Button("",()=>pick(color),37,34);button.Background=B(color);button.ToolTip=presetNames[i];AutomationProperties.SetName(button,T("Preset colour: ","لون جاهز: ")+presetNames[i]);Put(c,button,100+i*46,443);}
+    Label(c,T("Recent colours","الألوان الأخيرة"),100,495,18,590);for(int i=0;i<Profile.Settings.RecentColors.Count&&i<12;i++){string value=Profile.Settings.RecentColors[i];var button=Button("",()=>{try{pick((Color)ColorConverter.ConvertFromString(value));}catch{}},37,34);button.Background=(Brush)new BrushConverter().ConvertFromString(value);button.ToolTip=value;AutomationProperties.SetName(button,T("Recent colour: ","لون أخير: ")+value);Put(c,button,100+i*46,535);}
+    if(Profile.Settings.RecentColors.Count==0)Label(c,T("Colours you use will appear here.","ستظهر الألوان التي تستخدمها هنا."),105,539,14,550);
+    Btn(c,T("Cancel","إلغاء"),104,608,CloseModal,265,49);Btn(c,T("Use colour","استخدام اللون"),399,608,()=>{string value=pending.ToString();Profile.Settings.RecentColors.Remove(value);Profile.Settings.RecentColors.Insert(0,value);Profile.Settings.RecentColors=Profile.Settings.RecentColors.Take(12).ToList();Save();confirm(pending);},293,49,true);
+   },708);
   }
  }
 }

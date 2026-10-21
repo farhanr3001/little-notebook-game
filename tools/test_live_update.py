@@ -22,9 +22,9 @@ try:
  data=app/'user-data-test'
  profile=json.loads((root/'test-output/revision-profile.json').read_text(encoding='utf-8-sig'))
  profile.update(Name='Update preservation fixture',Coins=777)
- profile['Settings'].update(Language='en',Music=False,Sound=False,AutoReadQuestions=False)
+ profile['Settings'].update(Language='en',Music=False,Sound=False,AutoReadQuestions=False,Volume=0,CustomMusic=['data/music/preserve.wav'],MusicTitles={'data/music/preserve.wav':'My preserved music name'})
  (data/'profile.json').write_text(json.dumps(profile,ensure_ascii=False),encoding='utf-8')
- (data/'music').mkdir(exist_ok=True);(data/'music/preserve.bin').write_bytes(b'preserve imported music')
+ (data/'music').mkdir(exist_ok=True);shutil.copy2(app/'assets/click.wav',data/'music/preserve.wav');(data/'music/preserve.bin').write_bytes(b'preserve imported music')
  music_hash=sha(data/'music/preserve.bin')
  shutil.copy2(root/'test-output/update-baseline/LittleNotebook.exe',app/'LittleNotebook.exe')
  old=json.loads((app/'payload-manifest.json').read_text(encoding='utf-8'))
@@ -40,6 +40,8 @@ try:
  saved=json.loads((data/'profile.json').read_text(encoding='utf-8-sig'))
  for key in ['Name','Character','Coins','Pet','PetColor','Owned','Attempts','Sessions','Notebook']:
   assert saved[key]==profile[key],f'Saved state changed during update: {key}'
+ assert saved['Settings']['MusicTitles']==profile['Settings']['MusicTitles'],'Music names changed'
+ assert saved['Settings']['CustomMusic']==profile['Settings']['CustomMusic'],'Music library changed'
  assert sha(data/'music/preserve.bin')==music_hash,'Imported music changed'
  downloaded=[p.name for p in (data/'updates').rglob('*.zip')]
  assert downloaded==['app.zip'],f'Unchanged components downloaded: {downloaded}'

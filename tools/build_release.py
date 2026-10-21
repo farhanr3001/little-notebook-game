@@ -7,7 +7,8 @@ root=Path(__file__).resolve().parent.parent
 parser=argparse.ArgumentParser();parser.add_argument('--source',default='Little Notebook v0.4.0');parser.add_argument('--version',default='0.4.0');args=parser.parse_args()
 source=root/args.source;release=root/'releases';payload=release/'payload';packs=release/'update-packs'
 payload.mkdir(parents=True,exist_ok=True);packs.mkdir(parents=True,exist_ok=True)
-docs=['README.md','PLAN.md','ASSETS.md','TESTING.md','CONTENT.md','STRESS_REPORT.md','UPDATES.md']
+docs=['README.md','ASSETS.md']
+previous=json.loads((payload/'payload-manifest.json').read_text(encoding='utf-8')) if (payload/'payload-manifest.json').exists() else {'files':[]}
 for name in docs:shutil.copy2(root/name,source/name)
 shutil.copy2(root/'tools/radio-palette-prompts.json',source/'radio-palette-prompts.json')
 allowed={'assets','content','speech-runtime'}
@@ -22,6 +23,8 @@ def component(relative):
  p=relative.parts
  if p[0]=='assets':return 'music' if relative.suffix=='.mp3' else 'listening' if len(p)>1 and p[1]=='speech' else 'art'
  if p[0]=='speech-runtime':
+  if len(p)>1 and p[1]=='media':return 'media-tools'
+  if p[-1]=='media_worker.py':return 'app'
   if len(p)>1 and p[1]=='models':return 'voice-'+re.sub('[^a-zA-Z0-9-]','-',p[2])
   if len(p)>2 and p[1]=='Lib':return 'runtime-'+re.sub('[^a-zA-Z0-9-]','-',p[2])
   return 'app' if p[-1]=='worker.py' else 'python-core'
@@ -31,6 +34,12 @@ for path in sorted(files):
  relative=path.relative_to(source);dest=payload/relative;dest.parent.mkdir(parents=True,exist_ok=True)
  if not dest.exists() or digest(dest)!=digest(path):shutil.copy2(path,dest)
  pack=component(relative)+'.zip';groups.setdefault(pack,[]).append((path,relative.as_posix()));records.append(dict(path=relative.as_posix(),sha256=digest(path),size=path.stat().st_size,pack=pack))
+current={record['path'] for record in records}
+for old in previous['files']:
+ if old['path'] not in current:
+  obsolete=(payload/old['path']).resolve()
+  assert obsolete.is_relative_to(payload.resolve())
+  if obsolete.is_file():obsolete.unlink()
 base=f'https://github.com/farhanr3001/little-notebook-game/releases/download/v{args.version}/'
 packages=[]
 for name,items in groups.items():

@@ -18,13 +18,15 @@ jobs:
           "LN_VERSION=$($versionMatch.Groups[1].Value)" | Out-File -FilePath $env:GITHUB_ENV -Append
       - name: Prepare offline voices
         run: python tools/prepare_speech_runtime.py
+      - name: Prepare private music importer
+        run: python tools/prepare_media_runtime.py
       - name: Build
         shell: pwsh
         run: ./build.ps1 -OutputDirectory 'release-build'
       - name: Focused verification
         shell: pwsh
         run: |
-          foreach ($mode in @('--revision-test','--health-test')) {
+          foreach ($mode in @('--revision-test','--health-test','--media-test')) {
             $run = Start-Process '.\release-build\LittleNotebook.exe' -ArgumentList $mode -Wait -PassThru
             if ($run.ExitCode -ne 0) { throw "Failed $mode" }
           }
@@ -47,4 +49,4 @@ jobs:
         shell: pwsh
         run: |
           $releaseAssets = @("releases/LittleNotebook-Setup-$env:LN_VERSION.exe",'releases/update-manifest.json') + @(Get-ChildItem -LiteralPath releases/update-packs -Filter '*.zip' | ForEach-Object FullName)
-          gh release create "v$env:LN_VERSION" @releaseAssets --title "Little Notebook $env:LN_VERSION" --notes-file RELEASE_NOTES.md
+          gh release create "v$env:LN_VERSION" @releaseAssets --title "Little Notebook $env:LN_VERSION" --generate-notes

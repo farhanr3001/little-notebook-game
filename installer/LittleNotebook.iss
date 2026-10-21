@@ -42,7 +42,7 @@ Name: arabic; MessagesFile: "compiler:Languages\Arabic.isl"
 [Files]
 Source: "..\tools\install-build\prerequisites\dotnet48.exe"; Flags: dontcopy
 Source: "..\tools\install-build\prerequisites\vc_redist.x64.exe"; Flags: dontcopy
-Source: "{#PayloadDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs; Excludes: "data\*,__pycache__\*,*.pyc,installed.ini"
+Source: "{#PayloadDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs; Excludes: "__pycache__\*,*.pyc,installed.ini"
 [Icons]
 Name: "{userprograms}\Little Notebook"; Filename: "{app}\LittleNotebook.exe"; WorkingDir: "{app}"; AppUserModelID: "Farhan.LittleNotebook"; Check: NotTestInstall
 Name: "{userdesktop}\Little Notebook"; Filename: "{app}\LittleNotebook.exe"; WorkingDir: "{app}"; AppUserModelID: "Farhan.LittleNotebook"; Tasks: desktopicon; Check: NotTestInstall

@@ -37,7 +37,7 @@ namespace LittleNotebook {
    Tracks.Add(new MusicTrack{Title="Beach Resort",Artist="Purrple Cat",File="beach-resort.mp3"});
    Tracks.Add(new MusicTrack{Title="Road Trip",Artist="Purrple Cat",File="road-trip.mp3"});
    Tracks.Add(new MusicTrack{Title="Look on the Bright Side",Artist="Purrple Cat",File="look-on-the-bright-side.mp3"});
-   foreach(string path in settings.CustomMusic.Where(x=>File.Exists(Resolve(x))))Tracks.Add(new MusicTrack{Title=Path.GetFileNameWithoutExtension(path),Artist="",File=path,Custom=true});
+   foreach(string path in settings.CustomMusic.Where(x=>File.Exists(Resolve(x))))Tracks.Add(new MusicTrack{Title=settings.MusicTitles.ContainsKey(path)?settings.MusicTitles[path]:Path.GetFileNameWithoutExtension(path),Artist="",File=path,Custom=true});
    AllTracks=Tracks.ToList();Tracks.RemoveAll(x=>settings.DisabledMusic.Contains(x.File));settings.Track=Tracks.Count==0?0:settings.Track%Tracks.Count;
    playlist=new ShufflePlaylist(Tracks.Count,settings.Track);
    music.MediaEnded+=(a,b)=>Track(1);
@@ -56,7 +56,8 @@ namespace LittleNotebook {
   public void Toggle(){if(disposed||Tracks.Count==0)return;settings.Music=!settings.Music;if(settings.Music)music.Play();else music.Pause();ApplyVolume();}
   public void Select(int index){if(disposed||Tracks.Count==0)return;playlist.Select(Math.Max(0,index)%Tracks.Count);settings.Track=playlist.Current;settings.Music=true;LoadTrack();if(TrackChanged!=null)TrackChanged();}
   public void Track(int delta){if(disposed||Tracks.Count==0)return;settings.Track=delta<0?playlist.Previous():playlist.Next();LoadTrack();if(TrackChanged!=null)TrackChanged();}
-  public void AddTrack(string path){settings.CustomMusic.Add(path);var track=new MusicTrack{Title=Path.GetFileNameWithoutExtension(path),Artist="",File=path,Custom=true};AllTracks.Add(track);Tracks.Add(track);playlist=new ShufflePlaylist(Tracks.Count,settings.Track);}
+  public void AddTrack(string path){settings.CustomMusic.Add(path);var track=new MusicTrack{Title=settings.MusicTitles.ContainsKey(path)?settings.MusicTitles[path]:Path.GetFileNameWithoutExtension(path),Artist="",File=path,Custom=true};AllTracks.Add(track);Tracks.Add(track);playlist=new ShufflePlaylist(Tracks.Count,settings.Track);}
+  public void RenameTrack(string file,string title){title=(title??"").Trim().Replace("\r"," ").Replace("\n"," ");if(title.Length==0)return;if(title.Length>120)title=title.Substring(0,120);var track=AllTracks.FirstOrDefault(t=>t.File==file&&t.Custom);if(track==null)return;settings.MusicTitles[file]=title;track.Title=title;}
   public void SetTrackEnabled(string file,bool enabled){string current=Tracks.Count==0?null:Tracks[settings.Track].File;if(enabled)settings.DisabledMusic.Remove(file);else if(!settings.DisabledMusic.Contains(file))settings.DisabledMusic.Add(file);Tracks=AllTracks.Where(x=>!settings.DisabledMusic.Contains(x.File)).ToList();settings.Track=Math.Max(0,Tracks.FindIndex(x=>x.File==current));playlist=new ShufflePlaylist(Tracks.Count,settings.Track);LoadTrack();if(TrackChanged!=null)TrackChanged();}
   public void Fx(string type){if(disposed||!settings.Sound)return;effect.Open(new Uri(Resolve(type+".wav")));effect.Volume=type=="click"?.18:.32;effect.Play();}
   public void Typing(){if(disposed||!settings.Sound||(DateTime.UtcNow-lastTyping).TotalMilliseconds<75)return;lastTyping=DateTime.UtcNow;effect.Open(new Uri(Resolve("typing.wav")));effect.Volume=.095;effect.Play();}

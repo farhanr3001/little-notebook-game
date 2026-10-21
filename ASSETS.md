@@ -61,3 +61,7 @@ Use case: illustration-story. Asset type: transparent full-body pet sprite atlas
 - Installer built with Inno Setup 6.7.3 from the official signed Pyrsys B.V. compiler distribution, https://jrsoftware.org/isdl.php . Compiler tools are not redistributed with the game.
 
 Installer prerequisites: original Microsoft-signed .NET Framework 4.8 offline installer and Visual C++ x64 Redistributable, fetched from official Microsoft download links. Their Microsoft license terms apply. Shared system prerequisites are retained on game uninstall; privately bundled game files and saves are removed.
+
+## Music link imports
+
+The private importer bundles yt-dlp 2026.10.21 and its default dependencies/EJS, Deno 2.9.8, and the original FFmpeg essentials Windows build. Upstream URLs, binary hashes and bundled licenses are included under speech-runtime/media. yt-dlp: Unlicense (https://github.com/yt-dlp/yt-dlp); EJS: https://github.com/yt-dlp/ejs; Deno: MIT (https://github.com/denoland/deno); FFmpeg Windows build: GPLv3 (https://www.gyan.dev/ffmpeg/builds/), with source and build configuration linked there. TikTok sound resolution adapts the user-provided Kinetic Cut reference and contacts ssstik.io; TikTok video fallback uses tikwm.com. No browser cookies or accounts are imported. Download/conversion tools are owned child processes and terminate on cancellation/close.

@@ -29,6 +29,9 @@ try:
  install_log=(area/'install.log').read_text(encoding='utf-8-sig')
  check('Prerequisite OK: .NET Framework 4.8 or newer' in install_log,'Installed .NET not detected')
  check('Prerequisite OK: Microsoft Visual C++ x64' in install_log,'Installed Visual C++ not detected')
+ installed_manifest=json.loads((app/'payload-manifest.json').read_text(encoding='utf-8'))
+ bad_payload=[f['path'] for f in installed_manifest['files'] if not (app/f['path']).is_file() or sha(app/f['path'])!=f['sha256']]
+ check(not bad_payload,'Installed payload mismatch: '+str(bad_payload[:3]))
  data=app/'user-data-test';check((app/'installed.ini').exists() and data.is_dir(),'Installer marker/data root missing')
  profile=data/'profile.json';profile.write_text('{"Version":1,"Name":"Preserve this fixture","Coins":1234,"drawing":"keep"}',encoding='utf-8')
  (data/'music').mkdir(exist_ok=True);(data/'music/imported.wav').write_bytes(b'user music fixture')

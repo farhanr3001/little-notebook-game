@@ -15,7 +15,7 @@ def api(url,body=None,method=None,content_type='application/json'):
 try:release=api(base+f'/releases/tags/v{version}')
 except urllib.error.HTTPError as error:
  if error.code!=404:raise
- release=api(base+'/releases',dict(tag_name='v'+version,name='Little Notebook '+version,draft=True,body=(root/'RELEASE_NOTES.md').read_text(encoding='utf-8')))
+ release=api(base+'/releases',dict(tag_name='v'+version,name='Little Notebook '+version,draft=True,body=(root/'RELEASE_NOTES.md').read_text(encoding='utf-8') if (root/'RELEASE_NOTES.md').exists() else 'Little Notebook '+version+'. Download the setup installer below.'))
 files=[root/f'releases/LittleNotebook-Setup-{version}.exe',root/'releases/update-manifest.json']+sorted((root/'releases/update-packs').glob('*.zip'))
 existing={asset['name'] for asset in release['assets']}
 for path in files:

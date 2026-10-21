@@ -32,6 +32,7 @@ Copy-Item -LiteralPath (Join-Path $root 'app.config') -Destination (Join-Path $o
 $speechRuntime = Join-Path $root 'tools\speech-runtime'
 if (Test-Path -LiteralPath $speechRuntime) {
  Copy-Item -LiteralPath $speechRuntime -Destination $outDir -Recurse -Force
+ if (Test-Path -LiteralPath (Join-Path $root 'tools/media_worker.py')) { Copy-Item -LiteralPath (Join-Path $root 'tools/media_worker.py') -Destination (Join-Path $outDir 'speech-runtime/media_worker.py') -Force }
  Copy-Item -LiteralPath (Join-Path $root 'tools\speech_worker.py') -Destination (Join-Path $outDir 'speech-runtime\worker.py') -Force
 }
 Write-Output ('Built ' + (Join-Path $outDir 'LittleNotebook.exe'))

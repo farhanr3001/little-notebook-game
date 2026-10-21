@@ -37,3 +37,11 @@ tools/install-build/
 
 RELEASE_WORK.md
 release-build/
+
+# Local development notes and verification reports
+PLAN.md
+CONTENT.md
+STRESS_REPORT.md
+TESTING.md
+UPDATES.md
+RELEASE_NOTES.md

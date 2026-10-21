@@ -18,6 +18,7 @@ namespace LittleNotebook {
   public List<string> DisabledMusic=new List<string>(),RecentColors=new List<string>();
   public PaperDesign Paper=new PaperDesign();
   public List<string> CustomMusic = new List<string>();
+  public Dictionary<string,string> MusicTitles=new Dictionary<string,string>();
   public Dictionary<string,string> QuestionCategories=new Dictionary<string,string>();
   public int Track = 0, Difficulty = 0, RoundLength = 10;
  }
@@ -70,6 +71,7 @@ namespace LittleNotebook {
    v.Settings.ButtonScale = Math.Max(.75,Math.Min(1,v.Settings.ButtonScale));
    v.Settings.Track = Math.Max(0,v.Settings.Track);
    if(v.Settings.CustomMusic==null)v.Settings.CustomMusic=new List<string>();
+   if(v.Settings.MusicTitles==null)v.Settings.MusicTitles=new Dictionary<string,string>();
    if(v.Settings.QuestionCategories==null)v.Settings.QuestionCategories=new Dictionary<string,string>();
    if(v.Settings.DisabledMusic==null)v.Settings.DisabledMusic=new List<string>();if(v.Settings.RecentColors==null)v.Settings.RecentColors=new List<string>();if(v.Settings.Paper==null)v.Settings.Paper=new PaperDesign();
    ProfileFeatures.Normalize(v);

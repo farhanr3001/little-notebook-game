@@ -23,17 +23,18 @@ namespace LittleNotebook {
     bool stress=Array.IndexOf(args,"--stress")>=0;
     bool narration=Array.IndexOf(args,"--narration-test")>=0;
     bool update=Array.IndexOf(args,"--update-test")>=0;
-    bool health=Array.IndexOf(args,"--health-test")>=0;bool delivery=Array.IndexOf(args,"--delivery-test")>=0;bool liveUpdate=Array.IndexOf(args,"--live-update-test")>=0;
+    bool health=Array.IndexOf(args,"--health-test")>=0;bool delivery=Array.IndexOf(args,"--delivery-test")>=0;bool liveUpdate=Array.IndexOf(args,"--live-update-test")>=0;bool mediaLive=Array.IndexOf(args,"--media-live-test")>=0;bool media=Array.IndexOf(args,"--media-test")>=0||mediaLive;
     bool notebook=Array.IndexOf(args,"--notebook-test")>=0;bool revision=Array.IndexOf(args,"--revision-test")>=0;
     bool notebookReview=Array.IndexOf(args,"--notebook-review")>=0;
-    var window=new MainWindow(delivery||health||revision||notebookReview||notebook||update||narration||stress||smoke||Array.IndexOf(args,"--review")>=0,revision?"revision-profile.json":notebookReview?"notebook-preview-profile.json":notebook?"notebook-profile.json":update?"update-profile.json":narration?"narration-profile.json":stress?"stress-profile.json":smoke?"smoke-profile.json":"ui-profile.json");
+    var window=new MainWindow(media||delivery||health||revision||notebookReview||notebook||update||narration||stress||smoke||Array.IndexOf(args,"--review")>=0,revision?"revision-profile.json":notebookReview?"notebook-preview-profile.json":notebook?"notebook-profile.json":update?"update-profile.json":narration?"narration-profile.json":stress?"stress-profile.json":smoke?"smoke-profile.json":"ui-profile.json");
     if(notebook||revision||health||delivery||liveUpdate)window.ShowActivated=false;
-    if(delivery||liveUpdate)window.WindowState=WindowState.Minimized;
+    if(delivery||liveUpdate||media)window.WindowState=WindowState.Minimized;
     if(stress||narration){window.ShowActivated=false;window.WindowState=WindowState.Minimized;}
     if(smoke)window.Loaded+=(s,e)=>window.Dispatcher.BeginInvoke(new Action(()=>window.RunSmoke()),DispatcherPriority.ApplicationIdle);
     if(stress)window.Loaded+=(s,e)=>window.Dispatcher.BeginInvoke(new Action(()=>window.RunStress()),DispatcherPriority.ApplicationIdle);
     if(narration)window.Loaded+=(s,e)=>window.Dispatcher.BeginInvoke(new Action(()=>window.RunNarrationTests()),DispatcherPriority.ApplicationIdle);
     if(update)window.Loaded+=(s,e)=>window.Dispatcher.BeginInvoke(new Action(()=>window.RunUpdateTests()),DispatcherPriority.ApplicationIdle);
+    if(media)window.Loaded+=(s,e)=>window.Dispatcher.BeginInvoke(new Action(()=>window.RunMediaChecks(mediaLive)),DispatcherPriority.ApplicationIdle);
     if(delivery)window.Loaded+=(s,e)=>window.Dispatcher.BeginInvoke(new Action(()=>window.RunDeliveryChecks()),DispatcherPriority.ApplicationIdle);
     if(liveUpdate)window.Loaded+=(s,e)=>window.Dispatcher.BeginInvoke(new Action(()=>window.RunLiveUpdateChecks()),DispatcherPriority.ApplicationIdle);
     if(health)window.Loaded+=(s,e)=>window.Dispatcher.BeginInvoke(new Action(()=>window.RunHealthChecks()),DispatcherPriority.ApplicationIdle);

@@ -44,9 +44,14 @@ base=f'https://github.com/farhanr3001/little-notebook-game/releases/download/v{a
 packages=[]
 for name,items in groups.items():
  target=packs/name
- with ZipFile(target,'w',ZIP_DEFLATED,compresslevel=3) as z:
-  for path,relative in items:z.write(path,relative)
- with ZipFile(target) as z:assert z.testzip() is None
+ prior=next((p for p in previous.get('packs',[]) if p['name']==name),None)
+ old_files=[(f['path'],f['sha256'],f['size']) for f in previous['files'] if f['pack']==name]
+ new_files=[(f['path'],f['sha256'],f['size']) for f in records if f['pack']==name]
+ reuse=prior and old_files==new_files and target.exists() and digest(target)==prior['sha256']
+ if not reuse:
+  with ZipFile(target,'w',ZIP_DEFLATED,compresslevel=3) as z:
+   for path,relative in items:z.write(path,relative)
+  with ZipFile(target) as z:assert z.testzip() is None
  packages.append(dict(name=name,url=base+name,sha256=digest(target),size=target.stat().st_size))
 manifest=dict(version=args.version,repository='farhanr3001/little-notebook-game',notes='Improved notebook tools, tracing import, study/mistake review, paper customization, music controls, category selection and native updates. Your saved progress is kept.',files=records,packs=packages)
 for dest in [payload/'payload-manifest.json',release/'update-manifest.json']:dest.write_text(json.dumps(manifest,ensure_ascii=False,indent=2),encoding='utf-8')

@@ -4,7 +4,7 @@ from zipfile import ZipFile, ZIP_DEFLATED
 import argparse, hashlib, json, shutil, re
 
 root=Path(__file__).resolve().parent.parent
-parser=argparse.ArgumentParser();parser.add_argument('--source',default='Little Notebook v0.4.0');parser.add_argument('--version',default='0.4.0');args=parser.parse_args()
+parser=argparse.ArgumentParser();parser.add_argument('--source',default='Little Notebook v0.4.0');parser.add_argument('--version',default='0.4.1');args=parser.parse_args()
 source=root/args.source;release=root/'releases';payload=release/'payload';packs=release/'update-packs'
 payload.mkdir(parents=True,exist_ok=True);packs.mkdir(parents=True,exist_ok=True)
 docs=['README.md','ASSETS.md']

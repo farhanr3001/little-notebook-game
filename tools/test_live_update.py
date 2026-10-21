@@ -28,7 +28,7 @@ try:
  music_hash=sha(data/'music/preserve.bin')
  shutil.copy2(root/'test-output/update-baseline/LittleNotebook.exe',app/'LittleNotebook.exe')
  old=json.loads((app/'payload-manifest.json').read_text(encoding='utf-8'))
- old['version']='0.3.99';old['files'].append(dict(path='assets/obsolete.txt',size=8,sha256='0'*64,pack='art.zip'))
+ old['version']='0.4.0';old['files'].append(dict(path='assets/obsolete.txt',size=8,sha256='0'*64,pack='art.zip'))
  (app/'payload-manifest.json').write_text(json.dumps(old),encoding='utf-8');(app/'assets/obsolete.txt').write_text('obsolete')
  unchanged=app/'assets/paper.png';unchanged_hash=sha(unchanged);unchanged_time=unchanged.stat().st_mtime_ns
  run([app/'LittleNotebook.exe','--live-update-test'])

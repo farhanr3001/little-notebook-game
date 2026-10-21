@@ -12,7 +12,7 @@ $sources = Get-ChildItem -LiteralPath (Join-Path $root 'src') -Filter '*.cs' | F
 if ($TestVersion) {
  $parsedVersion = [version]$TestVersion
  $testInfoPath = Join-Path $root 'test-output/AppInfo-test.cs'
- $testInfo = [IO.File]::ReadAllText((Join-Path $root 'src/AppInfo.cs')).Replace('Version="0.4.0"',('Version="'+$parsedVersion.ToString()+'"'))
+ $testInfo = [regex]::Replace([IO.File]::ReadAllText((Join-Path $root 'src/AppInfo.cs')),'Version="[0-9.]+"',('Version="'+$parsedVersion.ToString()+'"'))
  [IO.File]::WriteAllText($testInfoPath,$testInfo)
  $sources = @($sources | Where-Object { [IO.Path]::GetFileName($_) -ne 'AppInfo.cs' }) + $testInfoPath
 }

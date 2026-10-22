@@ -26,6 +26,9 @@ namespace LittleNotebook {
  }
  public class AudioSystem : IDisposable {
   readonly MediaPlayer[] miniPlayers=Enumerable.Range(0,4).Select(i=>new MediaPlayer()).ToArray();int miniVoice;
+  readonly MediaPlayer[] miniNotes=Enumerable.Range(0,16).Select(i=>new MediaPlayer()).ToArray();readonly MediaPlayer miniReplay=new MediaPlayer();
+  readonly HashSet<MediaPlayer> miniRunning=new HashSet<MediaPlayer>();readonly int[] miniNoteVoice=new int[8];bool miniReady,miniPaused,miniFocus,miniSong;
+  public bool MiniPaused{get{return miniPaused;}}
   MediaPlayer music=new MediaPlayer(),effect=new MediaPlayer();SpeechSynthesizer speech;Settings settings;
   readonly Dispatcher owner=Dispatcher.CurrentDispatcher;Prompt activePrompt;bool disposed,systemVoiceAvailable;readonly MediaPlayer neuralPlayer=new MediaPlayer();MediaPlayer narration;string clipWord;
   readonly NeuralSpeechService questionVoice=new NeuralSpeechService();CancellationTokenSource questionRequest;Queue<string> questionClips=new Queue<string>();public string SpeechError="";public bool IsSpeaking{get{return speaking;}}public bool IsPreparingQuestion{get{return questionRequest!=null;}}public bool QuestionVoiceAvailable(string language){return !disposed&&questionVoice.Available(language);}
@@ -35,6 +38,7 @@ namespace LittleNotebook {
   public string CurrentTitle {get{return Tracks.Count==0?"No music selected":Tracks[settings.Track%Tracks.Count].Title;}}
   public AudioSystem(Settings s){
    settings=s;
+   foreach(var voice in miniPlayers.Concat(miniNotes).Concat(new[]{miniReplay})){var player=voice;player.MediaEnded+=(sender,e)=>{miniRunning.Remove(player);if(player==miniReplay){miniSong=false;ApplyVolume();}};player.MediaFailed+=(sender,e)=>{miniRunning.Remove(player);if(player==miniReplay){miniSong=false;ApplyVolume();}};}
    Tracks.Add(new MusicTrack{Title="Beach Resort",Artist="Purrple Cat",File="beach-resort.mp3"});
    Tracks.Add(new MusicTrack{Title="Road Trip",Artist="Purrple Cat",File="road-trip.mp3"});
    Tracks.Add(new MusicTrack{Title="Look on the Bright Side",Artist="Purrple Cat",File="look-on-the-bright-side.mp3"});
@@ -52,7 +56,7 @@ namespace LittleNotebook {
   public static string Resolve(string file){return Path.IsPathRooted(file)?file:(file.StartsWith("data/",StringComparison.OrdinalIgnoreCase)||file.StartsWith("data\\",StringComparison.OrdinalIgnoreCase))?Path.Combine(AppPaths.DataDirectory,file.Substring(5)):Path.Combine(AppDomain.CurrentDomain.BaseDirectory,"assets",file);}
   void OnOwner(Action action){if(disposed||owner.HasShutdownStarted)return;if(owner.CheckAccess()){if(!disposed)action();}else try{owner.BeginInvoke(new Action(()=>{if(!disposed)action();}));}catch(InvalidOperationException){}}
   void SpeechCompleted(object sender,SpeakCompletedEventArgs e){OnOwner(()=>{if(activePrompt!=e.Prompt)return;activePrompt=null;speaking=false;ApplyVolume();});}
-  public void ApplyVolume(){if(disposed)return;if(!owner.CheckAccess()){OnOwner(ApplyVolume);return;}music.Volume=settings.Music?settings.Volume*(speaking?.22:.70):0;}
+  public void ApplyVolume(){if(disposed)return;if(!owner.CheckAccess()){OnOwner(ApplyVolume);return;}music.Volume=settings.Music?settings.Volume*(speaking||miniSong?.12:miniFocus?.24:.70):0;}
   public void LoadTrack(){if(disposed||Tracks.Count==0){settings.Music=false;music.Pause();return;}music.Open(new Uri(Resolve(Tracks[settings.Track%Tracks.Count].File)));ApplyVolume();if(settings.Music)music.Play();}
   public void Toggle(){if(disposed||Tracks.Count==0)return;settings.Music=!settings.Music;if(settings.Music)music.Play();else music.Pause();ApplyVolume();}
   public void Select(int index){if(disposed||Tracks.Count==0)return;playlist.Select(Math.Max(0,index)%Tracks.Count);settings.Track=playlist.Current;settings.Music=true;LoadTrack();if(TrackChanged!=null)TrackChanged();}
@@ -61,10 +65,15 @@ namespace LittleNotebook {
   public void RenameTrack(string file,string title){title=(title??"").Trim().Replace("\r"," ").Replace("\n"," ");if(title.Length==0)return;if(title.Length>120)title=title.Substring(0,120);var track=AllTracks.FirstOrDefault(t=>t.File==file&&t.Custom);if(track==null)return;settings.MusicTitles[file]=title;track.Title=title;}
   public void SetTrackEnabled(string file,bool enabled){string current=Tracks.Count==0?null:Tracks[settings.Track].File;if(enabled)settings.DisabledMusic.Remove(file);else if(!settings.DisabledMusic.Contains(file))settings.DisabledMusic.Add(file);Tracks=AllTracks.Where(x=>!settings.DisabledMusic.Contains(x.File)).ToList();settings.Track=Math.Max(0,Tracks.FindIndex(x=>x.File==current));playlist=new ShufflePlaylist(Tracks.Count,settings.Track);LoadTrack();if(TrackChanged!=null)TrackChanged();}
   public void Fx(string type){if(disposed||!settings.Sound)return;effect.Open(new Uri(Resolve(type+".wav")));effect.Volume=type=="click"?.18:.32;effect.Play();}
-  void MiniClip(string name,double volume){if(disposed||!settings.Sound||Diagnostics.Testing)return;string file=Resolve("minigames/"+name+".wav");if(!File.Exists(file))return;var player=miniPlayers[miniVoice++%miniPlayers.Length];player.Open(new Uri(file));player.Volume=volume;player.Play();}
-  public void MiniNote(int note){MiniClip(note<0?"low":"note-"+(note%8),.25);}
+  public void PrepareMiniSounds(bool focus=false){if(disposed)return;miniFocus=focus;ApplyVolume();if(miniReady||!settings.Sound||Diagnostics.Testing)return;for(int i=0;i<miniNotes.Length;i++){miniNotes[i].Open(new Uri(Resolve("minigames/note-"+(i%8)+".wav")));miniNotes[i].Volume=.34;}miniReady=true;}
+  void MiniClip(string name,double volume){if(disposed||!settings.Sound||Diagnostics.Testing)return;string file=Resolve("minigames/"+name+".wav");if(!File.Exists(file))return;var player=miniPlayers[miniVoice++%miniPlayers.Length];player.Open(new Uri(file));player.Volume=volume;player.Play();miniRunning.Add(player);}
+  public void MiniNote(int note){if(note<0){MiniClip("low",.22);return;}if(disposed||!settings.Sound||Diagnostics.Testing)return;if(!miniReady)PrepareMiniSounds(miniFocus);int key=note%8;var player=miniNotes[key+8*(miniNoteVoice[key]++%2)];player.Position=TimeSpan.Zero;player.Play();miniRunning.Add(player);}
+  public void MiniTune(MiniMelody tune){if(disposed||!settings.Sound||Diagnostics.Testing||tune==null)return;miniReplay.Open(new Uri(Resolve("minigames/tune-"+tune.Id+".wav")));miniReplay.Volume=.40;miniReplay.Play();miniRunning.Add(miniReplay);miniSong=true;ApplyVolume();}
   public void MiniWin(){MiniClip("clear",.28);}
-  public void StopMiniSounds(){if(disposed)return;foreach(var player in miniPlayers){player.Stop();player.Close();}}
+  public void MiniPulseWin(){MiniClip("pulse",.28);}
+  public void PauseMiniSounds(){if(disposed||miniPaused)return;miniPaused=true;foreach(var player in miniRunning.ToArray())player.Pause();}
+  public void ResumeMiniSounds(){if(disposed||!miniPaused)return;miniPaused=false;if(settings.Sound)foreach(var player in miniRunning.ToArray())player.Play();else StopMiniSounds();}
+  public void StopMiniSounds(){if(disposed)return;foreach(var player in miniPlayers.Concat(miniNotes).Concat(new[]{miniReplay})){player.Stop();player.Close();}miniRunning.Clear();miniReady=miniPaused=miniFocus=miniSong=false;ApplyVolume();}
   public void Typing(){if(disposed||!settings.Sound||(DateTime.UtcNow-lastTyping).TotalMilliseconds<75)return;lastTyping=DateTime.UtcNow;effect.Open(new Uri(Resolve("typing.wav")));effect.Volume=.095;effect.Play();}
   bool SpeakSystem(string word){if(!systemVoiceAvailable)return false;try{activePrompt=new Prompt(word);speaking=true;LastVoiceBackend="Windows fallback";ApplyVolume();speech.SpeakAsync(activePrompt);return true;}catch{activePrompt=null;speaking=false;ApplyVolume();return false;}}
   void PlayQuestionClip(){string path=questionClips.Dequeue();narration=neuralPlayer;clipWord=null;neuralPlayer.Volume=.85;neuralPlayer.Open(new Uri(path));neuralPlayer.Play();}

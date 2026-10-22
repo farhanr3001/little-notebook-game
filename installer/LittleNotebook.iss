@@ -1,5 +1,5 @@
 #ifndef AppVersion
- #define AppVersion "0.5.1"
+ #define AppVersion "0.5.2"
 #endif
 #ifndef PayloadDir
  #define PayloadDir "..\releases\payload"
@@ -22,6 +22,7 @@ UsePreviousLanguage=no
 OutputDir=..\releases
 OutputBaseFilename=LittleNotebook-Setup-{#AppVersion}
 SetupIconFile=..\assets\LittleNotebook.ico
+UninstallDisplayName=Little Notebook
 UninstallDisplayIcon={app}\LittleNotebook.exe
 WizardStyle=modern
 WizardBackColor=$00E9F8FF

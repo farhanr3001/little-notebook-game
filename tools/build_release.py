@@ -53,7 +53,7 @@ for name,items in groups.items():
    for path,relative in items:z.write(path,relative)
   with ZipFile(target) as z:assert z.testzip() is None
  packages.append(dict(name=name,url=base+name,sha256=digest(target),size=target.stat().st_size))
-manifest=dict(version=args.version,repository='farhanr3001/little-notebook-game',notes='Mouse Dash: hold your ball and dodge moving dots for as long as possible. Gradually increasing challenge, edge warnings, release-to-pause, saved personal bests, and replay. All eight minigames support English, Arabic and every theme. Existing saves are kept.',files=records,packs=packages)
+manifest=dict(version=args.version,repository='farhanr3001/little-notebook-game',notes='Fluid arrow exits, sampled piano song notes and full tune replays, grab cursor only during panning, paper backgrounds and larger minigame boards. Pulse Lock now uses E/click only, an untimed Ready state with a clear start prompt and a faster difficulty ramp. Stronger tile/lantern puzzles, buffered controls and Arabic text fixes. Ladybug Trail replaces Starlight Maze with smooth held movement and a ladybug-to-leaf goal. Saved progress is kept.',files=records,packs=packages)
 for dest in [payload/'payload-manifest.json',release/'update-manifest.json']:dest.write_text(json.dumps(manifest,ensure_ascii=False,indent=2),encoding='utf-8')
 assert not any('profile.json' in x['path'] or x['path'].startswith('data/') for x in records)
 print(f'PASS: {len(records)} managed files, {len(packages)} verified component packs. No user saves in payload.')

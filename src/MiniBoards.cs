@@ -104,25 +104,30 @@ namespace LittleNotebook {
    for(int column=0;column<n;column++){int row=rank;while(row<n&&(rows[row]&(1UL<<column))==0)row++;if(row==n)continue;ulong mask=rows[rank];rows[rank]=rows[row];rows[row]=mask;bool bit=rhs[rank];rhs[rank]=rhs[row];rhs[row]=bit;
     for(int other=0;other<n;other++)if(other!=rank&&(rows[other]&(1UL<<column))!=0){rows[other]^=rows[rank];rhs[other]^=rhs[rank];}pivots.Add(column);rank++;
    }
-   for(int r=rank;r<n;r++)if(rows[r]==0&&rhs[r])return null;ulong solution=0;for(int r=0;r<rank;r++)if(rhs[r])solution|=1UL<<pivots[r];return solution;
+   for(int r=rank;r<n;r++)if(rows[r]==0&&rhs[r])return null;ulong solution=0;for(int r=0;r<rank;r++)if(rhs[r])solution|=1UL<<pivots[r];
+   var free=Enumerable.Range(0,n).Where(c=>!pivots.Contains(c)).ToArray();var basis=new ulong[free.Length];
+   for(int i=0;i<free.Length;i++){basis[i]=1UL<<free[i];for(int r=0;r<rank;r++)if((rows[r]&(1UL<<free[i]))!=0)basis[i]|=1UL<<pivots[r];}
+   ulong best=solution;int count=Count(best);for(int mask=1;mask<(1<<basis.Length);mask++){ulong candidate=solution;for(int i=0;i<basis.Length;i++)if((mask&(1<<i))!=0)candidate^=basis[i];int bits=Count(candidate);if(bits<count){best=candidate;count=bits;}}return best;
   }
-  public static LanternBoard Generate(int level,int seed){var board=new LanternBoard{Size=Math.Min(7,3+(level-1)/6)};var random=new Random(seed);do{board.State=0;for(int i=0;i<Math.Min(board.Size*board.Size,3+level*2);i++)board.State^=board.Effect(random.Next(board.Size*board.Size));}while(board.State==0);return board;}
+  public static int Count(ulong value){int count=0;while(value!=0){value&=value-1;count++;}return count;}
+  public static LanternBoard Generate(int level,int seed){var board=new LanternBoard{Size=Math.Min(7,3+(level-1)/6)};var random=new Random(seed);ulong best=0;int bestCount=-1,minimum=Math.Min(12,Math.Min(board.Size*board.Size/3,2+(level-1)/2));for(int attempt=0;attempt<128;attempt++){board.State=0;for(int i=0;i<Math.Min(board.Size*board.Size*2,5+level*2);i++)board.State^=board.Effect(random.Next(board.Size*board.Size));int count=Count(board.Solve().Value);if(count>bestCount){bestCount=count;best=board.State;}if(count>=minimum)return board;}board.State=best;return board;}
  }
  public sealed class SlidingBoard {
   public int Size,Blank,Moves;public int[] Tiles;public List<int> Scramble=new List<int>();
   public bool Solved{get{return Tiles.Take(Tiles.Length-1).Select((v,i)=>v==i+1).All(x=>x)&&Tiles.Last()==0;}}
+  public int Distance{get{return Tiles.Select((v,i)=>v==0?0:Math.Abs(i%Size-(v-1)%Size)+Math.Abs(i/Size-(v-1)/Size)).Sum();}}
   public bool Move(int cell){if(cell<0||cell>=Tiles.Length||Math.Abs(cell%Size-Blank%Size)+Math.Abs(cell/Size-Blank/Size)!=1)return false;Tiles[Blank]=Tiles[cell];Tiles[cell]=0;Blank=cell;Moves++;return true;}
   public static SlidingBoard Generate(int level,int seed){
    int n=level<8?3:level<25?4:5;var board=new SlidingBoard{Size=n,Tiles=Enumerable.Range(1,n*n).Select(i=>i==n*n?0:i).ToArray(),Blank=n*n-1};var random=new Random(seed);int previous=-1;
-   for(int i=0;i<Math.Min(240,10+level*5);i++){var options=Enumerable.Range(0,4).Select(d=>MiniGrid.Next(board.Blank,d,n,n)).Where(c=>c>=0&&c!=previous).ToList();int next=options[random.Next(options.Count)];board.Scramble.Add(board.Blank);previous=board.Blank;board.Move(next);}if(board.Solved){board.Scramble.Add(board.Blank);board.Move(MiniGrid.Next(board.Blank,0,n,n));}board.Moves=0;return board;
+   int minimum=Math.Min(n*n,4+level);for(int i=0;i<Math.Min(600,32+level*8)||board.Distance<minimum;i++){var options=Enumerable.Range(0,4).Select(d=>MiniGrid.Next(board.Blank,d,n,n)).Where(c=>c>=0&&c!=previous).ToList();int next=options[random.Next(options.Count)];board.Scramble.Add(board.Blank);previous=board.Blank;board.Move(next);if(i>=1800&&board.Distance>=4)break;}board.Moves=0;return board;
   }
  }
  public sealed class MazeBoard {
-  public int Size,Player,Goal,Moves;public int[] Walls;
-  public bool Move(int direction){if((Walls[Player]&(1<<direction))!=0)return false;int next=MiniGrid.Next(Player,direction,Size,Size);if(next<0)return false;Player=next;Moves++;return true;}
+  public int Size,Player,Goal,Moves;public int[] Walls;public bool[] Visited;
+  public bool Move(int direction){if((Walls[Player]&(1<<direction))!=0)return false;int next=MiniGrid.Next(Player,direction,Size,Size);if(next<0)return false;Player=next;if(Visited!=null)Visited[next]=true;Moves++;return true;}
   public List<int> Route(){var prior=Enumerable.Repeat(-1,Walls.Length).ToArray();var queue=new Queue<int>();queue.Enqueue(Player);prior[Player]=Player;while(queue.Count>0){int at=queue.Dequeue();if(at==Goal)break;for(int d=0;d<4;d++)if((Walls[at]&(1<<d))==0){int next=MiniGrid.Next(at,d,Size,Size);if(next>=0&&prior[next]<0){prior[next]=at;queue.Enqueue(next);}}}if(prior[Goal]<0)return null;var result=new List<int>();for(int at=Goal;at!=Player;at=prior[at])result.Add(at);result.Reverse();return result;}
   public static MazeBoard Generate(int level,int seed){
-   int n=Math.Min(25,5+(level-1));var board=new MazeBoard{Size=n,Walls=Enumerable.Repeat(15,n*n).ToArray()};var random=new Random(seed);var used=new bool[n*n];var stack=new Stack<int>();stack.Push(0);used[0]=true;
+   int n=Math.Min(25,5+(level-1));var board=new MazeBoard{Size=n,Walls=Enumerable.Repeat(15,n*n).ToArray(),Visited=new bool[n*n]};board.Visited[0]=true;var random=new Random(seed);var used=new bool[n*n];var stack=new Stack<int>();stack.Push(0);used[0]=true;
    while(stack.Count>0){int at=stack.Peek();var options=Enumerable.Range(0,4).Where(d=>{int next=MiniGrid.Next(at,d,n,n);return next>=0&&!used[next];}).ToList();if(options.Count==0){stack.Pop();continue;}int direction=options[random.Next(options.Count)],nextCell=MiniGrid.Next(at,direction,n,n);board.Walls[at]&=~(1<<direction);board.Walls[nextCell]&=~(1<<MiniGrid.Opposite(direction));used[nextCell]=true;stack.Push(nextCell);}
    var distance=Enumerable.Repeat(-1,n*n).ToArray();var queue=new Queue<int>();distance[0]=0;queue.Enqueue(0);while(queue.Count>0){int at=queue.Dequeue();for(int d=0;d<4;d++)if((board.Walls[at]&(1<<d))==0){int next=MiniGrid.Next(at,d,n,n);if(next>=0&&distance[next]<0){distance[next]=distance[at]+1;queue.Enqueue(next);}}}board.Goal=Enumerable.Range(1,n*n-1).OrderByDescending(i=>distance[i]).First();return board;
   }

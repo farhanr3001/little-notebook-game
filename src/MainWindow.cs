@@ -53,6 +53,7 @@ namespace LittleNotebook {
    Deactivated+=(s,e)=>{if(game!=null&&page=="game"&&overlay.Children.Count==0)PauseMenu();else if(page=="minigame"&&mini!=null&&overlay.Children.Count==0)PauseMiniGame();};
    Closing+=(s,e)=>{if(!closing && game!=null && !game.Recorded){e.Cancel=true;ConfirmLeave(true);}else {closing=true;CancelMusicDownload();timer.Stop();notebookSaveTimer.Stop();StopMiniGame();try{Save();}finally{audio.Dispose();}}};
    PreviewKeyDown+=(s,e)=>{if(e.Key==Key.F11){if(!e.IsRepeat)SetDisplayMode(!Profile.Settings.BorderlessFullscreen);e.Handled=true;}if(e.Key==Key.B&&Keyboard.Modifiers==ModifierKeys.Control){ToggleSidebar();e.Handled=true;}if(e.Key==Key.Escape){if(overlay.Children.Count>0)CloseModal();else if(page=="minigame")PauseMiniGame();else PauseMenu();e.Handled=true;}else if(MiniKey(e))e.Handled=true;};
+   PreviewKeyUp+=(s,e)=>{if(MiniKeyUp(e.Key))e.Handled=true;};
    if(!test)Loaded+=(s,e)=>{ApplyDisplayMode();CheckForUpdates(true);};
    if(!string.IsNullOrEmpty(store.Warning))Loaded+=(s,e)=>Message(T("Save recovery","استعادة الحفظ"),store.Warning);
   }
@@ -209,13 +210,13 @@ namespace LittleNotebook {
   },370);}
   string ListenMeaning(string s,bool ar){if(s=="garden")return ar?"حديقة":"a place where flowers and plants grow";if(s=="morning")return ar?"صباح":"the early part of the day";return ar?"مكتبة":"a place where you borrow books";}
   void Modal(string title,Action<Canvas> content,double h=570){
-   paused=true;audio.StopSpeech();overlay.Children.Clear();overlay.Visibility=Visibility.Visible;
+   paused=true;audio.StopSpeech();ClearMiniHeldInput();if(mini!=null)audio.PauseMiniSounds();overlay.Children.Clear();overlay.Visibility=Visibility.Visible;
    foreach(UIElement element in stage.Children)if(element!=overlay){if(!modalEnabled.ContainsKey(element))modalEnabled[element]=element.IsEnabled;element.IsEnabled=false;}
    Panel.SetZIndex(overlay,10);
    overlay.Background=new SolidColorBrush(Color.FromArgb(145,24,31,27));
    var c=new Canvas{Width=790,Height=h};Put(c,new Sketch("paper",p,790,h),0,0);Label(c,title,88,35,29,600);Btn(c,"×",715,25,CloseModal,40,39);content(c);Put(overlay,c,325,(900-h)/2);
   }
-  void CloseModal(){if(page=="minigame"&&mini!=null&&mini.Phase=="failed"){BackToMiniGames();return;}if(musicImporter!=null){CancelMusicDownload();RadioSelection();return;}overlay.Children.Clear();overlay.Visibility=Visibility.Collapsed;foreach(var entry in modalEnabled)entry.Key.IsEnabled=entry.Value;modalEnabled.Clear();paused=false;lastTick=miniLast=DateTime.UtcNow;MaybeAutoReadQuestion();FocusAnswerInput();FocusMiniSurface();}
+  void CloseModal(){if(page=="minigame"&&mini!=null&&mini.Phase=="failed"){BackToMiniGames();return;}if(musicImporter!=null){CancelMusicDownload();RadioSelection();return;}overlay.Children.Clear();overlay.Visibility=Visibility.Collapsed;foreach(var entry in modalEnabled)entry.Key.IsEnabled=entry.Value;modalEnabled.Clear();paused=false;lastTick=DateTime.UtcNow;miniStamp=System.Diagnostics.Stopwatch.GetTimestamp();if(mini!=null)audio.ResumeMiniSounds();MaybeAutoReadQuestion();FocusAnswerInput();FocusMiniSurface();}
   void PauseMenu(){Modal(T("Game menu","قائمة اللعبة"),c=>{Label(c,T("The game is paused.","اللعبة متوقفة مؤقتاً."),105,111,20,580);Btn(c,T("Resume","متابعة"),214,180,CloseModal,365,60,true);Btn(c,T("Settings","الإعدادات"),214,263,SettingsView,365,60);Btn(c,T("Exit game","الخروج من اللعبة"),214,346,()=>{CloseModal();ConfirmLeave(false);},365,60);},477);}
   void Message(string title,string message){Modal(title,c=>{Label(c,message,100,114,22,585);Btn(c,T("Got it","حسناً"),248,302,CloseModal,280,55,true);},401);}
   void ConfirmLeave(bool exit,string dest="home"){

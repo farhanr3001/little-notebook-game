@@ -1,6 +1,6 @@
 """Exercise the real published GitHub client/updater without desktop automation."""
 from pathlib import Path
-import hashlib, json, shutil, subprocess, time
+import hashlib, json, shutil, subprocess, time, urllib.request, zipfile
 root=Path(__file__).resolve().parent.parent
 area=root/'test-output/live-update';app=area/'app';area.mkdir(parents=True,exist_ok=True)
 release=json.loads((root/'releases/update-manifest.json').read_text(encoding='utf-8'))
@@ -27,9 +27,27 @@ try:
  (data/'profile.json').write_text(json.dumps(profile,ensure_ascii=False),encoding='utf-8')
  (data/'music').mkdir(exist_ok=True);shutil.copy2(app/'assets/click.wav',data/'music/preserve.wav');(data/'music/preserve.bin').write_bytes(b'preserve imported music')
  music_hash=sha(data/'music/preserve.bin')
- shutil.copy2(root/'test-output/update-baseline/LittleNotebook.exe',app/'LittleNotebook.exe')
- old=json.loads((app/'payload-manifest.json').read_text(encoding='utf-8'))
- old['version']='0.5.0';old['files'].append(dict(path='assets/obsolete.txt',size=8,sha256='0'*64,pack='art.zip'))
+ # Exercise the actual published previous client and piano files, rather than
+ # merely changing a version constant in the new executable.
+ def download(url):
+  assert url.startswith('https://github.com/farhanr3001/little-notebook-game/releases/download/v0.5.1/')
+  with urllib.request.urlopen(urllib.request.Request(url,headers={'User-Agent':'LittleNotebook-update-verification'}),timeout=90) as response:return response.read()
+ old=json.loads(download('https://github.com/farhanr3001/little-notebook-game/releases/download/v0.5.1/update-manifest.json'))
+ current=json.loads((app/'payload-manifest.json').read_text(encoding='utf-8'));old_paths={f['path'] for f in old['files']}
+ for record in current['files']:
+  if record['path'] not in old_paths:
+   target=(app/record['path']).resolve();assert target.is_relative_to(app.resolve())
+   if target.is_file():target.unlink()
+ for pack in old['packs']:
+  if pack['name'] not in ('app.zip','minigames-audio.zip'):continue
+  archive=area/('previous-'+pack['name']);archive.write_bytes(download(pack['url']))
+  assert archive.stat().st_size==pack['size'] and sha(archive)==pack['sha256']
+  with zipfile.ZipFile(archive) as source:
+   for record in old['files']:
+    if record['pack']!=pack['name']:continue
+    relative=Path(record['path']);assert not relative.is_absolute() and '..' not in relative.parts and relative.parts[0] not in ('data','user-data-test')
+    target=(app/relative).resolve();assert target.is_relative_to(app.resolve());target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(source.read(record['path']));assert sha(target)==record['sha256']
+ old['files'].append(dict(path='assets/obsolete.txt',size=8,sha256='0'*64,pack='art.zip'))
  (app/'payload-manifest.json').write_text(json.dumps(old),encoding='utf-8');(app/'assets/obsolete.txt').write_text('obsolete')
  unchanged=app/'assets/paper.png';unchanged_hash=sha(unchanged);unchanged_time=unchanged.stat().st_mtime_ns
  run([app/'LittleNotebook.exe','--live-update-test'])
@@ -45,13 +63,13 @@ try:
  assert saved['Settings']['CustomMusic']==profile['Settings']['CustomMusic'],'Music library changed'
  assert sha(data/'music/preserve.bin')==music_hash,'Imported music changed'
  downloaded=[p.name for p in (data/'updates').rglob('*.zip')]
- assert set(downloaded)=={'app.zip'} and len(downloaded)==1,f'Unchanged components downloaded: {downloaded}'
- assert (app/'assets/minigames/clear.wav').is_file(),'New minigame audio component missing'
+ assert set(downloaded)=={'app.zip','minigames-audio.zip'} and len(downloaded)==2,f'Unchanged components downloaded: {downloaded}'
+ assert (app/'assets/minigames/tune-ode.wav').is_file() and (app/'assets/minigames/pulse.wav').is_file() and (app/'content/minigame-melodies.json').is_file(),'New sampled piano/score assets missing'
  run([app/'LittleNotebook.exe','--live-update-test'])
  result=(data/'live-client-test.txt').read_text(encoding='utf-8-sig');assert 'FAIL:' not in result and 'manual Check for updates reports up to date' in result
  run([app/'unins000.exe','/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART',f'/LOG={area}/uninstall.log'])
  wait_for(lambda:not app.exists(),15)
- report.write_text('PASS: real GitHub startup update offer; only changed application component downloaded; production updater replacing the older executable and removing obsolete files; preserved character/stars/purchases/attempts/notebook/imported music and all eight minigame checkpoints and Mouse Dash times; unchanged asset timestamp; no popup on current version; manual up-to-date result; complete uninstall of the updated installation. No desktop automation.\n',encoding='utf-8')
+ report.write_text('PASS: actual published 0.5.1 client accepted the GitHub startup update offer; only changed application and piano components downloaded; production updater replacing the older executable and removing obsolete files; preserved character/stars/purchases/attempts/notebook/imported music and all eight minigame checkpoints and Mouse Dash times; unchanged asset timestamp; no popup on current version; manual up-to-date result; complete uninstall of the updated installation. No desktop automation.\n',encoding='utf-8')
  print(report.read_text())
 except Exception as error:
  report.write_text('FAIL: '+repr(error),encoding='utf-8');raise

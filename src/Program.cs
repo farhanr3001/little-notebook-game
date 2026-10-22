@@ -28,6 +28,7 @@ namespace LittleNotebook {
     bool notebookReview=Array.IndexOf(args,"--notebook-review")>=0;
     bool minigames=Array.IndexOf(args,"--minigame-test")>=0;
     var window=new MainWindow(minigames||media||delivery||health||revision||notebookReview||notebook||update||narration||stress||smoke||Array.IndexOf(args,"--review")>=0,minigames?"minigames-profile.json":revision?"revision-profile.json":notebookReview?"notebook-preview-profile.json":notebook?"notebook-profile.json":update?"update-profile.json":narration?"narration-profile.json":stress?"stress-profile.json":smoke?"smoke-profile.json":"ui-profile.json");
+    if(Diagnostics.Testing&&!notebookReview&&Array.IndexOf(args,"--review")<0){window.ShowActivated=false;window.WindowState=WindowState.Minimized;}
     if(minigames){window.ShowActivated=false;window.WindowState=WindowState.Minimized;window.Loaded+=(s,e)=>window.Dispatcher.BeginInvoke(new Action(()=>window.RunMiniGameTests()),DispatcherPriority.ApplicationIdle);}
     if(notebook||revision||health||delivery||liveUpdate)window.ShowActivated=false;
     if(delivery||liveUpdate||media)window.WindowState=WindowState.Minimized;

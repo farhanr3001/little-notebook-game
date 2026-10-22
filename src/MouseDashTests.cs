@@ -38,7 +38,7 @@ namespace LittleNotebook {
    ClickTestButton("Play again");check(mini.Phase=="waiting"&&mini.Dash.Seconds==0&&Profile.MiniGames["mousedash"].BestSeconds==15.4,"Dash retry lost record or retained old field");BackToMiniGames();
    var loaded=store.Load();check(loaded.MiniGames["mousedash"].BestSeconds==15.4&&loaded.MiniGames["mousedash"].Completed==1,"Dash record failed save/reload");
    foreach(string theme in new[]{"matcha","rose","sky","lavender","night"})foreach(string language in new[]{"en","ar"}){
-    Profile.Settings.Theme=theme;Profile.Settings.Language=language;Profile.Settings.ReducedMotion=true;StartMiniGame("mousedash");check(miniSurface.Width==900&&miniSurface.Height==408,"Dash arena does not fit viewport");MiniDashDown(new Point(450,204));MiniModelChecks.Advance(mini,1);miniSurface.InvalidateVisual();RefreshMiniHud();Capture("mini-mousedash-"+theme+"-"+language);MiniDashUp();BackToMiniGames();check(!miniTimer.IsEnabled&&mini==null,"Dash retained a timer after exit");
+    Profile.Settings.Theme=theme;Profile.Settings.Language=language;Profile.Settings.ReducedMotion=true;StartMiniGame("mousedash");check(miniSurface.Width==900&&miniSurface.Height==408,"Dash arena does not fit viewport");MiniDashDown(new Point(450,204));MiniModelChecks.Advance(mini,1);miniSurface.InvalidateVisual();RefreshMiniHud();Capture("mini-mousedash-"+theme+"-"+language);MiniDashUp();BackToMiniGames();check(!miniRendering&&mini==null,"Dash retained a timer after exit");
    }
    Profile.Settings.Language="en";Profile.Settings.Theme="matcha";Profile.Settings.ReducedMotion=false;
   }

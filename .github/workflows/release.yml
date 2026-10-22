@@ -30,6 +30,9 @@ jobs:
             $run = Start-Process '.\release-build\LittleNotebook.exe' -ArgumentList $mode -Wait -PassThru
             if ($run.ExitCode -ne 0) { throw "Failed $mode" }
           }
+      - name: Verify sampled piano arrangements
+        shell: pwsh
+        run: .\release-build\speech-runtime\python.exe tools/test_minigame_audio.py
       - name: Package verified update components
         run: python tools/build_release.py --source release-build --version $env:LN_VERSION
       - name: Install Inno Setup

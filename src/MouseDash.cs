@@ -9,10 +9,11 @@ namespace LittleNotebook {
  public sealed class MouseDashBoard {
   public const double Width=900,Height=408,PlayerRadius=8;
   public readonly List<DashObstacle> Obstacles=new List<DashObstacle>();
-  readonly Random random;double accumulator,spawnAt=5;
+  readonly Random random;double accumulator,spawnAt=8;
   public double X=Width/2,Y=Height/2,Seconds;public bool Started,Hit;
   public DashObstacle Collision;
   public int Wave{get{return 1+(int)(Seconds/15);}}
+  public static double SpeedScale(double seconds){seconds=Math.Max(0,seconds);return 1+Math.Min(3,seconds*.12)+Math.Min(2,Math.Max(0,seconds-25)*.025);}
   public MouseDashBoard(int seed){random=new Random(seed);}
   public static double Clamp(double value,double min,double max){return Math.Max(min,Math.Min(max,value));}
   public static bool SweptHit(double ax,double ay,double bx,double by,double radius){
@@ -24,8 +25,8 @@ namespace LittleNotebook {
    X=Clamp(x,PlayerRadius+3,Width-PlayerRadius-3);Y=Clamp(y,PlayerRadius+3,Height-PlayerRadius-3);Started=true;
    for(int i=0;i<14;i++){
     var dot=new DashObstacle{Radius=5+random.NextDouble()*6};
-    do{dot.X=dot.Radius+random.NextDouble()*(Width-2*dot.Radius);dot.Y=dot.Radius+random.NextDouble()*(Height-2*dot.Radius);}while((dot.X-X)*(dot.X-X)+(dot.Y-Y)*(dot.Y-Y)<140*140);
-    double angle=random.NextDouble()*Math.PI*2,speed=48+random.NextDouble()*34;dot.VX=Math.Cos(angle)*speed;dot.VY=Math.Sin(angle)*speed;Obstacles.Add(dot);
+    do{dot.X=dot.Radius+random.NextDouble()*(Width-2*dot.Radius);dot.Y=dot.Radius+random.NextDouble()*(Height-2*dot.Radius);}while((dot.X-X)*(dot.X-X)+(dot.Y-Y)*(dot.Y-Y)<160*160);
+    double angle=random.NextDouble()*Math.PI*2,speed=96+random.NextDouble()*42;dot.VX=Math.Cos(angle)*speed;dot.VY=Math.Sin(angle)*speed;Obstacles.Add(dot);
    }return true;
   }
   public bool Move(double x,double y){
@@ -45,13 +46,13 @@ namespace LittleNotebook {
    var dot=new DashObstacle{Radius=6+random.NextDouble()*6,Warning=.95};int edge=random.Next(4);double inset=dot.Radius+4;
    dot.X=edge==1?Width-inset:edge==3?inset:inset+random.NextDouble()*(Width-2*inset);
    dot.Y=edge==0?inset:edge==2?Height-inset:inset+random.NextDouble()*(Height-2*inset);
-   double tx=90+random.NextDouble()*(Width-180),ty=50+random.NextDouble()*(Height-100),dx=tx-dot.X,dy=ty-dot.Y,length=Math.Sqrt(dx*dx+dy*dy),speed=48+random.NextDouble()*34;
+   double tx=90+random.NextDouble()*(Width-180),ty=50+random.NextDouble()*(Height-100),dx=tx-dot.X,dy=ty-dot.Y,length=Math.Sqrt(dx*dx+dy*dy),speed=96+random.NextDouble()*42;
    dot.VX=dx/length*speed;dot.VY=dy/length*speed;Obstacles.Add(dot);
   }
   public void Tick(double seconds){
    if(!Started||Hit||seconds<=0||double.IsNaN(seconds)||double.IsInfinity(seconds))return;
    accumulator+=Math.Min(.1,seconds);const double step=1.0/120;
-   while(accumulator+1e-9>=step&&!Hit){accumulator-=step;Seconds+=step;double speed=1+Math.Min(1.65,Seconds/65);
+   while(accumulator+1e-9>=step&&!Hit){accumulator-=step;Seconds+=step;double speed=SpeedScale(Seconds);
     foreach(var dot in Obstacles){
      if(dot.Warning>0){dot.Warning=Math.Max(0,dot.Warning-step);continue;}
      double oldX=dot.X,oldY=dot.Y;dot.X+=dot.VX*speed*step;dot.Y+=dot.VY*speed*step;
@@ -59,7 +60,7 @@ namespace LittleNotebook {
      if(dot.Y<dot.Radius){dot.Y=2*dot.Radius-dot.Y;dot.VY=Math.Abs(dot.VY);}else if(dot.Y>Height-dot.Radius){dot.Y=2*(Height-dot.Radius)-dot.Y;dot.VY=-Math.Abs(dot.VY);}
      if(SweptHit(oldX-X,oldY-Y,dot.X-X,dot.Y-Y,PlayerRadius+dot.Radius)){Crash(dot);break;}
     }
-    if(!Hit&&Seconds>=spawnAt&&Obstacles.Count<38){Spawn();spawnAt+=Math.Max(1.6,4-Seconds/55);}
+    if(!Hit&&Seconds+1e-9>=spawnAt&&Obstacles.Count<32){Spawn();spawnAt+=8;}
    }
   }
  }

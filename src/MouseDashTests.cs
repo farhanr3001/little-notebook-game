@@ -7,7 +7,8 @@ namespace LittleNotebook {
   public static void Run(Action<bool,string> check){
    foreach(int seed in Enumerable.Range(1,30))foreach(var point in new[]{new Point(12,12),new Point(450,204),new Point(888,396)}){
     var board=new MouseDashBoard(seed);check(board.Begin(point.X,point.Y)&&board.Obstacles.Count==14,"Mouse Dash did not start with fourteen dots");
-    check(board.Obstacles.All(d=>Math.Pow(d.X-board.X,2)+Math.Pow(d.Y-board.Y,2)>=140*140),"Dot spawned too close to starting ball");
+    check(board.Obstacles.All(d=>Math.Pow(d.X-board.X,2)+Math.Pow(d.Y-board.Y,2)>=160*160),"Dot spawned too close to starting ball");
+    check(board.Obstacles.All(d=>Math.Sqrt(d.VX*d.VX+d.VY*d.VY)>=96&&Math.Sqrt(d.VX*d.VX+d.VY*d.VY)<=138),"Starting dots are below the intended pace");
     board.Tick(.1);check(!board.Hit,"Mouse Dash started with an unavoidable contact");check(!board.Begin(22,22),"Second start reset a live dash");
    }
    check(MouseDashBoard.SweptHit(-100,0,100,0,12),"Swept collision missed a crossing");check(!MouseDashBoard.SweptHit(-100,13,100,13,12),"Swept collision falsely hit a near miss");check(MouseDashBoard.SweptHit(0,0,0,0,12),"Stationary overlap missed");
@@ -25,8 +26,11 @@ namespace LittleNotebook {
     check(Math.Abs(fast.Seconds-slow.Seconds)<.00001&&fast.Obstacles.Count==slow.Obstacles.Count,"Mouse Dash depends on render rate");
     for(int i=0;i<fast.Obstacles.Count;i++){var a=fast.Obstacles[i];var b=slow.Obstacles[i];check(Math.Abs(a.X-b.X)<.00001&&Math.Abs(a.Y-b.Y)<.00001,"Dot trajectory depends on render rate");check(a.X>=a.Radius-.001&&a.X<=900-a.Radius+.001&&a.Y>=a.Radius-.001&&a.Y<=408-a.Radius+.001,"Moving dot escaped arena");}
    }
-   check(fast.Obstacles.Count==38&&fast.Wave==11&&!fast.Hit,"Survival progression was not capped or failed to grow");
-   var edge=new MouseDashBoard(26);edge.Begin(450,204);edge.X=edge.Y=-1000;for(int i=0;i<51;i++)edge.Tick(.1);var incoming=edge.Obstacles.Last();check(incoming.Warning>.7&&incoming.Warning<=.95,"New edge dot had no warning window");
+   check(fast.Obstacles.Count==32&&fast.Wave==11&&!fast.Hit,"Survival progression was not capped or failed to grow");
+   check(MouseDashBoard.SpeedScale(8)>=1.95&&MouseDashBoard.SpeedScale(15)>=2.8&&MouseDashBoard.SpeedScale(30)>4,"Mouse Dash speed does not rise fast enough");
+   double previous=0;for(int second=0;second<600;second++){double speed=MouseDashBoard.SpeedScale(second);check(speed>=previous&&speed<=6,"Mouse Dash speed reverses or grows without a bound");previous=speed;}
+   var edge=new MouseDashBoard(26);edge.Begin(450,204);edge.X=edge.Y=-1000;for(int i=0;i<79;i++)edge.Tick(.1);check(edge.Obstacles.Count==14,"Mouse Dash adds dots too quickly");edge.Tick(.1);check(edge.Obstacles.Count==15,"First extra dot did not join at eight seconds");edge.Tick(.1);var incoming=edge.Obstacles.Last();check(incoming.Warning>.7&&incoming.Warning<=.95,"New edge dot had no warning window");
+   for(int i=0;i<78;i++)edge.Tick(.1);check(edge.Obstacles.Count==15,"Mouse Dash second dot joined too soon");edge.Tick(.1);check(edge.Obstacles.Count==16,"Mouse Dash does not add one dot every eight seconds");
   }
  }
  public partial class MainWindow {

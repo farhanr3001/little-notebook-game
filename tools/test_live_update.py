@@ -21,7 +21,7 @@ try:
  run([root/f"releases/LittleNotebook-Setup-{release['version']}.exe",'/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART','/SP-','/TESTINSTALL=1',f'/DIR={app}',f'/LOG={area}/install.log'])
  data=app/'user-data-test'
  profile=json.loads((root/'test-output/revision-profile.json').read_text(encoding='utf-8-sig'))
- profile.update(Name='Update preservation fixture',Coins=777)
+ profile.update(Name='Update preservation fixture',Coins=777,StackBest=23)
  profile['MiniGames']={key:dict(Level=17 if key=='arrows' else 4,Seed=81623+index,BestCompleted=16 if key=='arrows' else 3,Completed=21,Failures=2,BestSeconds=62.8 if key=='mousedash' else 0,LastSeconds=48.2 if key=='mousedash' else 0) for index,key in enumerate(['arrows','signal','pulse','lanterns','tiles','echo','maze','mousedash'])}
  profile['Settings'].update(Language='en',Music=False,Sound=False,AutoReadQuestions=False,Volume=0,CustomMusic=['data/music/preserve.wav'],MusicTitles={'data/music/preserve.wav':'My preserved music name'})
  (data/'profile.json').write_text(json.dumps(profile,ensure_ascii=False),encoding='utf-8')
@@ -30,16 +30,16 @@ try:
  # Exercise the actual published previous client and piano files, rather than
  # merely changing a version constant in the new executable.
  def download(url):
-  assert url.startswith('https://github.com/farhanr3001/little-notebook-game/releases/download/v0.5.1/')
+  assert url.startswith('https://github.com/farhanr3001/little-notebook-game/releases/download/v0.5.2/')
   with urllib.request.urlopen(urllib.request.Request(url,headers={'User-Agent':'LittleNotebook-update-verification'}),timeout=90) as response:return response.read()
- old=json.loads(download('https://github.com/farhanr3001/little-notebook-game/releases/download/v0.5.1/update-manifest.json'))
+ old=json.loads(download('https://github.com/farhanr3001/little-notebook-game/releases/download/v0.5.2/update-manifest.json'))
  current=json.loads((app/'payload-manifest.json').read_text(encoding='utf-8'));old_paths={f['path'] for f in old['files']}
  for record in current['files']:
   if record['path'] not in old_paths:
    target=(app/record['path']).resolve();assert target.is_relative_to(app.resolve())
    if target.is_file():target.unlink()
  for pack in old['packs']:
-  if pack['name'] not in ('app.zip','minigames-audio.zip'):continue
+  if pack['name']!='app.zip':continue
   archive=area/('previous-'+pack['name']);archive.write_bytes(download(pack['url']))
   assert archive.stat().st_size==pack['size'] and sha(archive)==pack['sha256']
   with zipfile.ZipFile(archive) as source:
@@ -57,19 +57,19 @@ try:
  assert not (app/'assets/obsolete.txt').exists(),'Obsolete managed file retained'
  assert sha(unchanged)==unchanged_hash and unchanged.stat().st_mtime_ns==unchanged_time,'Unchanged asset rewritten'
  saved=json.loads((data/'profile.json').read_text(encoding='utf-8-sig'))
- for key in ['Name','Character','Coins','Pet','PetColor','Owned','Attempts','Sessions','Notebook','MiniGames']:
+ for key in ['Name','Character','Coins','Pet','PetColor','Owned','Attempts','Sessions','Notebook','MiniGames','StackBest']:
   assert saved[key]==profile[key],f'Saved state changed during update: {key}'
  assert saved['Settings']['MusicTitles']==profile['Settings']['MusicTitles'],'Music names changed'
  assert saved['Settings']['CustomMusic']==profile['Settings']['CustomMusic'],'Music library changed'
  assert sha(data/'music/preserve.bin')==music_hash,'Imported music changed'
  downloaded=[p.name for p in (data/'updates').rglob('*.zip')]
- assert set(downloaded)=={'app.zip','minigames-audio.zip'} and len(downloaded)==2,f'Unchanged components downloaded: {downloaded}'
+ assert set(downloaded)=={'app.zip'} and len(downloaded)==1,f'Unchanged components downloaded: {downloaded}'
  assert (app/'assets/minigames/tune-ode.wav').is_file() and (app/'assets/minigames/pulse.wav').is_file() and (app/'content/minigame-melodies.json').is_file(),'New sampled piano/score assets missing'
  run([app/'LittleNotebook.exe','--live-update-test'])
  result=(data/'live-client-test.txt').read_text(encoding='utf-8-sig');assert 'FAIL:' not in result and 'manual Check for updates reports up to date' in result
  run([app/'unins000.exe','/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART',f'/LOG={area}/uninstall.log'])
  wait_for(lambda:not app.exists(),15)
- report.write_text('PASS: actual published 0.5.1 client accepted the GitHub startup update offer; only changed application and piano components downloaded; production updater replacing the older executable and removing obsolete files; preserved character/stars/purchases/attempts/notebook/imported music and all eight minigame checkpoints and Mouse Dash times; unchanged asset timestamp; no popup on current version; manual up-to-date result; complete uninstall of the updated installation. No desktop automation.\n',encoding='utf-8')
+ report.write_text('PASS: actual published 0.5.2 client accepted the GitHub startup update offer; only the changed application component downloaded; production updater replacing the older executable and removing obsolete files; preserved character/stars/purchases/attempts/notebook/imported music and minigame checkpoints, Paper Stack high score and Mouse Dash times; unchanged asset timestamp; no popup on current version; manual up-to-date result; complete uninstall of the updated installation. No desktop automation.\n',encoding='utf-8')
  print(report.read_text())
 except Exception as error:
  report.write_text('FAIL: '+repr(error),encoding='utf-8');raise

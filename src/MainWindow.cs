@@ -83,7 +83,7 @@ namespace LittleNotebook {
    b.MouseEnter+=(s,e)=>{if(b.IsEnabled){b.Opacity=.82;}};
    b.MouseLeave+=(s,e)=>{b.Opacity=b.IsEnabled?1:.55;b.RenderTransform=Transform.Identity;};
    b.IsEnabledChanged+=(s,e)=>b.Opacity=b.IsEnabled?1:.55;
-   b.Click+=(s,e)=>{audio.Fx("click");action();};AutomationProperties.SetName(b,text);return b;
+   b.Click+=(s,e)=>{if(page!="minigame"&&page!="minigames")audio.Fx("click");action();};AutomationProperties.SetName(b,text);return b;
   }
   void Btn(Canvas c,string text,double x,double y,Action action,double w=160,double h=50,bool primary=false){Put(c,Button(text,action,w,h,primary),x,y);}
   void TypingFeedback(object sender,TextChangedEventArgs e){var input=e.OriginalSource as TextBox;if(input!=null&&input.IsKeyboardFocusWithin&&!input.IsReadOnly&&e.Changes.Any(change=>change.AddedLength>0||change.RemovedLength>0))audio.Typing();}

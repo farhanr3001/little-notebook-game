@@ -42,7 +42,7 @@ namespace LittleNotebook {
    }
   }
   void Sound(int note){if(Note!=null)Note(note);}
-  void Win(){if(Phase=="complete"||Phase=="failed")return;Phase="complete";Wait=Kind=="pulse"?.5:Melody!=null?Melody.Duration+.35:1.45;QueuedArrow=-1;if(Won!=null)Won();}
+  void Win(){if(Phase=="complete"||Phase=="failed")return;Phase="complete";Wait=Kind=="pulse"?.5:Melody!=null?Melody.Duration+.35:1.65;QueuedArrow=-1;if(Won!=null)Won();}
   void Fail(){Phase="failed";QueuedArrow=-1;Highlight=-1;if(Lost!=null)Lost();}
   void Wrong(){WrongFeedback=true;FeedbackTime=.42;Sound(-1);Lives--;if(Lives<=0)Fail();}
   public bool StackTap(){if(Stack==null||Phase=="failed")return false;int before=Stack.Score;if(!Stack.Tap())return false;Phase="playing";Moves++;if(Stack.Phase=="miss")Sound(-1);else if(Stack.Score>before)Sound(Stack.Perfect?Math.Min(7,1+Stack.Streak):0);return true;}

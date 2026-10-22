@@ -68,4 +68,4 @@ The private importer bundles yt-dlp 2026.10.21 and its default dependencies/EJS,
 
 ## Original minigame assets
 
-The minigame badges and boards are original vector drawing code. The soft piano-style notes and board-clearing melody are synthesized for Little Notebook by tools/make_minigame_audio.py; no third-party game artwork or audio is included.
+The minigame badges and boards are original vector drawing code. Mouse Dash uses an original ball-and-dots board; no video frames, artwork, branding or audio from the gameplay reference are shipped. The soft piano-style notes and board-clearing melody are synthesized for Little Notebook by tools/make_minigame_audio.py; no third-party game artwork or audio is included.

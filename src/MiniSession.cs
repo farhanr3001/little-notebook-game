@@ -8,6 +8,7 @@ namespace LittleNotebook {
   public string Phase="playing";
   public double Wait,Elapsed,FeedbackTime;public bool WrongFeedback;
   public ArrowBoard Arrows;public SignalBoard Signal;public LanternBoard Lanterns;public SlidingBoard Tiles;public MazeBoard Maze;
+  public MouseDashBoard Dash;
   public int ActiveArrow=-1,QueuedArrow=-1;public bool ArrowBlocked;public double ArrowAnimation,ArrowDuration,ArrowDistance;
   public int TurningCell=-1,TurningMask;public double TurnTime=1;
   public int MovingValue,MovingFrom,MovingTo;public double MoveTime=1;
@@ -29,6 +30,7 @@ namespace LittleNotebook {
     case "maze":Maze=MazeBoard.Generate(Level,seed);break;
     case "echo":PadCount=Level<5?4:Level<12?6:8;Pattern=Enumerable.Range(0,Math.Min(24,3+(Level-1)/2)).Select(i=>random.Next(PadCount)).ToArray();BeginEcho(.7);break;
     case "pulse":PulseKey=Level<5?'E':"EFJK"[random.Next(4)];ResetPulse(2.5);break;
+    case "mousedash":Dash=new MouseDashBoard(seed);Phase="waiting";break;
     default:throw new ArgumentException("Unknown minigame.");
    }
   }
@@ -36,6 +38,13 @@ namespace LittleNotebook {
   void Win(){if(Phase=="complete"||Phase=="failed")return;Phase="complete";Wait=Kind=="pulse"?Cooldown(Level):1.45;QueuedArrow=-1;if(Won!=null)Won();}
   void Fail(){Phase="failed";QueuedArrow=-1;Highlight=-1;if(Lost!=null)Lost();}
   void Wrong(){WrongFeedback=true;FeedbackTime=.42;Sound(-1);Lives--;if(Lives<=0)Fail();}
+  public bool HoldDash(double x,double y){
+   if(Dash==null)return false;
+   if(Phase=="waiting"){if(!Dash.Begin(x,y))return false;Phase="playing";return true;}
+   if(Phase=="holding"&&(x-Dash.X)*(x-Dash.X)+(y-Dash.Y)*(y-Dash.Y)<=24*24){Phase="playing";return true;}return false;
+  }
+  public void ReleaseDash(){if(Dash!=null&&Phase=="playing")Phase="holding";}
+  public bool MoveDash(double x,double y){if(Dash==null||Phase!="playing")return false;bool moved=Dash.Move(x,y);if(Dash.Hit){Sound(-1);Fail();}return moved;}
   public bool ArrowTap(int index){
    if(Arrows==null||index<0||index>=Arrows.Arrows.Count||Arrows.Arrows[index].Removed)return false;
    if(Phase=="arrow"){if(index!=ActiveArrow&&QueuedArrow<0)QueuedArrow=index;return false;}
@@ -65,7 +74,8 @@ namespace LittleNotebook {
    if(Charge>=1){Latch++;if(Latch>=3)Win();else{Phase="latch";Wait=.38;Sound(2+Latch*2);}}return true;
   }
   public void Tick(double seconds){
-   if(seconds<=0||Phase=="failed")return;double dt=Math.Min(.1,seconds);Elapsed+=dt;TurnTime+=dt;MoveTime+=dt;
+   if(seconds<=0||double.IsNaN(seconds)||double.IsInfinity(seconds)||Phase=="failed")return;double dt=Math.Min(.1,seconds);Elapsed+=dt;TurnTime+=dt;MoveTime+=dt;
+   if(Dash!=null){if(Phase=="playing"){Dash.Tick(dt);if(Dash.Hit){Sound(-1);Fail();}}return;}
    if(FeedbackTime>0){FeedbackTime=Math.Max(0,FeedbackTime-dt);if(FeedbackTime==0&&Kind=="echo"&&Phase=="playing")Highlight=-1;}
    if(Phase=="complete"){Wait-=dt;if(Wait<=0){Wait=double.MaxValue;if(Next!=null)Next();}return;}
    if(Phase=="arrow"){

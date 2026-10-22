@@ -8,7 +8,7 @@ Play English, maths, puzzles and general-knowledge questions. Choose your topics
 
 Between rounds, write or draw in your notebook, try tracing pictures, and listen to your own music. Import several music files together or add audio from a public YouTube/TikTok link.
 
-Take a break with seven progressive minigames, including Arrow Escape, Signal Path and Pulse Lock. Each keeps its own saved level.
+Take a break with eight minigames, including Arrow Escape, Signal Path and Mouse Dash. Puzzle levels and survival records save automatically.
 
 ## Install
 
@@ -21,6 +21,7 @@ The game checks for updates when opened. Updates keep your character, progress a
 ![Choose topics, question types and difficulty](docs/images/home.png)
 ![Gameplay](docs/images/gameplay.png)
 ![Arrow Escape minigame](docs/images/arrow-escape.png)
+![Mouse Dash survival minigame](docs/images/mouse-dash.png)
 ![Drawing notebook](docs/images/notebook.png)
 
 Music-link imports require an internet connection; availability depends on the source. [Asset and third-party credits](ASSETS.md).

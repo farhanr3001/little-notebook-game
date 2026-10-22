@@ -53,7 +53,7 @@ for name,items in groups.items():
    for path,relative in items:z.write(path,relative)
   with ZipFile(target) as z:assert z.testzip() is None
  packages.append(dict(name=name,url=base+name,sha256=digest(target),size=target.stat().st_size))
-manifest=dict(version=args.version,repository='farhanr3001/little-notebook-game',notes='Seven new progressive minigames: Arrow Escape, Signal Path, Pulse Lock, Lanterns, Sliding Tiles, Echo Keys and Starlight Maze. Each saves its own level. Your learning progress, character, notebook and music are kept.',files=records,packs=packages)
+manifest=dict(version=args.version,repository='farhanr3001/little-notebook-game',notes='Mouse Dash: hold your ball and dodge moving dots for as long as possible. Gradually increasing challenge, edge warnings, release-to-pause, saved personal bests, and replay. All eight minigames support English, Arabic and every theme. Existing saves are kept.',files=records,packs=packages)
 for dest in [payload/'payload-manifest.json',release/'update-manifest.json']:dest.write_text(json.dumps(manifest,ensure_ascii=False,indent=2),encoding='utf-8')
 assert not any('profile.json' in x['path'] or x['path'].startswith('data/') for x in records)
 print(f'PASS: {len(records)} managed files, {len(packages)} verified component packs. No user saves in payload.')

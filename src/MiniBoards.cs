@@ -4,15 +4,17 @@ using System.Linq;
 
 namespace LittleNotebook {
  public sealed class MiniProgress {
-  public int Level=1,Seed,BestCompleted,Completed,Failures;
+  public int Level=1,Seed,BestCompleted,Completed,Failures;public double BestSeconds,LastSeconds;
  }
  public static class MiniCatalog {
-  public static readonly string[] Keys={"arrows","signal","pulse","lanterns","tiles","echo","maze"};
+  public static readonly string[] Keys={"arrows","signal","pulse","lanterns","tiles","echo","maze","mousedash"};
   public static void Normalize(Profile profile){
    if(profile.MiniGames==null)profile.MiniGames=new Dictionary<string,MiniProgress>();
    foreach(string key in Keys){MiniProgress value;if(!profile.MiniGames.TryGetValue(key,out value)||value==null)profile.MiniGames[key]=value=new MiniProgress();
     value.Level=Math.Max(1,Math.Min(100000,value.Level));value.BestCompleted=Math.Max(0,value.BestCompleted);
     if(value.Seed==0)value.Seed=Guid.NewGuid().GetHashCode()|1;
+    if(double.IsNaN(value.BestSeconds)||double.IsInfinity(value.BestSeconds)||value.BestSeconds<0)value.BestSeconds=0;
+    if(double.IsNaN(value.LastSeconds)||double.IsInfinity(value.LastSeconds)||value.LastSeconds<0)value.LastSeconds=0;
    }
    if(!Keys.Contains(profile.Settings.SelectedMiniGame))profile.Settings.SelectedMiniGame="arrows";
    if(profile.Settings.PlaySection!="minigames")profile.Settings.PlaySection="learning";

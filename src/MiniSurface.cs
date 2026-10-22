@@ -11,6 +11,7 @@ namespace LittleNotebook {
  public sealed class MiniSurface:FrameworkElement {
   public readonly MiniSession Session;readonly Palette palette;readonly bool ar,reduced;readonly double textScale;
   public ScrollViewer Viewport;public Action<int> Press;public int Hover=-1;
+  public Action<Point> DashDown,DashMove;public Action DashUp;
   Point down;double panX,panY;bool dragging,moved;int downCell=-1;DrawingGroup dots;
   public MiniSurface(MiniSession session,Palette colors,bool arabic,bool reducedMotion,double scale){
    Session=session;palette=colors;ar=arabic;reduced=reducedMotion;textScale=scale/.9;Focusable=true;FocusVisualStyle=null;
@@ -18,7 +19,7 @@ namespace LittleNotebook {
   }
   public double CellSize{get{return Session.Kind=="arrows"?42:Session.Kind=="signal"?64:Session.Kind=="lanterns"?64:Session.Kind=="tiles"?78:32;}}
   public double MarginSize{get{return Session.Kind=="signal"?50:Session.Kind=="maze"?28:24;}}
-  Size BoardSize(){switch(Session.Kind){case "arrows":return new Size(Session.Arrows.Size*42+48,Session.Arrows.Size*42+48);case "signal":return new Size(Session.Signal.Width*64+100,Session.Signal.Height*64+64);case "lanterns":return new Size(Session.Lanterns.Size*64+48,Session.Lanterns.Size*64+48);case "tiles":return new Size(Session.Tiles.Size*78+48,Session.Tiles.Size*78+48);case "maze":return new Size(Session.Maze.Size*32+56,Session.Maze.Size*32+56);case "echo":return new Size((Session.PadCount/2)*116+48,304);default:return new Size(540,380);}}
+  Size BoardSize(){switch(Session.Kind){case "mousedash":return new Size(MouseDashBoard.Width,MouseDashBoard.Height);case "arrows":return new Size(Session.Arrows.Size*42+48,Session.Arrows.Size*42+48);case "signal":return new Size(Session.Signal.Width*64+100,Session.Signal.Height*64+64);case "lanterns":return new Size(Session.Lanterns.Size*64+48,Session.Lanterns.Size*64+48);case "tiles":return new Size(Session.Tiles.Size*78+48,Session.Tiles.Size*78+48);case "maze":return new Size(Session.Maze.Size*32+56,Session.Maze.Size*32+56);case "echo":return new Size((Session.PadCount/2)*116+48,304);default:return new Size(540,380);}}
   Brush Ink{get{return new SolidColorBrush(palette.Ink);}}
   Brush Brush(Color color){return new SolidColorBrush(color);}
   Color Blend(Color color,double alpha){return Color.FromRgb((byte)(color.R*alpha+palette.Paper.R*(1-alpha)),(byte)(color.G*alpha+palette.Paper.G*(1-alpha)),(byte)(color.B*alpha+palette.Paper.B*(1-alpha)));}
@@ -28,7 +29,7 @@ namespace LittleNotebook {
   public Rect CellRect(int cell){int columns=Session.Kind=="signal"?Session.Signal.Width:Session.Kind=="arrows"?Session.Arrows.Size:Session.Kind=="maze"?Session.Maze.Size:Session.Kind=="tiles"?Session.Tiles.Size:Session.Lanterns.Size;double size=CellSize;return new Rect(MarginSize+cell%columns*size,MarginSize+cell/columns*size,size,size);}
   protected override void OnRender(DrawingContext dc){
    dc.DrawRectangle(Brush(palette.Paper),null,new Rect(0,0,Width,Height));
-   switch(Session.Kind){case "arrows":DrawArrows(dc);break;case "signal":DrawSignal(dc);break;case "lanterns":DrawLanterns(dc);break;case "tiles":DrawTiles(dc);break;case "maze":DrawMaze(dc);break;case "echo":DrawEcho(dc);break;case "pulse":DrawPulse(dc);break;}
+   switch(Session.Kind){case "mousedash":DrawDash(dc);break;case "arrows":DrawArrows(dc);break;case "signal":DrawSignal(dc);break;case "lanterns":DrawLanterns(dc);break;case "tiles":DrawTiles(dc);break;case "maze":DrawMaze(dc);break;case "echo":DrawEcho(dc);break;case "pulse":DrawPulse(dc);break;}
    if(Session.Phase=="complete"&&Session.Kind=="arrows")Label(dc,ar?"أحسنت!":"Beautifully cleared!",new Point(Width/2,Height/2),23);
   }
   void DrawArrows(DrawingContext dc){
@@ -85,8 +86,27 @@ namespace LittleNotebook {
    string value=Session.Phase=="ready"?Math.Ceiling(Math.Max(0,Session.Wait)).ToString():Session.Phase=="complete"?"✓":Session.PulseKey.ToString();Label(dc,value,center,49);
    for(int i=0;i<3;i++)dc.DrawEllipse(Brush(i<Session.Latch?palette.Gold:palette.Light),Pen(palette.Ink,1),new Point(242+i*28,335),6,6);
   }
+  void DrawDash(DrawingContext dc){
+   var board=Session.Dash;dc.DrawRoundedRectangle(null,Pen(Blend(palette.Ink,.35),1.2),new Rect(1,1,Width-2,Height-2),12,12);
+   for(int y=25;y<Height;y+=28)for(int x=24;x<Width;x+=28)dc.DrawEllipse(Brush(Blend(palette.Line,.42)),null,new Point(x,y),.8,.8);
+   foreach(var dot in board.Obstacles){
+    Point center=new Point(dot.X,dot.Y);Color color=Blend(palette.Ink,.56);
+    if(dot.Warning>0){var outline=Pen(palette.Gold,1.8);outline.DashStyle=DashStyles.Dash;dc.DrawEllipse(Brush(Blend(palette.Gold,.12)),outline,center,dot.Radius+3,dot.Radius+3);double length=Math.Sqrt(dot.VX*dot.VX+dot.VY*dot.VY);dc.DrawLine(Pen(palette.Gold,1.4),center,center+new Vector(dot.VX/length*14,dot.VY/length*14));}
+    else{if(board.Collision==dot)color=Color.FromRgb(188,91,83);dc.DrawEllipse(Brush(color),null,center,dot.Radius,dot.Radius);}
+   }
+   Point ball=new Point(board.X,board.Y);if(!board.Started)ball=new Point(Width/2,Height/2+53);
+   Color ballColor=board.Hit?Color.FromRgb(188,91,83):palette.Accent;
+   dc.DrawEllipse(Brush(Blend(palette.Ink,.12)),null,ball+new Vector(1,2),11,11);dc.DrawEllipse(Brush(ballColor),Pen(palette.Ink,1.6),ball,MouseDashBoard.PlayerRadius,MouseDashBoard.PlayerRadius);dc.DrawEllipse(Brush(palette.Paper),null,ball+new Vector(-2,-2),2.3,2.3);
+   if(Session.Phase=="holding"||Session.Phase=="waiting")dc.DrawEllipse(null,Pen(palette.Gold,1.8),ball,16,16);
+   if(board.Hit)dc.DrawEllipse(null,Pen(Color.FromRgb(188,91,83),2),ball,21,21);
+   if(!board.Started){Label(dc,ar?"أمسك أي موضع للبدء":"Hold anywhere to begin",new Point(Width/2,Height/2-27),24);Label(dc,ar?"حرّك الكرة وتجنّب النقاط · اتركها للإيقاف":"Guide your ball past the dots · let go to pause",new Point(Width/2,Height/2+9),14);}
+   else if(Session.Phase=="holding"){
+    dc.DrawRoundedRectangle(Brush(palette.Paper),Pen(palette.Line,1),new Rect(Width/2-145,13,290,36),9,9);Label(dc,ar?"أمسك الكرة للمتابعة":"Hold your ball to continue",new Point(Width/2,31),14);
+   }
+  }
   static double Distance(Point point,Point a,Point b){Vector line=b-a;double t=line.LengthSquared==0?0:Math.Max(0,Math.Min(1,Vector.Multiply(point-a,line)/line.LengthSquared));return (point-(a+line*t)).Length;}
   public int Hit(Point point){
+   if(Session.Dash!=null)return -1;
    if(Session.Kind=="arrows"){for(int i=Session.Arrows.Arrows.Count-1;i>=0;i--){var arrow=Session.Arrows.Arrows[i];if(arrow.Removed)continue;var path=MovingArrow(arrow,Session.Arrows.Size,i==Session.ActiveArrow&&!reduced?Session.ArrowTravel:0);for(int j=1;j<path.Count;j++)if(Distance(point,path[j-1],path[j])<11)return i;}return -1;}
    if(Session.Kind=="pulse")return (point-new Point(270,172)).Length<155?0:-1;
    if(Session.Kind=="echo"){for(int i=0;i<Session.PadCount;i++)if(PadRect(i).Contains(point))return i;return -1;}
@@ -94,16 +114,19 @@ namespace LittleNotebook {
    int x=(int)Math.Floor((point.X-MarginSize)/CellSize),y=(int)Math.Floor((point.Y-MarginSize)/CellSize);return x<0||x>=width||y<0||y>=height?-1:y*width+x;
   }
   protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e){
+   if(Session.Dash!=null){Focus();if(DashDown!=null)DashDown(e.GetPosition(this));if(Session.Phase=="playing"){CaptureMouse();Cursor=Cursors.None;}e.Handled=true;return;}
    Focus();int hit=Hit(e.GetPosition(this));bool pan=Session.Kind=="arrows"&&hit<0||Session.Kind=="maze";
    if(pan&&Viewport!=null){down=e.GetPosition(Viewport);panX=Viewport.HorizontalOffset;panY=Viewport.VerticalOffset;downCell=hit;dragging=true;moved=false;CaptureMouse();}
    else if(hit>=0&&Press!=null)Press(hit);e.Handled=true;
   }
   protected override void OnMouseMove(MouseEventArgs e){
+   if(Session.Dash!=null){if(IsMouseCaptured&&e.LeftButton==MouseButtonState.Pressed&&DashMove!=null)DashMove(e.GetPosition(this));if(Session.Phase!="playing"&&IsMouseCaptured)CancelDashPointer();e.Handled=true;return;}
    if(dragging&&Viewport!=null){Vector delta=e.GetPosition(Viewport)-down;if(delta.Length>5)moved=true;if(moved){Viewport.ScrollToHorizontalOffset(panX-delta.X);Viewport.ScrollToVerticalOffset(panY-delta.Y);}e.Handled=true;return;}
    if(Session.Kind=="arrows"){int next=Hit(e.GetPosition(this));Cursor=next>=0?Cursors.Hand:Cursors.SizeAll;if(next!=Hover){Hover=next;InvalidateVisual();}}
   }
-  protected override void OnMouseLeftButtonUp(MouseButtonEventArgs e){if(dragging){dragging=false;ReleaseMouseCapture();if(!moved&&Session.Kind=="maze"&&downCell>=0&&Press!=null)Press(downCell);e.Handled=true;}}
-  protected override void OnLostMouseCapture(MouseEventArgs e){dragging=false;base.OnLostMouseCapture(e);}
+  public void CancelDashPointer(){if(Session.Dash==null)return;Cursor=Cursors.Hand;if(IsMouseCaptured)ReleaseMouseCapture();}
+  protected override void OnMouseLeftButtonUp(MouseButtonEventArgs e){if(Session.Dash!=null){CancelDashPointer();if(DashUp!=null)DashUp();e.Handled=true;return;}if(dragging){dragging=false;ReleaseMouseCapture();if(!moved&&Session.Kind=="maze"&&downCell>=0&&Press!=null)Press(downCell);e.Handled=true;}}
+  protected override void OnLostMouseCapture(MouseEventArgs e){dragging=false;if(Session.Dash!=null){Cursor=Cursors.Hand;if(DashUp!=null)DashUp();}base.OnLostMouseCapture(e);}
   protected override void OnMouseLeave(MouseEventArgs e){if(!dragging&&Hover!=-1){Hover=-1;InvalidateVisual();}base.OnMouseLeave(e);}
  }
  public sealed class MiniGameBadge:FrameworkElement {
@@ -117,7 +140,8 @@ namespace LittleNotebook {
     {"lanterns","M31,58 C4,24 35,3 50,9 C74,2 97,29 69,58 L65,73 L35,73 Z M36,82 L64,82 M41,91 L59,91 M50,0 L50,5 M5,41 L15,41 M85,41 L95,41"},
     {"tiles","M8,8 L44,8 L44,44 L8,44 Z M56,8 L92,8 L92,44 L56,44 Z M8,56 L44,56 L44,92 L8,92 Z M64,65 L84,84 M84,65 L64,84"},
     {"echo","M8,19 L92,19 L92,87 L8,87 Z M29,19 L29,87 M50,19 L50,87 M71,19 L71,87 M22,19 L36,19 L36,54 L22,54 Z M64,19 L78,19 L78,54 L64,54 Z"},
-    {"maze","M9,9 L90,9 L90,90 L9,90 L9,9 M34,9 L34,36 L63,36 L63,63 L90,63 M9,63 L34,63 L34,90 M63,9 L63,23 M63,78 L63,90 M77,77 L82,82 M82,77 L77,82"}
+    {"maze","M9,9 L90,9 L90,90 L9,90 L9,9 M34,9 L34,36 L63,36 L63,63 L90,63 M9,63 L34,63 L34,90 M63,9 L63,23 M63,78 L63,90 M77,77 L82,82 M82,77 L77,82"},
+    {"mousedash","M62,51 A12,12 0 1 1 38,51 A12,12 0 1 1 62,51 M50,28 L50,18 M73,51 L83,51 M27,51 L17,51 M50,74 L50,84 M17,15 A5,5 0 1 1 7,15 A5,5 0 1 1 17,15 M89,19 A5,5 0 1 1 79,19 A5,5 0 1 1 89,19 M86,84 A5,5 0 1 1 76,84 A5,5 0 1 1 86,84 M23,83 A5,5 0 1 1 13,83 A5,5 0 1 1 23,83"}
    };dc.PushTransform(new ScaleTransform(Width/100,Height/100));dc.DrawGeometry(null,new Pen(new SolidColorBrush(palette.Ink),4){StartLineCap=PenLineCap.Round,EndLineCap=PenLineCap.Round,LineJoin=PenLineJoin.Round},Geometry.Parse(paths[kind]));dc.Pop();
   }
  }

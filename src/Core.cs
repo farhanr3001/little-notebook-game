@@ -38,6 +38,7 @@ namespace LittleNotebook {
  }
  public class Profile {
   public Dictionary<string,MiniProgress> MiniGames=new Dictionary<string,MiniProgress>();
+  public int StackBest;
   public int Version = 1;
   public string Name = "", Sticker = "leaf", LastPlayed = "";
   public int Character = 0, Coins = 40, BestStreak = 0, StudyCards = 0;

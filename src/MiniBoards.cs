@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -7,10 +7,11 @@ namespace LittleNotebook {
   public int Level=1,Seed,BestCompleted,Completed,Failures;public double BestSeconds,LastSeconds;
  }
  public static class MiniCatalog {
-  public static readonly string[] Keys={"arrows","signal","pulse","lanterns","tiles","echo","maze","mousedash"};
+  public static readonly string[] Keys={"arrows","signal","pulse","stack","tiles","echo","maze","mousedash"};
   public static void Normalize(Profile profile){
    if(profile.MiniGames==null)profile.MiniGames=new Dictionary<string,MiniProgress>();
-   foreach(string key in Keys){MiniProgress value;if(!profile.MiniGames.TryGetValue(key,out value)||value==null)profile.MiniGames[key]=value=new MiniProgress();
+   profile.StackBest=Math.Max(0,profile.StackBest);if(profile.Settings.SelectedMiniGame=="lanterns")profile.Settings.SelectedMiniGame="stack";
+   foreach(string key in Keys.Where(k=>k!="stack")){MiniProgress value;if(!profile.MiniGames.TryGetValue(key,out value)||value==null)profile.MiniGames[key]=value=new MiniProgress();
     value.Level=Math.Max(1,Math.Min(100000,value.Level));value.BestCompleted=Math.Max(0,value.BestCompleted);
     if(value.Seed==0)value.Seed=Guid.NewGuid().GetHashCode()|1;
     if(double.IsNaN(value.BestSeconds)||double.IsInfinity(value.BestSeconds)||value.BestSeconds<0)value.BestSeconds=0;
@@ -94,23 +95,6 @@ namespace LittleNotebook {
    var scramble=new Random(unchecked(seed^0x45ab19));for(int attempt=0;attempt<200;attempt++){best.Masks=(int[])best.SolutionMasks.Clone();for(int i=0;i<best.Masks.Length;i++)for(int r=scramble.Next(4);r>0;r--)best.Masks[i]=MiniGrid.Rotate(best.Masks[i]);if(!best.Solved)return best;}
    throw new InvalidOperationException("Could not scramble the route.");
   }
- }
- public sealed class LanternBoard {
-  public int Size,Moves;public ulong State;
-  public ulong Effect(int cell){ulong mask=1UL<<cell;for(int d=0;d<4;d++){int next=MiniGrid.Next(cell,d,Size,Size);if(next>=0)mask|=1UL<<next;}return mask;}
-  public void Press(int cell){State^=Effect(cell);Moves++;}
-  public ulong? Solve(){
-   int n=Size*Size;var rows=new ulong[n];var rhs=new bool[n];for(int r=0;r<n;r++){rows[r]=Effect(r);rhs[r]=(State&(1UL<<r))!=0;}int rank=0;var pivots=new List<int>();
-   for(int column=0;column<n;column++){int row=rank;while(row<n&&(rows[row]&(1UL<<column))==0)row++;if(row==n)continue;ulong mask=rows[rank];rows[rank]=rows[row];rows[row]=mask;bool bit=rhs[rank];rhs[rank]=rhs[row];rhs[row]=bit;
-    for(int other=0;other<n;other++)if(other!=rank&&(rows[other]&(1UL<<column))!=0){rows[other]^=rows[rank];rhs[other]^=rhs[rank];}pivots.Add(column);rank++;
-   }
-   for(int r=rank;r<n;r++)if(rows[r]==0&&rhs[r])return null;ulong solution=0;for(int r=0;r<rank;r++)if(rhs[r])solution|=1UL<<pivots[r];
-   var free=Enumerable.Range(0,n).Where(c=>!pivots.Contains(c)).ToArray();var basis=new ulong[free.Length];
-   for(int i=0;i<free.Length;i++){basis[i]=1UL<<free[i];for(int r=0;r<rank;r++)if((rows[r]&(1UL<<free[i]))!=0)basis[i]|=1UL<<pivots[r];}
-   ulong best=solution;int count=Count(best);for(int mask=1;mask<(1<<basis.Length);mask++){ulong candidate=solution;for(int i=0;i<basis.Length;i++)if((mask&(1<<i))!=0)candidate^=basis[i];int bits=Count(candidate);if(bits<count){best=candidate;count=bits;}}return best;
-  }
-  public static int Count(ulong value){int count=0;while(value!=0){value&=value-1;count++;}return count;}
-  public static LanternBoard Generate(int level,int seed){var board=new LanternBoard{Size=Math.Min(7,3+(level-1)/6)};var random=new Random(seed);ulong best=0;int bestCount=-1,minimum=Math.Min(12,Math.Min(board.Size*board.Size/3,2+(level-1)/2));for(int attempt=0;attempt<128;attempt++){board.State=0;for(int i=0;i<Math.Min(board.Size*board.Size*2,5+level*2);i++)board.State^=board.Effect(random.Next(board.Size*board.Size));int count=Count(board.Solve().Value);if(count>bestCount){bestCount=count;best=board.State;}if(count>=minimum)return board;}board.State=best;return board;}
  }
  public sealed class SlidingBoard {
   public int Size,Blank,Moves;public int[] Tiles;public List<int> Scramble=new List<int>();

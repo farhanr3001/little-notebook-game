@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -8,7 +8,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 
 namespace LittleNotebook {
- public sealed class MiniSurface:FrameworkElement {
+ public sealed partial class MiniSurface:FrameworkElement {
   public readonly MiniSession Session;readonly Palette palette;readonly bool ar,reduced;readonly double textScale;
   public ScrollViewer Viewport;public Action<int> Press;public int Hover=-1;
   public Action<Point> DashDown,DashMove;public Action DashUp;
@@ -17,9 +17,9 @@ namespace LittleNotebook {
    Session=session;palette=colors;ar=arabic;reduced=reducedMotion;textScale=scale/.9;Focusable=true;FocusVisualStyle=null;
    Size size=BoardSize();Width=size.Width;Height=size.Height;Cursor=Cursors.Arrow;ClipToBounds=session.Kind!="arrows";
   }
-  public double CellSize{get{return Session.Kind=="arrows"?42:Session.Kind=="signal"?64:Session.Kind=="lanterns"?64:Session.Kind=="tiles"?78:32;}}
+  public double CellSize{get{return Session.Kind=="arrows"?42:Session.Kind=="signal"?64:Session.Kind=="tiles"?78:32;}}
   public double MarginSize{get{return Session.Kind=="signal"?50:Session.Kind=="maze"?28:24;}}
-  Size BoardSize(){switch(Session.Kind){case "mousedash":return new Size(MouseDashBoard.Width,MouseDashBoard.Height);case "arrows":return new Size(Session.Arrows.Size*42+48,Session.Arrows.Size*42+48);case "signal":return new Size(Session.Signal.Width*64+100,Session.Signal.Height*64+100);case "lanterns":return new Size(Session.Lanterns.Size*64+48,Session.Lanterns.Size*64+48);case "tiles":return new Size(Session.Tiles.Size*78+48,Session.Tiles.Size*78+48);case "maze":return new Size(Session.Maze.Size*32+56,Session.Maze.Size*32+56);case "echo":return new Size((Session.PadCount/2)*116+48,304);default:return new Size(540,380);}}
+  Size BoardSize(){switch(Session.Kind){case "stack":return new Size(900,408);case "mousedash":return new Size(MouseDashBoard.Width,MouseDashBoard.Height);case "arrows":return new Size(Session.Arrows.Size*42+48,Session.Arrows.Size*42+48);case "signal":return new Size(Session.Signal.Width*64+100,Session.Signal.Height*64+100);case "tiles":return new Size(Session.Tiles.Size*78+48,Session.Tiles.Size*78+48);case "maze":return new Size(Session.Maze.Size*32+56,Session.Maze.Size*32+56);case "echo":return new Size((Session.PadCount/2)*116+48,304);default:return new Size(540,380);}}
   Brush Ink{get{return new SolidColorBrush(palette.Ink);}}
   Brush Brush(Color color){return new SolidColorBrush(color);}
   Color Blend(Color color,double alpha){return Color.FromRgb((byte)(color.R*alpha+palette.Paper.R*(1-alpha)),(byte)(color.G*alpha+palette.Paper.G*(1-alpha)),(byte)(color.B*alpha+palette.Paper.B*(1-alpha)));}
@@ -27,10 +27,10 @@ namespace LittleNotebook {
   Pen Pen(Color color,double width){return new Pen(Brush(color),width){StartLineCap=PenLineCap.Round,EndLineCap=PenLineCap.Round,LineJoin=PenLineJoin.Round};}
   void Label(DrawingContext dc,string value,Point center,double size,Color? color=null){var text=new FormattedText(value,CultureInfo.InvariantCulture,ar?FlowDirection.RightToLeft:FlowDirection.LeftToRight,new Typeface("Segoe Print"),size*textScale,Brush(color??palette.Ink),1.0){TextAlignment=TextAlignment.Center};dc.DrawText(text,new Point(center.X,center.Y-text.Height/2));}
   Point Center(int cell,int width,double size,double margin){return new Point(margin+(cell%width+.5)*size,margin+(cell/width+.5)*size);}
-  public Rect CellRect(int cell){int columns=Session.Kind=="signal"?Session.Signal.Width:Session.Kind=="arrows"?Session.Arrows.Size:Session.Kind=="maze"?Session.Maze.Size:Session.Kind=="tiles"?Session.Tiles.Size:Session.Lanterns.Size;double size=CellSize;return new Rect(MarginSize+cell%columns*size,MarginSize+cell/columns*size,size,size);}
+  public Rect CellRect(int cell){int columns=Session.Kind=="signal"?Session.Signal.Width:Session.Kind=="arrows"?Session.Arrows.Size:Session.Kind=="maze"?Session.Maze.Size:Session.Kind=="tiles"?Session.Tiles.Size:Session.Maze.Size;double size=CellSize;return new Rect(MarginSize+cell%columns*size,MarginSize+cell/columns*size,size,size);}
   protected override void OnRender(DrawingContext dc){
    dc.DrawRectangle(Brushes.Transparent,null,new Rect(0,0,Width,Height));
-   switch(Session.Kind){case "mousedash":DrawDash(dc);break;case "arrows":DrawArrows(dc);break;case "signal":DrawSignal(dc);break;case "lanterns":DrawLanterns(dc);break;case "tiles":DrawTiles(dc);break;case "maze":DrawMaze(dc);break;case "echo":DrawEcho(dc);break;case "pulse":DrawPulse(dc);break;}
+   switch(Session.Kind){case "stack":DrawStack(dc);break;case "mousedash":DrawDash(dc);break;case "arrows":DrawArrows(dc);break;case "signal":DrawSignal(dc);break;case "tiles":DrawTiles(dc);break;case "maze":DrawMaze(dc);break;case "echo":DrawEcho(dc);break;case "pulse":DrawPulse(dc);break;}
    if(Session.Phase=="complete"&&Session.Kind=="arrows")Label(dc,ar?"أحسنت!":"Beautifully cleared!",new Point(Width/2,Height/2),23);
   }
   void DrawArrows(DrawingContext dc){
@@ -61,15 +61,6 @@ namespace LittleNotebook {
    double inputY=Center(board.Source,board.Width,size,50).Y,outputY=Center(board.Destination,board.Width,size,50).Y;
    dc.DrawLine(Pen(palette.Accent,4),new Point(12,inputY),new Point(48,inputY));dc.DrawLine(Pen(lit[board.Destination]&&(board.Masks[board.Destination]&2)!=0?palette.Gold:palette.Ink,4),new Point(50+board.Width*size,outputY),new Point(86+board.Width*size,outputY));
    Label(dc,ar?"من":"IN",new Point(25,inputY-23),12);Label(dc,ar?"إلى":"OUT",new Point(75+board.Width*size,outputY-23),12);
-  }
-  void DrawLanterns(DrawingContext dc){
-   var board=Session.Lanterns;double t=reduced?1:Math.Min(1,Session.LanternTime/.16);
-   for(int cell=0;cell<board.Size*board.Size;cell++){
-    bool on=(board.State&(1UL<<cell))!=0,was=(Session.PreviousLanterns&(1UL<<cell))!=0;double glow=(was?1:0)*(1-t)+(on?1:0)*t;bool preview=Hover>=0&&(board.Effect(Hover)&(1UL<<cell))!=0;
-    Rect r=CellRect(cell);r.Inflate(-5,-5);Point center=new Point(r.X+r.Width/2,r.Y+r.Height/2);
-    dc.DrawRoundedRectangle(Brush(Mix(Blend(palette.Line,.14),Blend(palette.Gold,.70),glow)),Pen(preview||cell==Session.SelectedCell&&IsKeyboardFocusWithin?palette.Accent:palette.Ink,preview?2.4:1.4),r,11,11);
-    dc.DrawEllipse(Brush(Mix(Blend(palette.Line,.14),palette.Paper,glow)),Pen(palette.Ink,1.6),new Point(center.X,center.Y-3),8,9);dc.DrawLine(Pen(palette.Ink,1.6),new Point(center.X-4,center.Y+7),new Point(center.X+4,center.Y+7));dc.DrawLine(Pen(palette.Ink,1.6),new Point(center.X-3,center.Y+11),new Point(center.X+3,center.Y+11));
-   }
   }
   void DrawTile(DrawingContext dc,int value,Rect r){r.Inflate(-4,-4);dc.DrawRoundedRectangle(Brush(palette.Light),Pen(palette.Ink,1.5),r,9,9);Label(dc,value.ToString(),new Point(r.X+r.Width/2,r.Y+r.Height/2),27);}
   void DrawTiles(DrawingContext dc){
@@ -134,11 +125,12 @@ namespace LittleNotebook {
   }
   static double Distance(Point point,Point a,Point b){Vector line=b-a;double t=line.LengthSquared==0?0:Math.Max(0,Math.Min(1,Vector.Multiply(point-a,line)/line.LengthSquared));return (point-(a+line*t)).Length;}
   public int Hit(Point point){
+   if(Session.Stack!=null)return new Rect(0,0,Width,Height).Contains(point)?0:-1;
    if(Session.Dash!=null)return -1;
    if(Session.Kind=="arrows"){for(int i=Session.Arrows.Arrows.Count-1;i>=0;i--){var arrow=Session.Arrows.Arrows[i];if(arrow.Removed)continue;var path=MovingArrow(arrow,Session.Arrows.Size,i==Session.ActiveArrow&&!reduced?Session.ArrowTravel:0);for(int j=1;j<path.Count;j++)if(Distance(point,path[j-1],path[j])<11)return i;}return -1;}
    if(Session.Kind=="pulse")return (point-new Point(270,172)).Length<155?0:-1;
    if(Session.Kind=="echo"){for(int i=0;i<Session.PadCount;i++)if(PadRect(i).Contains(point))return i;return -1;}
-   int width=Session.Kind=="signal"?Session.Signal.Width:Session.Kind=="lanterns"?Session.Lanterns.Size:Session.Kind=="tiles"?Session.Tiles.Size:Session.Maze.Size,height=Session.Kind=="signal"?Session.Signal.Height:width;
+   int width=Session.Kind=="signal"?Session.Signal.Width:Session.Kind=="tiles"?Session.Tiles.Size:Session.Maze.Size,height=Session.Kind=="signal"?Session.Signal.Height:width;
    int x=(int)Math.Floor((point.X-MarginSize)/CellSize),y=(int)Math.Floor((point.Y-MarginSize)/CellSize);return x<0||x>=width||y<0||y>=height?-1:y*width+x;
   }
   public bool CanPan{get{return Viewport!=null&&(Viewport.ScrollableWidth>1||Viewport.ScrollableHeight>1);}}
@@ -155,7 +147,7 @@ namespace LittleNotebook {
   protected override void OnMouseMove(MouseEventArgs e){
    if(Session.Dash!=null){if(IsMouseCaptured&&e.LeftButton==MouseButtonState.Pressed&&DashMove!=null)DashMove(e.GetPosition(this));if(Session.Phase!="playing"&&IsMouseCaptured)CancelDashPointer();e.Handled=true;return;}
    if(dragging&&Viewport!=null){MovePan(e.GetPosition(Viewport));e.Handled=true;return;}
-   if(Session.Kind=="arrows"||Session.Kind=="lanterns"){int next=Hit(e.GetPosition(this));Cursor=Cursors.Arrow;if(next!=Hover){Hover=next;InvalidateVisual();}}
+   if(Session.Kind=="arrows"){int next=Hit(e.GetPosition(this));Cursor=Cursors.Arrow;if(next!=Hover){Hover=next;InvalidateVisual();}}
   }
   public void CancelDashPointer(){if(Session.Dash==null)return;Cursor=Cursors.Arrow;if(IsMouseCaptured)ReleaseMouseCapture();}
   protected override void OnMouseLeftButtonUp(MouseButtonEventArgs e){if(Session.Dash!=null){CancelDashPointer();if(DashUp!=null)DashUp();e.Handled=true;return;}if(dragging){EndPan();ReleaseMouseCapture();if(!moved&&Session.Kind=="maze"&&downCell>=0&&Press!=null)Press(downCell);e.Handled=true;}}
@@ -171,7 +163,7 @@ namespace LittleNotebook {
     {"arrows","M15,78 L40,78 L40,51 L73,51 L73,15 M61,27 L73,15 L85,27 M16,18 L38,18 L38,36 M28,26 L38,36 L48,26"},
     {"signal","M12,27 L40,27 L40,72 L68,72 L68,27 L88,27 M12,59 L24,59 M83,58 L83,85 L55,85"},
     {"pulse","M79,48 A30,30 0 1 1 50,18 M50,8 L50,26 M72,29 L84,17 M38,47 L62,47 L62,72 L38,72 Z M42,47 L42,39 Q50,27 58,39 L58,47"},
-    {"lanterns","M31,58 C4,24 35,3 50,9 C74,2 97,29 69,58 L65,73 L35,73 Z M36,82 L64,82 M41,91 L59,91 M50,0 L50,5 M5,41 L15,41 M85,41 L95,41"},
+    {"stack","M12,75 L88,75 L88,91 L12,91 Z M22,50 L79,50 L79,67 L22,67 Z M35,25 L80,25 L80,42 L35,42 Z M17,8 L56,8 L56,18 L17,18 Z M68,9 L88,9 M83,3 L90,9 L83,15"},
     {"tiles","M8,8 L44,8 L44,44 L8,44 Z M56,8 L92,8 L92,44 L56,44 Z M8,56 L44,56 L44,92 L8,92 Z M64,65 L84,84 M84,65 L64,84"},
     {"echo","M8,19 L92,19 L92,87 L8,87 Z M29,19 L29,87 M50,19 L50,87 M71,19 L71,87 M22,19 L36,19 L36,54 L22,54 Z M64,19 L78,19 L78,54 L64,54 Z"},
     {"maze","M9,9 L90,9 L90,90 L9,90 L9,9 M34,9 L34,36 L63,36 L63,63 L90,63 M9,63 L34,63 L34,90 M63,9 L63,23 M63,78 L63,90 M77,77 L82,82 M82,77 L77,82"},

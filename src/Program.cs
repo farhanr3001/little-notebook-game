@@ -26,7 +26,9 @@ namespace LittleNotebook {
     bool health=Array.IndexOf(args,"--health-test")>=0;bool delivery=Array.IndexOf(args,"--delivery-test")>=0;bool liveUpdate=Array.IndexOf(args,"--live-update-test")>=0;bool mediaLive=Array.IndexOf(args,"--media-live-test")>=0;bool media=Array.IndexOf(args,"--media-test")>=0||mediaLive;
     bool notebook=Array.IndexOf(args,"--notebook-test")>=0;bool revision=Array.IndexOf(args,"--revision-test")>=0;
     bool notebookReview=Array.IndexOf(args,"--notebook-review")>=0;
-    var window=new MainWindow(media||delivery||health||revision||notebookReview||notebook||update||narration||stress||smoke||Array.IndexOf(args,"--review")>=0,revision?"revision-profile.json":notebookReview?"notebook-preview-profile.json":notebook?"notebook-profile.json":update?"update-profile.json":narration?"narration-profile.json":stress?"stress-profile.json":smoke?"smoke-profile.json":"ui-profile.json");
+    bool minigames=Array.IndexOf(args,"--minigame-test")>=0;
+    var window=new MainWindow(minigames||media||delivery||health||revision||notebookReview||notebook||update||narration||stress||smoke||Array.IndexOf(args,"--review")>=0,minigames?"minigames-profile.json":revision?"revision-profile.json":notebookReview?"notebook-preview-profile.json":notebook?"notebook-profile.json":update?"update-profile.json":narration?"narration-profile.json":stress?"stress-profile.json":smoke?"smoke-profile.json":"ui-profile.json");
+    if(minigames){window.ShowActivated=false;window.WindowState=WindowState.Minimized;window.Loaded+=(s,e)=>window.Dispatcher.BeginInvoke(new Action(()=>window.RunMiniGameTests()),DispatcherPriority.ApplicationIdle);}
     if(notebook||revision||health||delivery||liveUpdate)window.ShowActivated=false;
     if(delivery||liveUpdate||media)window.WindowState=WindowState.Minimized;
     if(stress||narration){window.ShowActivated=false;window.WindowState=WindowState.Minimized;}

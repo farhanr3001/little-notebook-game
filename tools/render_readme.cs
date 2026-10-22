@@ -76,18 +76,19 @@ static class ReadmeRenderer {
   Console.WriteLine("PASS: 10 focused notebook checks: tool ordering, colour presets/hex/recent colours, original-photo visibility, layer order, aligned resize and retained edits.");
  }
  static void Scene(MainWindow window, string page, string image) { Set(window, "page", page); Call(window, "Build"); Call(window, "Capture", "public-" + image); }
- [STAThread] static int Main() {
+ [STAThread] static int Main(string[] args) {
+  bool verify=Array.IndexOf(args,"--verify")>=0;
   Diagnostics.Testing = true;
   var app = new Application();
   var window = new MainWindow(true, "readme-profile.json") { ShowActivated = false, WindowState = WindowState.Minimized };
-  window.Loaded += (sender, args) => window.Dispatcher.BeginInvoke(new Action(() => {
+  window.Loaded += (sender, eventArgs) => window.Dispatcher.BeginInvoke(new Action(() => {
    try {
     ((DispatcherTimer)typeof(MainWindow).GetField("timer", Private).GetValue(window)).Stop();
     window.Profile = new Profile { Name = "Maya", Character = 0 };
     window.Profile.Settings.Music = false; window.Profile.Settings.Sound = false; window.Profile.Settings.Volume = 0;
     Scene(window, "welcome", "setup");
     Set(window, "selectedTopic", "mixed"); window.Profile.Settings.Difficulty = 3;
-    Set(window,"page","home");Call(window,"Build");CheckHomeControls(window);
+    Set(window,"page","home");Call(window,"Build");if(verify)CheckHomeControls(window);
     Scene(window, "home", "home");
     var bank = (QuestionBank)typeof(MainWindow).GetField("bank", Private).GetValue(window);
     var question = bank.Questions.First(q => q.Kind == "order" && q.Difficulty == 1);
@@ -97,7 +98,7 @@ static class ReadmeRenderer {
     window.Profile.Notebook = new List<NotebookPage> { new NotebookPage { Template = "rabbit-body" } };
     window.Profile.NotebookIndex = 0;
     Scene(window, "notebook", "notebook");
-    CheckNotebookControls(window);
+    if(verify)CheckNotebookControls(window);
     Console.WriteLine("Rendered setup, Play, gameplay and notebook with Maya.");
    } catch(Exception error) { Console.Error.WriteLine(error); Environment.ExitCode = 1; }
    finally { Set(window, "game", null); Set(window, "closing", true); window.Close(); }

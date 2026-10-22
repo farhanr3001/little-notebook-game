@@ -6,6 +6,7 @@ using System.Web.Script.Serialization;
 
 namespace LittleNotebook {
  public class Settings {
+  public string PlaySection="learning",SelectedMiniGame="arrows";
   public string Language = "en", Theme = "matcha", Topics="mixed";
   public bool Timer = true, Sound = true, Music = true, ReducedMotion = false;
   public double Volume = 0.3;
@@ -36,6 +37,7 @@ namespace LittleNotebook {
   public bool Completed, Endless;
  }
  public class Profile {
+  public Dictionary<string,MiniProgress> MiniGames=new Dictionary<string,MiniProgress>();
   public int Version = 1;
   public string Name = "", Sticker = "leaf", LastPlayed = "";
   public int Character = 0, Coins = 40, BestStreak = 0, StudyCards = 0;

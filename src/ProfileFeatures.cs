@@ -35,6 +35,7 @@ namespace LittleNotebook {
    new Reward{Id="stamp:animals",Category="stamps",Name="Animal stamps",NameAr="طوابع الحيوانات",Art="cat",Price=110}
   };
   public static void Normalize(Profile p){
+   MiniCatalog.Normalize(p);
    if(p.Notebook==null||p.Notebook.Count==0)p.Notebook=new List<NotebookPage>{new NotebookPage()};
    p.Notebook=p.Notebook.Where(x=>x!=null).ToList();if(p.Notebook.Count==0)p.Notebook.Add(new NotebookPage());
    foreach(var page in p.Notebook){if(string.IsNullOrEmpty(page.Id))page.Id=Guid.NewGuid().ToString("N");if(page.Ink==null)page.Ink="";if(page.Template==null)page.Template="none";page.Height=Math.Max(414,Math.Min(12000,double.IsNaN(page.Height)?414:page.Height));if(page.Images==null)page.Images=new List<NotebookImage>();if(page.Texts==null)page.Texts=new List<NotebookText>();page.Texts=page.Texts.Where(x=>x!=null).ToList();foreach(var text in page.Texts){if(string.IsNullOrEmpty(text.Id))text.Id=Guid.NewGuid().ToString("N");text.Text=text.Text??"";text.FontSize=Math.Max(10,Math.Min(100,text.FontSize));text.Width=Math.Max(40,Math.Min(940,text.Width));text.Height=Math.Max(30,Math.Min(12000,text.Height));text.X=Math.Max(0,Math.Min(900,text.X));text.Y=Math.Max(0,Math.Min(page.Height-30,text.Y));}}

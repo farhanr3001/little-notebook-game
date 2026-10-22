@@ -4,7 +4,7 @@ from zipfile import ZipFile, ZIP_DEFLATED
 import argparse, hashlib, json, shutil, re
 
 root=Path(__file__).resolve().parent.parent
-parser=argparse.ArgumentParser();parser.add_argument('--source',default='Little Notebook v0.4.0');parser.add_argument('--version',default='0.4.1');args=parser.parse_args()
+parser=argparse.ArgumentParser();parser.add_argument('--source',default='release-build');parser.add_argument('--version',default=re.search(r'Version="([0-9.]+)"',(root/'src/AppInfo.cs').read_text(encoding='utf-8')).group(1));args=parser.parse_args()
 source=root/args.source;release=root/'releases';payload=release/'payload';packs=release/'update-packs'
 payload.mkdir(parents=True,exist_ok=True);packs.mkdir(parents=True,exist_ok=True)
 docs=['README.md','ASSETS.md']
@@ -21,7 +21,7 @@ def digest(path):
  return h.hexdigest()
 def component(relative):
  p=relative.parts
- if p[0]=='assets':return 'music' if relative.suffix=='.mp3' else 'listening' if len(p)>1 and p[1]=='speech' else 'art'
+ if p[0]=='assets':return 'minigames-audio' if len(p)>1 and p[1]=='minigames' else 'music' if relative.suffix=='.mp3' else 'listening' if len(p)>1 and p[1]=='speech' else 'art'
  if p[0]=='speech-runtime':
   if len(p)>1 and p[1]=='media':return 'media-tools'
   if p[-1]=='media_worker.py':return 'app'
@@ -53,7 +53,7 @@ for name,items in groups.items():
    for path,relative in items:z.write(path,relative)
   with ZipFile(target) as z:assert z.testzip() is None
  packages.append(dict(name=name,url=base+name,sha256=digest(target),size=target.stat().st_size))
-manifest=dict(version=args.version,repository='farhanr3001/little-notebook-game',notes='Improved notebook tools, tracing import, study/mistake review, paper customization, music controls, category selection and native updates. Your saved progress is kept.',files=records,packs=packages)
+manifest=dict(version=args.version,repository='farhanr3001/little-notebook-game',notes='Seven new progressive minigames: Arrow Escape, Signal Path, Pulse Lock, Lanterns, Sliding Tiles, Echo Keys and Starlight Maze. Each saves its own level. Your learning progress, character, notebook and music are kept.',files=records,packs=packages)
 for dest in [payload/'payload-manifest.json',release/'update-manifest.json']:dest.write_text(json.dumps(manifest,ensure_ascii=False,indent=2),encoding='utf-8')
 assert not any('profile.json' in x['path'] or x['path'].startswith('data/') for x in records)
 print(f'PASS: {len(records)} managed files, {len(packages)} verified component packs. No user saves in payload.')

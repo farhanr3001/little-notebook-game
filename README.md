@@ -1,12 +1,14 @@
 # Little Notebook
 
-A cosy learning game for Windows, with a notebook to draw in and a little radio to keep you company.
+A cosy learning and puzzle game for Windows, with a notebook to draw in and a little radio to keep you company.
 
 ![Choose your character and enter your name](docs/images/setup.png)
 
 Play English, maths, puzzles and general-knowledge questions. Choose your topics and difficulty, practise with English and Arabic speech, and review your mistakes at your own pace. Earn stars for characters, pets and decorations.
 
 Between rounds, write or draw in your notebook, try tracing pictures, and listen to your own music. Import several music files together or add audio from a public YouTube/TikTok link.
+
+Take a break with seven progressive minigames, including Arrow Escape, Signal Path and Pulse Lock. Each keeps its own saved level.
 
 ## Install
 
@@ -18,6 +20,7 @@ The game checks for updates when opened. Updates keep your character, progress a
 
 ![Choose topics, question types and difficulty](docs/images/home.png)
 ![Gameplay](docs/images/gameplay.png)
+![Arrow Escape minigame](docs/images/arrow-escape.png)
 ![Drawing notebook](docs/images/notebook.png)
 
 Music-link imports require an internet connection; availability depends on the source. [Asset and third-party credits](ASSETS.md).

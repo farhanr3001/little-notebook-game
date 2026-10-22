@@ -25,6 +25,7 @@ namespace LittleNotebook {
   public int Previous(){if(position>0)position--;return Current;}
  }
  public class AudioSystem : IDisposable {
+  readonly MediaPlayer[] miniPlayers=Enumerable.Range(0,4).Select(i=>new MediaPlayer()).ToArray();int miniVoice;
   MediaPlayer music=new MediaPlayer(),effect=new MediaPlayer();SpeechSynthesizer speech;Settings settings;
   readonly Dispatcher owner=Dispatcher.CurrentDispatcher;Prompt activePrompt;bool disposed,systemVoiceAvailable;readonly MediaPlayer neuralPlayer=new MediaPlayer();MediaPlayer narration;string clipWord;
   readonly NeuralSpeechService questionVoice=new NeuralSpeechService();CancellationTokenSource questionRequest;Queue<string> questionClips=new Queue<string>();public string SpeechError="";public bool IsSpeaking{get{return speaking;}}public bool IsPreparingQuestion{get{return questionRequest!=null;}}public bool QuestionVoiceAvailable(string language){return !disposed&&questionVoice.Available(language);}
@@ -60,6 +61,10 @@ namespace LittleNotebook {
   public void RenameTrack(string file,string title){title=(title??"").Trim().Replace("\r"," ").Replace("\n"," ");if(title.Length==0)return;if(title.Length>120)title=title.Substring(0,120);var track=AllTracks.FirstOrDefault(t=>t.File==file&&t.Custom);if(track==null)return;settings.MusicTitles[file]=title;track.Title=title;}
   public void SetTrackEnabled(string file,bool enabled){string current=Tracks.Count==0?null:Tracks[settings.Track].File;if(enabled)settings.DisabledMusic.Remove(file);else if(!settings.DisabledMusic.Contains(file))settings.DisabledMusic.Add(file);Tracks=AllTracks.Where(x=>!settings.DisabledMusic.Contains(x.File)).ToList();settings.Track=Math.Max(0,Tracks.FindIndex(x=>x.File==current));playlist=new ShufflePlaylist(Tracks.Count,settings.Track);LoadTrack();if(TrackChanged!=null)TrackChanged();}
   public void Fx(string type){if(disposed||!settings.Sound)return;effect.Open(new Uri(Resolve(type+".wav")));effect.Volume=type=="click"?.18:.32;effect.Play();}
+  void MiniClip(string name,double volume){if(disposed||!settings.Sound||Diagnostics.Testing)return;string file=Resolve("minigames/"+name+".wav");if(!File.Exists(file))return;var player=miniPlayers[miniVoice++%miniPlayers.Length];player.Open(new Uri(file));player.Volume=volume;player.Play();}
+  public void MiniNote(int note){MiniClip(note<0?"low":"note-"+(note%8),.25);}
+  public void MiniWin(){MiniClip("clear",.28);}
+  public void StopMiniSounds(){if(disposed)return;foreach(var player in miniPlayers){player.Stop();player.Close();}}
   public void Typing(){if(disposed||!settings.Sound||(DateTime.UtcNow-lastTyping).TotalMilliseconds<75)return;lastTyping=DateTime.UtcNow;effect.Open(new Uri(Resolve("typing.wav")));effect.Volume=.095;effect.Play();}
   bool SpeakSystem(string word){if(!systemVoiceAvailable)return false;try{activePrompt=new Prompt(word);speaking=true;LastVoiceBackend="Windows fallback";ApplyVolume();speech.SpeakAsync(activePrompt);return true;}catch{activePrompt=null;speaking=false;ApplyVolume();return false;}}
   void PlayQuestionClip(){string path=questionClips.Dequeue();narration=neuralPlayer;clipWord=null;neuralPlayer.Volume=.85;neuralPlayer.Open(new Uri(path));neuralPlayer.Play();}
@@ -74,6 +79,6 @@ namespace LittleNotebook {
    try{player.Open(new Uri(clip));player.Play();return true;}catch{narration=null;player.Stop();speaking=false;ApplyVolume();return SpeakSystem(word);}
   }
   public void StopSpeech(){if(disposed)return;var request=questionRequest;questionRequest=null;if(request!=null)request.Cancel();questionClips.Clear();activePrompt=null;clipWord=null;speaking=false;var player=narration;narration=null;if(player!=null)player.Stop();if(speech!=null)try{speech.SpeakAsyncCancelAll();}catch(ObjectDisposedException){}ApplyVolume();}
-  public void Dispose(){if(disposed)return;StopSpeech();disposed=true;questionVoice.Dispose();activePrompt=null;speaking=false;systemVoiceAvailable=false;var player=narration;narration=null;if(player!=null)player.Close();if(speech!=null){speech.SpeakCompleted-=SpeechCompleted;speech.SpeakAsyncCancelAll();speech.Dispose();}neuralPlayer.Close();music.Close();effect.Close();TrackChanged=null;}
+  public void Dispose(){if(disposed)return;StopSpeech();StopMiniSounds();disposed=true;questionVoice.Dispose();activePrompt=null;speaking=false;systemVoiceAvailable=false;var player=narration;narration=null;if(player!=null)player.Close();if(speech!=null){speech.SpeakCompleted-=SpeechCompleted;speech.SpeakAsyncCancelAll();speech.Dispose();}neuralPlayer.Close();music.Close();effect.Close();TrackChanged=null;}
  }
 }

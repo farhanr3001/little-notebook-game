@@ -65,3 +65,7 @@ Installer prerequisites: original Microsoft-signed .NET Framework 4.8 offline in
 ## Music link imports
 
 The private importer bundles yt-dlp 2026.10.21 and its default dependencies/EJS, Deno 2.9.8, and the original FFmpeg essentials Windows build. Upstream URLs, binary hashes and bundled licenses are included under speech-runtime/media. yt-dlp: Unlicense (https://github.com/yt-dlp/yt-dlp); EJS: https://github.com/yt-dlp/ejs; Deno: MIT (https://github.com/denoland/deno); FFmpeg Windows build: GPLv3 (https://www.gyan.dev/ffmpeg/builds/), with source and build configuration linked there. TikTok sound resolution adapts the user-provided Kinetic Cut reference and contacts ssstik.io; TikTok video fallback uses tikwm.com. No browser cookies or accounts are imported. Download/conversion tools are owned child processes and terminate on cancellation/close.
+
+## Original minigame assets
+
+The minigame badges and boards are original vector drawing code. The soft piano-style notes and board-clearing melody are synthesized for Little Notebook by tools/make_minigame_audio.py; no third-party game artwork or audio is included.

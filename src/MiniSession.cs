@@ -91,7 +91,7 @@ namespace LittleNotebook {
   }
   public void Tick(double seconds){
    if(seconds<=0||double.IsNaN(seconds)||double.IsInfinity(seconds)||Phase=="failed")return;double dt=Math.Min(.1,seconds);bool mazeMoving=Maze!=null&&MoveTime<MazeStepSeconds;if(Phase!="complete")Elapsed+=dt;TurnTime+=dt;MoveTime+=dt;
-   if(Extra!=null){Extra.Feedback=Math.Max(0,Extra.Feedback-dt);if(Phase=="complete"){Wait-=dt;if(Wait<=0){Wait=double.MaxValue;if(Next!=null)Next();}}else CheckExtra();return;}
+   if(Extra!=null){if(Phase=="playing"&&Extra.TickCrateSearch(dt)){if(Next!=null)Next();return;}Extra.Feedback=Math.Max(0,Extra.Feedback-dt);if(Phase=="complete"){Wait-=dt;if(Wait<=0){Wait=double.MaxValue;if(Next!=null)Next();}}else CheckExtra();return;}
    if(Dash!=null){if(Phase=="playing"){Dash.Tick(dt);if(Dash.Hit){Sound(-1);Fail();}}return;}
    if(Stack!=null){Stack.Tick(dt);if(Stack.Over)Fail();return;}
    if(FeedbackTime>0){FeedbackTime=Math.Max(0,FeedbackTime-dt);if(FeedbackTime==0&&Kind=="echo"&&Phase=="playing")Highlight=-1;}

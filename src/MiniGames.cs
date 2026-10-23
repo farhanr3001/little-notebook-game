@@ -31,8 +31,8 @@ namespace LittleNotebook {public partial class MainWindow {
     var level=Label(card,kind=="stack"?T("High score ","أعلى نتيجة ")+Profile.StackBest+T(" · fresh tower each run"," · برج جديد كل محاولة"):kind=="mousedash"?T("Best ","الأفضل ")+DashTime(progress.BestSeconds)+"  ·  "+progress.Completed+T(" runs"," محاولات"):T("Level ","المستوى ")+progress.Level+"  ·  "+T("Best ","الأفضل ")+progress.BestCompleted,Ar?12:62,78,12,334);level.Foreground=B(active?p.AccentInk:p.Muted);button.Content=card;cards.Children.Add(button);
    }
    var scroll=new ScrollViewer{Width=952,Height=496,Content=cards,VerticalScrollBarVisibility=ScrollBarVisibility.Auto,HorizontalScrollBarVisibility=ScrollBarVisibility.Disabled};StylePaperScroll(scroll);Put(body,scroll,8,133);miniSelectionScroll=scroll;scroll.ApplyTemplate();scroll.Measure(new Size(952,496));scroll.Arrange(new Rect(0,0,952,496));scroll.UpdateLayout();scroll.ScrollToVerticalOffset(miniSelectionOffset);scroll.UpdateLayout();
-   Btn(body,selected=="stack"?T("Reset high score…","مسح أعلى نتيجة…"):T("Reset this game's progress…","إعادة تقدّم هذه اللعبة…"),17,656,ConfirmResetMiniProgress,285,42);
-   Btn(body,T("Records","السجلات"),316,656,ShowMiniRecords,193,42);
+   Put(body,DangerButton(selected=="stack"?T("Reset high score…","مسح أعلى نتيجة…"):T("Reset this game's progress…","إعادة تقدّم هذه اللعبة…"),ConfirmResetMiniProgress,285,42),17,656);
+   var records=Button(T("Records","السجلات"),ShowMiniRecords,193,42);records.Background=Sketch.Textured(Color.FromRgb(239,193,126));Put(body,records,316,656);
    var start=Button(T("Start game  →","ابدأ اللعبة  ←"),()=>StartMiniGame(Profile.Settings.SelectedMiniGame),344,50,true);start.Background=B(Color.FromRgb(139,255,22));start.Foreground=B(Color.FromRgb(41,56,74));Put(body,start,533,651);
    Label(body,T("New boards grow with you. Take your time, or chase a new personal best.","تزداد الصعوبة مع التقدّم. خذ وقتك أو حقق رقماً أفضل."),17,715,12,900);
   }
@@ -52,7 +52,7 @@ namespace LittleNotebook {public partial class MainWindow {
   void MiniDashDown(Point point){if(mini==null||paused||overlay.Children.Count>0)return;mini.HoldDash(point.X,point.Y);RefreshMiniHud();miniSurface.InvalidateVisual();}
   void MiniDashMove(Point point){if(mini==null||paused||overlay.Children.Count>0)return;mini.MoveDash(point.X,point.Y);RefreshMiniHud();if(miniSurface!=null)miniSurface.InvalidateVisual();}
   void MiniDashUp(){if(mini==null||mini.Dash==null)return;mini.ReleaseDash();RememberDash(false);RefreshMiniHud();if(miniSurface!=null)miniSurface.InvalidateVisual();}
-  void StopMiniGame(bool nextRound=false){ClearMiniHeldInput();if(miniRendering){CompositionTarget.Rendering-=MiniTick;miniRendering=false;}if(mini!=null){RememberDash(true);RememberStack();if(miniSurface!=null){miniSurface.EndPan();miniSurface.CancelDashPointer();}mini.Note-=PlayMiniInput;mini.Won-=MiniLevelWon;mini.Lost-=MiniLevelLost;mini=null;}miniSurface=null;miniScroll=null;audio.StopMiniSounds(!nextRound);}
+  void StopMiniGame(bool nextRound=false){ClearMiniHeldInput();if(miniRendering){CompositionTarget.Rendering-=MiniTick;miniRendering=false;}if(mini!=null){RememberDash(true);RememberStack();if(miniSurface!=null){miniSurface.EndPan();miniSurface.CancelDashPointer();}if(mini.Extra!=null)mini.Extra.CancelCrateSearch();mini.Note-=PlayMiniInput;mini.Won-=MiniLevelWon;mini.Lost-=MiniLevelLost;mini=null;}miniSurface=null;miniScroll=null;audio.StopMiniSounds(!nextRound);}
   void PlayMiniInput(int note){if(mini!=null&&mini.Kind=="arrows")audio.InterruptMiniNotes();audio.MiniNote(note);}
   void MiniLevelWon(){
    if(mini==null)return;var progress=Profile.MiniGames[mini.Kind];if(mini.Kind=="tiles"||mini.Extra!=null){progress.Results.Add(new MiniFinish{Level=mini.Level,Moves=mini.Moves,Seconds=mini.Elapsed,Date=DateTime.Now.ToString("o")});if(progress.Results.Count>200)progress.Results.RemoveAt(0);progress.LastSeconds=mini.Elapsed;progress.LastMoves=mini.Moves;if(progress.BestSeconds<=0||mini.Elapsed<progress.BestSeconds)progress.BestSeconds=mini.Elapsed;if(progress.BestMoves==0||mini.Moves<progress.BestMoves)progress.BestMoves=mini.Moves;}if(mini.Level>progress.BestCompleted){progress.BestCompleted=mini.Level;Profile.Coins+=2;}progress.Completed++;progress.Level=Math.Min(100000,mini.Level+1);Save();if(mini.Melody!=null){if(Profile.Settings.Sound)audio.MiniTune(mini.Melody);else mini.Wait=1.45;}else if(mini.Kind=="pulse")audio.MiniPulseWin();else audio.MiniWin();RefreshMiniHud();
@@ -63,7 +63,7 @@ namespace LittleNotebook {public partial class MainWindow {
    if(mini==null||page!="minigame"||paused||!IsActive)return;
    if((mini.Kind=="tiles"||mini.Extra!=null)&&mini.Phase=="playing")mini.Elapsed+=Math.Max(0,rawElapsed-elapsed);
    bool extraAnimating=mini.Extra!=null&&mini.Extra.Feedback>0;bool arrowAnimating=mini.Flights.Count>0;var before=mini;bool mazeAnimating=mini.Maze!=null&&mini.MoveTime<MiniSession.MazeStepSeconds;mini.Tick(elapsed);if(mini!=before)return;if(mini.Maze!=null)KeepMiniMazeVisible();if(mini.Dash!=null&&mini.Dash.Seconds-miniDashSaved>=5){miniDashSaved=mini.Dash.Seconds;RememberDash(false);}RefreshMiniHud();
-   if(extraAnimating||arrowAnimating||mazeAnimating||mini.Phase!="playing"||mini.Dash!=null||mini.Kind=="pulse"||mini.Stack!=null||mini.TurnTime<.18||mini.MoveTime<.18||mini.FeedbackTime>0)miniSurface.InvalidateVisual();
+   if(mini.Extra!=null&&mini.Extra.Deadlocked||extraAnimating||arrowAnimating||mazeAnimating||mini.Phase!="playing"||mini.Dash!=null||mini.Kind=="pulse"||mini.Stack!=null||mini.TurnTime<.18||mini.MoveTime<.18||mini.FeedbackTime>0)miniSurface.InvalidateVisual();
   }
   void MiniGameView(){
    if(mini==null){page="minigames";MiniGamesView();return;}
@@ -143,7 +143,7 @@ namespace LittleNotebook {public partial class MainWindow {
   static int MiniDirection(Key key){return key==Key.Up||key==Key.W?0:key==Key.Right||key==Key.D?1:key==Key.Down||key==Key.S?2:key==Key.Left||key==Key.A?3:-1;}
   void MazeKeyDown(Key key,bool repeat){if(repeat||miniHeldKeys.Contains(key)||mini==null||mini.Maze==null)return;miniHeldKeys.Add(key);mini.HoldMaze(MiniDirection(key));}
   bool MiniKeyUp(Key key){if(!miniHeldKeys.Remove(key))return false;if(mini!=null&&mini.Maze!=null)mini.HoldMaze(miniHeldKeys.Count==0?-1:MiniDirection(miniHeldKeys.Last()));return true;}
-  void ClearMiniHeldInput(){miniHeldKeys.Clear();if(miniSurface!=null&&mini!=null&&mini.Extra!=null&&mini.Extra.Kind=="untangle"&&miniSurface.IsMouseCaptured){mini.Extra.EndDrag();miniSurface.ReleaseMouseCapture();mini.CheckExtra();miniSurface.InvalidateVisual();}if(mini!=null&&mini.Maze!=null)mini.ReleaseMaze();}
+  void ClearMiniHeldInput(){miniHeldKeys.Clear();if(mini!=null&&mini.Maze!=null)mini.ReleaseMaze();}
   void KeepMiniMazeVisible(){if(miniSurface==null||miniScroll==null||mini==null||mini.Maze==null)return;double x=(28+(mini.MazeX+.5)*32)*miniZoom,y=(28+(mini.MazeY+.5)*32)*miniZoom,pad=28*miniZoom;
    if(x-pad<miniScroll.HorizontalOffset)miniScroll.ScrollToHorizontalOffset(x-pad);else if(x+pad>miniScroll.HorizontalOffset+miniScroll.ViewportWidth)miniScroll.ScrollToHorizontalOffset(x+pad-miniScroll.ViewportWidth);
    if(y-pad<miniScroll.VerticalOffset)miniScroll.ScrollToVerticalOffset(y-pad);else if(y+pad>miniScroll.VerticalOffset+miniScroll.ViewportHeight)miniScroll.ScrollToVerticalOffset(y+pad-miniScroll.ViewportHeight);

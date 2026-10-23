@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
@@ -39,7 +39,7 @@ namespace LittleNotebook {
     Label(c,T("Detail","التفاصيل"),94,580,15,100);var detail=PaperSlider(10,130,threshold,203);Put(c,detail,175,573);Label(c,T("Width","العرض"),405,580,15,88);var scale=PaperSlider(120,880,width,194);Put(c,scale,492,573);
     var regenerate=new DispatcherTimer{Interval=TimeSpan.FromMilliseconds(300)};regenerate.Tick+=(s,e)=>{regenerate.Stop();if(overlay.Children.Count==0)return;undo.Push(EncodeInk(ink.Strokes));var outlines=PhotoTracing.Extract(image,detail.Value,p.Ink);outlines.Transform(new Matrix(width/image.PixelWidth,0,0,width/image.PixelWidth,0,0),false);ink.Strokes=outlines;};detail.ValueChanged+=(s,e)=>{regenerate.Stop();regenerate.Start();};scale.ValueChanged+=(s,e)=>{if(changing)return;double next=scale.Value;ink.Strokes.Transform(new Matrix(next/width,0,0,next/width,0,0),false);width=next;height=width*image.PixelHeight/image.PixelWidth;surface.Width=ink.Width=photo.Width=width;surface.Height=ink.Height=photo.Height=height;};
     Label(c,T("Changing detail regenerates the outline; make pen edits afterwards.","تغيير التفاصيل يعيد إنشاء القالب؛ أضف تعديلات القلم بعد ذلك."),94,626,13,595);
-    Btn(c,T("Cancel","إلغاء"),100,682,()=>{regenerate.Stop();NotebookTemplates();},266,47);Btn(c,T("Place tracing","وضع القالب"),399,682,()=>{regenerate.Stop();CloseModal();BeginNotebookChange();CurrentNotebookPage.Template="imported";CurrentNotebookPage.TraceInk=EncodeInk(ink.Strokes);CurrentNotebookPage.TraceWidth=width;CurrentNotebookPage.TraceHeight=height;CurrentNotebookPage.TraceVisible=true;CurrentNotebookPage.Height=Math.Min(12000,Math.Max(CurrentNotebookPage.Height,height+70));ResizeNotebookSurface();RefreshNotebookGuide();CommitNotebookChange();},296,47,true);
+    Btn(c,T("Cancel","إلغاء"),100,682,()=>{regenerate.Stop();NotebookTemplates();},266,47);Btn(c,T("Place tracing","وضع القالب"),399,682,()=>{regenerate.Stop();CloseModal();BeginNotebookChange();CurrentNotebookPage.Template="imported";CurrentNotebookPage.TracePhoto=EncodeNotebookImage(image);CurrentNotebookPage.TraceInk=EncodeInk(ink.Strokes);CurrentNotebookPage.TraceWidth=width;CurrentNotebookPage.TraceHeight=height;CurrentNotebookPage.TraceVisible=true;CurrentNotebookPage.Height=Math.Min(12000,Math.Max(CurrentNotebookPage.Height,height+70));ResizeNotebookSurface();RefreshNotebookGuide();CommitNotebookChange();},296,47,true);
    },779);
   }
  }

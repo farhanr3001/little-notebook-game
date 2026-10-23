@@ -8,6 +8,8 @@ namespace LittleNotebook {
  public class Settings {
   public string PlaySection="learning",SelectedMiniGame="arrows";
   public string Language = "en", Theme = "matcha", Topics="mixed";
+  public bool MultiSelectTopics=true;
+  public string NotebookPen="round",NotebookArea="rectangle";
   public bool Timer = true, Sound = true, Music = true, ReducedMotion = false;
   public double Volume = 0.3;
   public double TextScale = 0.9, ButtonScale = 0.92;

@@ -59,10 +59,10 @@ namespace LittleNotebook {
    if(Kind=="paper") {
     d.DrawRoundedRectangle(B(Color.FromArgb(35,40,35,20)),null,new Rect(8,10,w-10,h-11),8,8);
     d.DrawRoundedRectangle(Textured(P.Paper),Pen(Color.FromArgb(80,P.Ink.R,P.Ink.G,P.Ink.B),1.3),new Rect(0,0,w-10,h-12),5,5);
-    if(PaperSettings==null||PaperSettings.Lines)for(double y=58;y<h-16;y+=Math.Max(20,PaperSettings==null?37:PaperSettings.Spacing))Line(d,1,y,w-12,y+1,P.Line,1);
-    if(PaperSettings==null||PaperSettings.Margin){Color margin=Color.FromRgb(201,115,110);try{margin=(Color)ColorConverter.ConvertFromString(PaperSettings.MarginColor);}catch{}margin.A=90;Line(d,65,1,67,h-14,margin,1.6);}
+    if(ActivePaper==null||ActivePaper.Lines)for(double y=58;y<h-16;y+=Math.Max(20,ActivePaper==null?37:ActivePaper.Spacing))Line(d,1,y,w-12,y+1,P.Line,1);
+    if(ActivePaper==null||ActivePaper.Margin){Color margin=Color.FromRgb(201,115,110);try{margin=(Color)ColorConverter.ConvertFromString(ActivePaper.MarginColor);}catch{}margin.A=90;Line(d,65,1,67,h-14,margin,1.6);}
     var r=new Random(58);for(int i=0;i<2600;i++){double x=r.NextDouble()*(w-13),y=r.NextDouble()*(h-14);Line(d,x,y,x+r.NextDouble()*4,y+1,Color.FromArgb(10,P.Ink.R,P.Ink.G,P.Ink.B),.6);}
-    DrawPaperBindings(d,w,h);if(w>=1000)DrawPaperDecorations(d,w,h);
+    DrawPaperBindings(d,w,h);if(w>=1000||PaperOverride!=null)DrawPaperDecorations(d,w,h);
     return;
    }
    if(Kind=="radio") {

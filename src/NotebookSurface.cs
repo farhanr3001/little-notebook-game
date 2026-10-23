@@ -19,9 +19,9 @@ namespace LittleNotebook {
    if(notebookPageId!=CurrentNotebookPage.Id){notebookUndo.Clear();notebookRedo.Clear();}notebookPageId=CurrentNotebookPage.Id;
    notebookEditing=null;notebookTools.Clear();
    string[] tools={"pencil","pen","brush","highlighter","fill","eraser"};string[] names={T("Pencil","رصاص"),T("Pen","قلم"),T("Brush","فرشاة"),T("Highlight","تظليل"),T("Fill","تعبئة"),T("Eraser","ممحاة")};
-   for(int i=0;i<tools.Length;i++){string tool=tools[i];var b=NotebookIconButton(tool,names[i],()=>ConfigureNotebookTool(tool),79,39);notebookTools[tool]=b;Put(body,b,138+i*83,126);}
-   var select=NotebookIconButton("cursor",T("Select","تحديد"),()=>ConfigureNotebookTool("select"),44,39);notebookTools["select"]=select;Put(body,select,8,126);
-   Put(body,NotebookDropdown("selection",T("Area","منطقة"),"selection",78),56,126);
+   for(int i=0;i<tools.Length;i++){string tool=tools[i];Button b=null;b=NotebookIconButton(tool,names[i]+(tool=="pen"?" ▾":""),()=>{if(tool=="pen"){ConfigureNotebookTool("pen");OpenPenStyles(b);}else ConfigureNotebookTool(tool);},79,39);b.ToolTip=names[i]+" ("+new[]{"D","F","G","Z","X","C"}[i]+")";notebookTools[tool]=b;Put(body,b,138+i*83,126);}
+   var select=NotebookIconButton("cursor",T("Select","تحديد"),()=>ConfigureNotebookTool("select"),44,39);notebookTools["select"]=select;Put(body,select,8,126);select.ToolTip=T("Select (A)","تحديد (A)");
+   var area=NotebookDropdown("selection",T("Area","منطقة"),"selection",78);area.ToolTip=T("Area selection (S) · remembers your last shape","تحديد منطقة (S) · يتذكر آخر شكل");notebookTools["area"]=area;Put(body,area,56,126);
    var text=Button(T("T  Text","T نص"),()=>ConfigureNotebookTool("text"),65,39);notebookTools["text"]=text;Put(body,text,636,126);
    Put(body,NotebookDropdown("bullet",T("Bullets","تعداد"),"bullet",73),705,126);
    Put(body,NotebookDropdown("shape",T("Shapes","أشكال"),"shapes",84),782,126);
@@ -57,8 +57,14 @@ namespace LittleNotebook {
    notebookInk.ContextMenu=NotebookSelectionMenu();
    notebookInk.PreviewKeyDown+=(s,e)=>{if(e.Key==Key.Delete&&notebookEditing==null){DeleteNotebookSelection();e.Handled=true;}if(e.Key==Key.Escape&&notebookEditing==null){notebookInk.Select(new StrokeCollection());e.Handled=true;}};
    RenderNotebookTexts();
-   notebookScroll=new ScrollViewer{Width=958,Height=365,Content=notebookBoard,VerticalScrollBarVisibility=ScrollBarVisibility.Auto,HorizontalScrollBarVisibility=ScrollBarVisibility.Disabled,PanningMode=PanningMode.VerticalOnly};StylePaperScroll(notebookScroll);
+   notebookScroll=new ScrollViewer{Width=958,Height=365,Content=notebookBoard,VerticalScrollBarVisibility=ScrollBarVisibility.Auto,HorizontalScrollBarVisibility=ScrollBarVisibility.Auto,PanningMode=PanningMode.Both};StylePaperScroll(notebookScroll);
    var sheet=new Grid{Width=960,Height=367,ClipToBounds=true};sheet.Children.Add(notebookScroll);traceEye=NotebookIconButton("eye",T("Show or hide tracing","إظهار أو إخفاء القالب"),ToggleNotebookTrace,38,34);traceEye.HorizontalAlignment=HorizontalAlignment.Right;traceEye.VerticalAlignment=VerticalAlignment.Top;traceEye.Margin=new Thickness(0,10,30,0);sheet.Children.Add(traceEye);
+   traceStop=Button(T("Stop tracing","إيقاف التتبّع"),StopNotebookTrace,129,32);traceStop.FontSize=13;traceStop.HorizontalAlignment=HorizontalAlignment.Right;traceStop.VerticalAlignment=VerticalAlignment.Top;traceStop.Margin=new Thickness(0,51,30,0);sheet.Children.Add(traceStop);
+   traceCompare=NotebookIconButton("photo",T("Compare reference and drawing","مقارنة المرجع والرسم"),CompareNotebookTrace,38,34);traceCompare.HorizontalAlignment=HorizontalAlignment.Right;traceCompare.VerticalAlignment=VerticalAlignment.Top;traceCompare.Margin=new Thickness(0,91,30,0);sheet.Children.Add(traceCompare);
+   notebookBoard.LayoutTransform=new ScaleTransform(notebookZoom,notebookZoom);notebookScroll.PreviewMouseWheel+=(s,e)=>{if((Keyboard.Modifiers&ModifierKeys.Control)!=0){SetNotebookZoom(notebookZoom*(e.Delta>0?1.12:1/1.12),e.GetPosition(notebookScroll));e.Handled=true;}};
+   Put(body,NotebookIconButton("zoom-out",T("Zoom out · Ctrl + wheel","تصغير · Ctrl وعجلة الفأرة"),()=>SetNotebookZoom(notebookZoom/1.2),39,30),348,660);
+   notebookZoomLabel=Label(body,Math.Round(notebookZoom*100)+"%",393,664,13,65,true);Put(body,NotebookIconButton("zoom-in",T("Zoom in · Ctrl + wheel","تكبير · Ctrl وعجلة الفأرة"),()=>SetNotebookZoom(notebookZoom*1.2),39,30),462,660);Btn(body,T("Fit","ملاءمة"),510,660,FitNotebook,83,30);
+
    Put(body,new Border{Width=962,Height=369,Child=sheet,BorderBrush=B(p.Line),BorderThickness=new Thickness(1)},8,267);
    ResizeNotebookSurface();RefreshNotebookGuide();ConfigureNotebookTool(notebookTool);
    notebookStatus=Label(body,T("Saved locally","محفوظ محلياً"),13,646,12,490);
@@ -73,9 +79,9 @@ namespace LittleNotebook {
   }
   void ResizeNotebookSurface(){if(notebookBoard==null||notebookInk==null)return;double height=CurrentNotebookPage.Height;notebookBoard.Height=height;foreach(var element in new FrameworkElement[]{notebookInk,notebookRules,notebookGuide,notebookGhost,notebookActions,notebookSnapGuides})if(element!=null)element.Height=height;notebookRules.Children.Clear();for(int y=30;y<height;y+=30)Put(notebookRules,new Rectangle{Width=940,Height=1,Fill=B(p.Line),Opacity=.70},0,y);if(notebookRemoveLength!=null)notebookRemoveLength.IsEnabled=height>414;}
   void ExtendNotebookPage(){FinishNotebookText();BeginNotebookChange();double old=CurrentNotebookPage.Height;CurrentNotebookPage.Height=Math.Min(12000,old+600);ResizeNotebookSurface();CommitNotebookChange();notebookScroll.ScrollToVerticalOffset(Math.Max(0,old-90));}
-  void ClearNotebookPage(){string tool=notebookTool;FinishNotebookText();BeginNotebookChange();notebookInk.Select(new StrokeCollection());notebookInk.Strokes.Clear();CurrentNotebookPage.Texts.Clear();CurrentNotebookPage.Images.Clear();RenderNotebookTexts();CurrentNotebookPage.Template="none";CurrentNotebookPage.TraceInk="";RefreshNotebookGuide();CommitNotebookChange();ConfigureNotebookTool(tool);}
+  void ClearNotebookPage(){string tool=notebookTool;FinishNotebookText();BeginNotebookChange();notebookInk.Select(new StrokeCollection());notebookInk.Strokes.Clear();CurrentNotebookPage.Texts.Clear();CurrentNotebookPage.Images.Clear();RenderNotebookTexts();RefreshNotebookGuide();CommitNotebookChange();ConfigureNotebookTool(tool);}
   void ToggleNotebookTrace(){BeginNotebookChange();CurrentNotebookPage.TraceVisible=!CurrentNotebookPage.TraceVisible;RefreshNotebookGuide();CommitNotebookChange();}
-  void RefreshTraceEye(){if(traceEye==null)return;traceEye.Visibility=CurrentNotebookPage.Template=="none"&&string.IsNullOrEmpty(CurrentNotebookPage.TraceInk)?Visibility.Collapsed:Visibility.Visible;traceEye.Opacity=CurrentNotebookPage.TraceVisible?1:.55;traceEye.ToolTip=CurrentNotebookPage.TraceVisible?T("Hide tracing outline","إخفاء خطوط التتبّع"):T("Show tracing outline","إظهار خطوط التتبّع");}
+  void RefreshTraceEye(){if(traceEye==null)return;traceEye.Visibility=CurrentNotebookPage.Template=="none"&&string.IsNullOrEmpty(CurrentNotebookPage.TraceInk)?Visibility.Collapsed:Visibility.Visible;if(traceStop!=null)traceStop.Visibility=traceEye.Visibility;if(traceCompare!=null)traceCompare.Visibility=traceEye.Visibility;traceEye.Opacity=CurrentNotebookPage.TraceVisible?1:.55;traceEye.ToolTip=CurrentNotebookPage.TraceVisible?T("Hide tracing outline","إخفاء خطوط التتبّع"):T("Show tracing outline","إظهار خطوط التتبّع");}
   Point ClampNotebookPoint(Point pt){return new Point(Math.Max(1,Math.Min(939,pt.X)),Math.Max(1,Math.Min(CurrentNotebookPage.Height-1,pt.Y)));}
   bool NotebookPointerDown(Point point){
    point=ClampNotebookPoint(point);notebookPointer=point;

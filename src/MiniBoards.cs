@@ -8,7 +8,7 @@ namespace LittleNotebook {
   public int Level=1,Seed,BestCompleted,Completed,Failures;public double BestSeconds,LastSeconds;public int LastMoves,BestMoves;public List<MiniFinish> Results=new List<MiniFinish>();
  }
  public static class MiniCatalog {
-  public static readonly string[] Keys={"arrows","stack","tiles","maze","mousedash","lights","queens","crates","pegs","untangle","pour","code","domino","glide","flood"};
+  public static readonly string[] Keys={"arrows","stack","tiles","maze","mousedash","crates","pour","code"};
   public static void Normalize(Profile profile){
    if(profile.MiniGames==null)profile.MiniGames=new Dictionary<string,MiniProgress>();
    profile.StackBest=Math.Max(0,profile.StackBest);if(profile.Settings.SelectedMiniGame=="lanterns")profile.Settings.SelectedMiniGame="stack";

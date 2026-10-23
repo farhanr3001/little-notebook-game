@@ -36,7 +36,7 @@ namespace LittleNotebook {public partial class MainWindow {
     Func<bool> unlocked=()=>{try{using(var stream=new FileStream(file,FileMode.Open,FileAccess.ReadWrite,FileShare.None))return true;}catch(IOException){return false;}};await waitNative(unlocked);check(unlocked(),"Native audio handle survived disposal: "+Path.GetFileName(file));
    }
    check(Diagnostics.ErrorCount==0,"Native audio transitions logged an unexpected exception");
-   File.WriteAllText(report,"PASS: "+checks+" real Windows MediaPlayer transition checks, with probe output muted. Fifteen game starts, ten Ladybug Dodge hold/release cycles, note and full-song playback, pause/resume/end, next rounds, stable radio gain, late media events, sound-off and unlocked files. No desktop interaction.\n");
+   File.WriteAllText(report,"PASS: "+checks+" real Windows MediaPlayer transition checks, with probe output muted. Eight game starts, ten Ladybug Dodge hold/release cycles, note and full-song playback, pause/resume/end, next rounds, stable radio gain, late media events, sound-off and unlocked files. No desktop interaction.\n");
   }catch(Exception error){File.WriteAllText(report,"FAIL after "+checks+" checks: "+error);Environment.ExitCode=1;}finally{closing=true;Close();}
  }
 }}

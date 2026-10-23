@@ -1,14 +1,14 @@
-﻿# Little Notebook
+# Little Notebook
 
 A cosy learning and puzzle game for Windows, with a notebook to draw in and a little radio to keep you company.
 
 ![Choose your character and enter your name](docs/images/setup.png)
 
-Play English, maths, puzzles and general-knowledge questions. Choose your topics and difficulty, practise with English and Arabic speech, and review your mistakes at your own pace. Match sound spellings to correct words, or practise meanings in Dictionary matching. Study 92 common words with English audio, Arabic meanings and example sentences. Earn stars for characters, pets and decorations.
+Play English, maths, puzzles and general-knowledge questions. Choose one topic or combine several, set your difficulty, practise with English and Arabic speech, and review your mistakes at your own pace. Match sound spellings to correct words, or practise meanings in Dictionary matching. Study 92 common words with English audio, Arabic meanings and example sentences. Earn stars for characters, pets and decorations.
 
-Between rounds, write or draw in your notebook, try tracing pictures, and listen to your own music. Import several music files together or add audio from a public YouTube/TikTok link.
+Between rounds, write or draw in your notebook, try tracing pictures, and listen to your own music. Zoom with Ctrl + wheel, switch pen styles, compare a tracing with your drawing, and customise your background paper with a live preview. Import several music files together or add audio from a public YouTube/TikTok link.
 
-Take a break with fifteen minigames, including Arrow Escape, Paper Stack, Picture Patches and ten new logic and strategy puzzles. Puzzle levels and survival records save automatically. Clear arrows to play piano melodies across 100 arrangements. Click past the replay or let the next round start automatically. Piece together animal photographs in Picture Patches, with a nearby preview and saved times and moves.
+Take a break with eight minigames: Arrow Escape, Paper Stack, Picture Patches, Ladybug Trail, Ladybug Dodge, Crate Garden, Colour Pour and Codebreaker. Puzzle levels and survival records save automatically. Clear arrows to play piano melodies across 100 arrangements. Click past the replay or let the next round start automatically. Piece together animal photographs in Picture Patches, with a nearby preview and saved times and moves.
 
 ## Install
 

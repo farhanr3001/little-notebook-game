@@ -113,16 +113,16 @@ namespace LittleNotebook {
   }
   internal static void DrawPest(DrawingContext dc,Point center,double r){var dark=new SolidColorBrush(Color.FromRgb(101,81,58));var line=new Pen(dark,1);dc.DrawEllipse(new SolidColorBrush(Color.FromArgb(160,173,202,208)),line,center+new Vector(-r*.45,-r*.35),r*.7,r*.45);dc.DrawEllipse(new SolidColorBrush(Color.FromArgb(160,173,202,208)),line,center+new Vector(r*.45,-r*.35),r*.7,r*.45);dc.DrawEllipse(new SolidColorBrush(Color.FromRgb(222,174,67)),line,center,r*.58,r*.75);dc.DrawLine(line,center+new Vector(-r*.5,0),center+new Vector(r*.5,0));dc.DrawEllipse(dark,null,center+new Vector(0,-r*.6),r*.3,r*.3);}
   void DrawDash(DrawingContext dc){
-   var board=Session.Dash;dc.DrawRoundedRectangle(null,Pen(Blend(palette.Ink,.35),1.2),new Rect(1,1,Width-2,Height-2),12,12);
-   for(int y=25;y<Height;y+=28)for(int x=24;x<Width;x+=28)dc.DrawEllipse(Brush(Blend(palette.Line,.42)),null,new Point(x,y),.8,.8);
+   var board=Session.Dash;dc.DrawRoundedRectangle(Grass(),Pen(Blend(palette.Ink,.35),1.2),new Rect(1,1,Width-2,Height-2),12,12);
+   foreach(var step in board.Trail){dc.PushOpacity(Math.Max(0,1-step.Age/.7)*.55);dc.PushTransform(new RotateTransform(step.Angle*180/Math.PI,new Point(step.X,step.Y).X,step.Y));dc.DrawEllipse(Brush(Color.FromRgb(93,129,65)),null,new Point(step.X,step.Y),2.7,1.5);dc.Pop();dc.Pop();}
    foreach(var dot in board.Obstacles){
     Point center=new Point(dot.X,dot.Y);Color color=Blend(palette.Ink,.56);
     if(dot.Warning>0){var outline=Pen(palette.Gold,1.8);outline.DashStyle=DashStyles.Dash;dc.DrawEllipse(Brush(Blend(palette.Gold,.12)),outline,center,dot.Radius+3,dot.Radius+3);double length=Math.Sqrt(dot.VX*dot.VX+dot.VY*dot.VY);dc.DrawLine(Pen(palette.Gold,1.4),center,center+new Vector(dot.VX/length*14,dot.VY/length*14));}
-    else{if(board.Collision==dot)color=Color.FromRgb(188,91,83);DrawPest(dc,center,dot.Radius);}
+    else{if(board.Collision==dot)color=Color.FromRgb(188,91,83);DrawGardenPest(dc,center,dot.Radius,dot.Species,Math.Atan2(dot.VY,dot.VX));}
    }
    Point ball=new Point(board.X,board.Y);if(!board.Started)ball=new Point(Width/2,Height/2+53);
    Color ballColor=board.Hit?Color.FromRgb(188,91,83):palette.Accent;
-   DrawLadybug(dc,ball,MouseDashBoard.PlayerRadius,0,palette);
+   DrawLadybug(dc,ball,MouseDashBoard.PlayerRadius,board.Facing*180/Math.PI+90,palette);
    if(Session.Phase=="holding"||Session.Phase=="waiting")dc.DrawEllipse(null,Pen(palette.Gold,1.8),ball,16,16);
    if(board.Hit)dc.DrawEllipse(null,Pen(Color.FromRgb(188,91,83),2),ball,21,21);
    if(!board.Started){Label(dc,ar?"أمسك أي موضع للبدء":"Hold anywhere to begin",new Point(Width/2,Height/2-27),24);Label(dc,ar?"حرّك الكرة وتجنّب النقاط · اتركها للإيقاف":"Guide your ladybug past the pests · let go to pause",new Point(Width/2,Height/2+9),14);}
@@ -147,7 +147,6 @@ namespace LittleNotebook {
   public void MovePan(Point position){if(!dragging||Viewport==null)return;Vector delta=position-down;if(delta.Length>5)moved=true;if(moved){Viewport.ScrollToHorizontalOffset(panX-delta.X);Viewport.ScrollToVerticalOffset(panY-delta.Y);}}
   public void EndPan(){dragging=false;Cursor=Cursors.Arrow;}
   protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e){
-   if(Session.Extra!=null&&Session.Extra.Kind=="untangle"){Focus();int node=ExtraHit(e.GetPosition(this));if(node>=0){Session.Extra.BeginDrag(node);CaptureMouse();Cursor=PanCursor.Closed;InvalidateVisual();}e.Handled=true;return;}
    if(Session.Dash!=null){Focus();if(DashDown!=null)DashDown(e.GetPosition(this));if(Session.Phase=="playing"){CaptureMouse();Cursor=Cursors.None;}e.Handled=true;return;}
    if(Session.Kind=="arrows"&&Session.Phase=="complete"){if(Press!=null)Press(0);e.Handled=true;return;}
    Focus();int hit=Hit(e.GetPosition(this));bool pan=hit<0||Session.Kind=="maze";
@@ -157,14 +156,13 @@ namespace LittleNotebook {
   protected override void OnMouseDown(MouseButtonEventArgs e){if(e.ChangedButton==MouseButton.Middle&&Session.Dash==null&&BeginPan(e.GetPosition(Viewport??(IInputElement)this),-1)){CaptureMouse();e.Handled=true;return;}base.OnMouseDown(e);}
   protected override void OnMouseUp(MouseButtonEventArgs e){if(e.ChangedButton==MouseButton.Middle&&dragging){EndPan();ReleaseMouseCapture();e.Handled=true;return;}base.OnMouseUp(e);}
   protected override void OnMouseMove(MouseEventArgs e){
-   if(Session.Extra!=null&&Session.Extra.Kind=="untangle"&&IsMouseCaptured){Session.Extra.Drag(e.GetPosition(this));InvalidateVisual();e.Handled=true;return;}
    if(Session.Dash!=null){if(IsMouseCaptured&&e.LeftButton==MouseButtonState.Pressed&&DashMove!=null)DashMove(e.GetPosition(this));if(Session.Phase!="playing"&&IsMouseCaptured)CancelDashPointer();e.Handled=true;return;}
    if(dragging&&Viewport!=null){MovePan(e.GetPosition(Viewport));e.Handled=true;return;}
    if(Session.Kind=="arrows"){int next=Hit(e.GetPosition(this));Cursor=Cursors.Arrow;if(next!=Hover){Hover=next;InvalidateVisual();}}
   }
   public void CancelDashPointer(){if(Session.Dash==null)return;Cursor=Cursors.Arrow;if(IsMouseCaptured)ReleaseMouseCapture();}
-  protected override void OnMouseLeftButtonUp(MouseButtonEventArgs e){if(Session.Extra!=null&&Session.Extra.Kind=="untangle"&&IsMouseCaptured){Session.Extra.EndDrag();Session.CheckExtra();ReleaseMouseCapture();Cursor=Cursors.Arrow;e.Handled=true;return;}if(Session.Dash!=null){CancelDashPointer();if(DashUp!=null)DashUp();e.Handled=true;return;}if(dragging){EndPan();ReleaseMouseCapture();if(!moved&&Session.Kind=="maze"&&downCell>=0&&Press!=null)Press(downCell);e.Handled=true;}}
-  protected override void OnLostMouseCapture(MouseEventArgs e){EndPan();if(Session.Extra!=null&&Session.Extra.Kind=="untangle"){Session.Extra.EndDrag();Session.CheckExtra();}if(Session.Dash!=null){if(DashUp!=null)DashUp();}base.OnLostMouseCapture(e);}
+  protected override void OnMouseLeftButtonUp(MouseButtonEventArgs e){if(Session.Dash!=null){CancelDashPointer();if(DashUp!=null)DashUp();e.Handled=true;return;}if(dragging){EndPan();ReleaseMouseCapture();if(!moved&&Session.Kind=="maze"&&downCell>=0&&Press!=null)Press(downCell);e.Handled=true;}}
+  protected override void OnLostMouseCapture(MouseEventArgs e){EndPan();if(Session.Dash!=null&&DashUp!=null)DashUp();base.OnLostMouseCapture(e);}
   protected override void OnMouseLeave(MouseEventArgs e){if(!dragging&&Hover!=-1){Hover=-1;InvalidateVisual();}base.OnMouseLeave(e);}
  }
  public sealed partial class MiniGameBadge:FrameworkElement {

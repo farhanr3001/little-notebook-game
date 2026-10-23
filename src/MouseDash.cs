@@ -1,15 +1,17 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace LittleNotebook {
  public sealed class DashObstacle {
-  public double X,Y,VX,VY,Radius,Warning;
+  public double X,Y,VX,VY,Radius,Warning;public int Species;
  }
+ public sealed class DashFootstep {public double X,Y,Age,Angle;}
  // Fixed simulation steps and swept circles keep fast pointer moves and fast dots honest.
  public sealed class MouseDashBoard {
   public const double Width=900,Height=408,PlayerRadius=8;
   public readonly List<DashObstacle> Obstacles=new List<DashObstacle>();
-  readonly Random random;double accumulator,spawnAt=8;
+  readonly Random random;double accumulator,spawnAt=8,huntAt=2.2,trailDistance;int footSide;
+  public readonly List<DashFootstep> Trail=new List<DashFootstep>();public double Facing;
   public double X=Width/2,Y=Height/2,Seconds;public bool Started,Hit;
   public DashObstacle Collision;
   public int Wave{get{return 1+(int)(Seconds/15);}}
@@ -24,9 +26,9 @@ namespace LittleNotebook {
    if(Started||Hit||double.IsNaN(x)||double.IsNaN(y)||double.IsInfinity(x)||double.IsInfinity(y))return false;
    X=Clamp(x,PlayerRadius+3,Width-PlayerRadius-3);Y=Clamp(y,PlayerRadius+3,Height-PlayerRadius-3);Started=true;
    for(int i=0;i<14;i++){
-    var dot=new DashObstacle{Radius=5+random.NextDouble()*6};
+    var dot=new DashObstacle{Radius=5+random.NextDouble()*6,Species=i%4};
     do{dot.X=dot.Radius+random.NextDouble()*(Width-2*dot.Radius);dot.Y=dot.Radius+random.NextDouble()*(Height-2*dot.Radius);}while((dot.X-X)*(dot.X-X)+(dot.Y-Y)*(dot.Y-Y)<160*160);
-    double angle=random.NextDouble()*Math.PI*2,speed=96+random.NextDouble()*42;dot.VX=Math.Cos(angle)*speed;dot.VY=Math.Sin(angle)*speed;Obstacles.Add(dot);
+    double angle=i%3==0?Math.Atan2(Y-dot.Y,X-dot.X):random.NextDouble()*Math.PI*2,speed=96+random.NextDouble()*42;dot.VX=Math.Cos(angle)*speed;dot.VY=Math.Sin(angle)*speed;Obstacles.Add(dot);
    }return true;
   }
   public bool Move(double x,double y){
@@ -39,14 +41,15 @@ namespace LittleNotebook {
     double t=a>0?Clamp((-b-Math.Sqrt(Math.Max(0,b*b-4*a*c)))/(2*a),0,1):0;if(t<first){first=t;contact=dot;}
    }
    if(contact!=null){X+=(x-X)*first;Y+=(y-Y)*first;Crash(contact);return false;}
-   X=x;Y=y;return true;
+   double distance=Math.Sqrt((x-X)*(x-X)+(y-Y)*(y-Y));if(distance>1){Facing=Math.Atan2(y-Y,x-X);trailDistance+=distance;int steps=Math.Min(12,(int)(trailDistance/13));for(int i=1;i<=steps;i++){double t=i/(double)steps,side=(footSide++%2==0?1:-1)*5;Trail.Add(new DashFootstep{X=X+(x-X)*t-Math.Sin(Facing)*side,Y=Y+(y-Y)*t+Math.Cos(Facing)*side,Angle=Facing,Age=(1-t)*.12});}trailDistance%=13;while(Trail.Count>24)Trail.RemoveAt(0);}X=x;Y=y;return true;
   }
   void Crash(DashObstacle dot){Hit=true;Collision=dot;}
   void Spawn(){
-   var dot=new DashObstacle{Radius=6+random.NextDouble()*6,Warning=.95};int edge=random.Next(4);double inset=dot.Radius+4;
+   var dot=new DashObstacle{Radius=6+random.NextDouble()*6,Warning=.95,Species=random.Next(4)};int edge=random.Next(4);double inset=dot.Radius+4;
    dot.X=edge==1?Width-inset:edge==3?inset:inset+random.NextDouble()*(Width-2*inset);
    dot.Y=edge==0?inset:edge==2?Height-inset:inset+random.NextDouble()*(Height-2*inset);
-   double tx=90+random.NextDouble()*(Width-180),ty=50+random.NextDouble()*(Height-100),dx=tx-dot.X,dy=ty-dot.Y,length=Math.Sqrt(dx*dx+dy*dy),speed=96+random.NextDouble()*42;
+   if(Math.Sqrt((dot.X-X)*(dot.X-X)+(dot.Y-Y)*(dot.Y-Y))<180){dot.X=Width-dot.X;dot.Y=Height-dot.Y;}
+   bool aimed=random.NextDouble()<.75;double tx=aimed?X:random.NextDouble()*Width,ty=aimed?Y:random.NextDouble()*Height,dx=tx-dot.X,dy=ty-dot.Y,length=Math.Max(1,Math.Sqrt(dx*dx+dy*dy)),speed=96+random.NextDouble()*42;
    dot.VX=dx/length*speed;dot.VY=dy/length*speed;Obstacles.Add(dot);
   }
   public void Tick(double seconds){
@@ -60,6 +63,10 @@ namespace LittleNotebook {
      if(dot.Y<dot.Radius){dot.Y=2*dot.Radius-dot.Y;dot.VY=Math.Abs(dot.VY);}else if(dot.Y>Height-dot.Radius){dot.Y=2*(Height-dot.Radius)-dot.Y;dot.VY=-Math.Abs(dot.VY);}
      if(SweptHit(oldX-X,oldY-Y,dot.X-X,dot.Y-Y,PlayerRadius+dot.Radius)){Crash(dot);break;}
     }
+    for(int i=Trail.Count-1;i>=0;i--){Trail[i].Age+=step;if(Trail[i].Age>.7)Trail.RemoveAt(i);}
+    // Telegraph a committed shot at the player's current location. It never homes
+    // after launch, so moving away is effective and camping any corner is unsafe.
+    if(!Hit&&Seconds>=huntAt){DashObstacle hunter=null;double best=double.MaxValue;foreach(var dot in Obstacles){double distance=Math.Sqrt((dot.X-X)*(dot.X-X)+(dot.Y-Y)*(dot.Y-Y));if(dot.Warning<=0&&distance>140&&distance<best){hunter=dot;best=distance;}}if(hunter!=null){double velocity=Math.Sqrt(hunter.VX*hunter.VX+hunter.VY*hunter.VY);hunter.VX=(X-hunter.X)/best*velocity;hunter.VY=(Y-hunter.Y)/best*velocity;hunter.Warning=.65;}huntAt+=Math.Max(1.2,2.6-Seconds*.025);}
     if(!Hit&&Seconds+1e-9>=spawnAt&&Obstacles.Count<32){Spawn();spawnAt+=8;}
    }
   }

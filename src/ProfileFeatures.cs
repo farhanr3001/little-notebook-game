@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -8,7 +8,7 @@ namespace LittleNotebook {
   public double Height=414;public bool TraceVisible=true;
   public List<NotebookText> Texts=new List<NotebookText>();
   public List<NotebookImage> Images=new List<NotebookImage>();
-  public string TraceInk="";public double TraceWidth=330,TraceHeight=330;
+  public string TracePhoto="",TraceInk="";public double TraceWidth=330,TraceHeight=330;
  }
  public class NotebookImage {public string Id=Guid.NewGuid().ToString("N"),Png="",Group="";public double X,Y,Width,Height;}
  public class NotebookText {

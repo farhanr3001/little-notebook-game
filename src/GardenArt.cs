@@ -31,12 +31,12 @@ namespace LittleNotebook {
     dc.DrawRoundedRectangle(null,Pen(i==b.Selected?palette.Gold:Blend(palette.Ink,.75),i==b.Selected?3:1.7),r,12,12);
     dc.DrawLine(Pen(Color.FromArgb(180,255,255,255),2),new Point(r.X+8,r.Y+12),new Point(r.X+8,r.Bottom-20));
     dc.DrawRoundedRectangle(Brush(Blend(palette.Paper,.9)),Pen(palette.Ink,1),new Rect(r.X-2,r.Y-3,r.Width+4,7),3,3);
-    if(b.Tubes[i].Count==4&&b.Tubes[i].TrueForAll(c=>c==b.Tubes[i][0]))Label(dc,"✓",new Point(r.X+r.Width/2,r.Bottom+20),18,Color.FromRgb(68,119,71));
+    if(b.IsTubeComplete(i)){Point done=new Point(r.X+r.Width/2,r.Y+r.Height/2);dc.DrawEllipse(Brush(palette.Paper),Pen(Color.FromRgb(53,132,69),1.8),done,14,14);Label(dc,"✓",done,22,Color.FromRgb(42,137,64));}
    }
    if(b.Feedback>0&&b.LastFrom>=0){var a=TubeRect(b.LastFrom);var z=TubeRect(b.LastTo);double t=1-Math.Min(1,b.Feedback/.34);Point start=new Point(a.X+a.Width/2,a.Y),end=new Point(z.X+z.Width/2,z.Bottom-10-(b.Tubes[b.LastTo].Count-b.LastAmount)*((z.Height-20)/4));
     Point drop=start+(end-start)*t;drop.Y-=Math.Sin(t*Math.PI)*42;var stream=Pen(PuzzleColours[b.LastColour],7);stream.StartLineCap=stream.EndLineCap=PenLineCap.Round;dc.DrawLine(stream,drop,drop+new Vector(0,12));dc.DrawEllipse(Brush(PuzzleColours[b.LastColour]),null,drop+new Vector(0,13),4,6);
    }
-   Label(dc,ar?"اختر أنبوباً، ثم صبّ في لون مطابق أو أنبوب فارغ":"Select a tube · pour onto its colour or into an empty tube",new Point(340,385),14);
+   Label(dc,ar?"اختر أنبوباً ثم صب في أي أنبوب به مساحة":"Select a glass · pour into any glass with space",new Point(340,385),14);
    if(Session.Phase=="complete"){
     dc.DrawRoundedRectangle(Brush(palette.Light),Pen(palette.Accent,1.5),new Rect(162,8,356,49),12,12);Label(dc,ar?"✓ اكتمل الترتيب! المستوى التالي…":"✓ Beautifully sorted! Next level…",new Point(340,32),19);
    }else if(b.Moves==0){Label(dc,(ar?"المستوى ":"Level ")+Session.Level+"  ·  "+b.Colours+(ar?" ألوان":" colours"),new Point(340,29),19);}

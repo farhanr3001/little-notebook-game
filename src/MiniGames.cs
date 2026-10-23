@@ -108,7 +108,7 @@ namespace LittleNotebook {public partial class MainWindow {
    if(mini!=null&&mini.Kind=="arrows"&&mini.Phase=="complete"){StartMiniGame("arrows");return;}
    if(mini==null||paused||overlay.Children.Count>0)return;bool used=false;
    UpdateMiniExitBounds();
-   if(mini.Extra!=null){used=mini.ExtraInput(index);if(used)audio.Fx("click");RefreshMiniHud();miniSurface.InvalidateVisual();return;}
+   if(mini.Extra!=null){used=mini.ExtraInput(index);if(used){if(mini.Extra.NewCompletedTube>=0){if(mini.Phase!="complete")audio.MiniTubeComplete();}else audio.Fx("click");}RefreshMiniHud();miniSurface.InvalidateVisual();return;}
    switch(mini.Kind){case "stack":used=mini.StackTap();RememberStack();break;case "arrows":mini.SelectedCell=index;used=mini.ArrowTap(index);break;case "signal":mini.SelectedCell=index;used=mini.RotateSignal(index);break;case "tiles":used=mini.SlideTile(index);break;case "echo":used=mini.EchoTap(index);break;case "pulse":used=mini.PulseTap();break;case "maze":for(int d=0;d<4;d++)if(MiniGrid.Next(mini.Maze.Player,d,mini.Maze.Size,mini.Maze.Size)==index){used=mini.MoveMaze(d);break;}break;}
    if(used&&mini.Stack==null&&mini.Kind!="arrows"&&mini.Kind!="echo")audio.Fx("click");RefreshMiniHud();if(miniSurface!=null)miniSurface.InvalidateVisual();
   }

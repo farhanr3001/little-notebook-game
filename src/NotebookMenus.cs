@@ -32,6 +32,7 @@ namespace LittleNotebook {
     {"clear","M5,1 L16,1 L22,7 L22,23 L5,23 Z M16,1 L16,7 L22,7 M9,11 L18,20 M18,11 L9,20"},
     {"photo","M2,6 L7,6 L9,2 L17,2 L19,6 L24,6 L24,22 L2,22 Z M18,14 A5,5 0 1 1 8,14 A5,5 0 1 1 18,14 M20,9 L21,9"},
     {"preview","M19,10 A8,8 0 1 1 3,10 A8,8 0 1 1 19,10 M17,16 L24,23 M7,10 L15,10 M11,6 L11,14"},
+    {"compare","M2,2 L25,2 L25,25 L2,25 Z M13,2 L13,25 M7,8 L7,18 M18,8 L21,8 L21,18 L18,18"},
     {"eye","M1,12 Q12,-1 24,12 Q12,25 1,12 Z M17,12 A5,5 0 1 1 7,12 A5,5 0 1 1 17,12"},
     {"group","M2,2 L14,2 L14,14 L2,14 Z M10,10 L23,10 L23,23 L10,23 Z"},
     {"shape","M2,3 L14,3 L14,16 L2,16 Z M17,9 L25,23 L9,23 Z"},
@@ -67,11 +68,15 @@ namespace LittleNotebook {
    var delete=new MenuItem{Header=T("Delete selection","حذف التحديد"),Icon=NotebookIcon("clear",17)};delete.Click+=(s,e)=>DeleteNotebookSelection();menu.Items.Add(delete);
    menu.Opened+=(s,e)=>{group.Header=NotebookSelectionGrouped?T("Ungroup selection","فك تجميع التحديد"):T("Group selection","تجميع التحديد");group.Icon=NotebookIcon(NotebookSelectionGrouped?"ungroup":"group",17);group.IsEnabled=NotebookSelectionCount>=2;ungroup.IsEnabled=notebookInk.GetSelectedStrokes().Any(x=>NotebookStrokeGroup(x)!="")||NotebookSelectedTexts.Any(x=>!string.IsNullOrEmpty(((NotebookText)x.Tag).Group));delete.IsEnabled=NotebookSelectionCount>0;};return menu;
   }
-  BitmapSource RenderNotebookPage(bool mask=false,bool includeTrace=true){
-   FlushNotebook();var model=CurrentNotebookPage;var canvas=new Canvas{Width=940,Height=model.Height,Background=mask?Brushes.White:B(p.Paper),ClipToBounds=true};if(!mask)for(int y=30;y<model.Height;y+=30)Put(canvas,new Rectangle{Width=940,Height=1,Fill=B(p.Line),Opacity=.7},0,y);
+  Canvas NotebookPageCanvas(bool mask,bool includeTrace){
+   var model=CurrentNotebookPage;var canvas=new Canvas{Width=940,Height=model.Height,Background=mask?Brushes.White:B(p.Paper),ClipToBounds=true};if(!mask)for(int y=30;y<model.Height;y+=30)Put(canvas,new Rectangle{Width=940,Height=1,Fill=B(p.Line),Opacity=.7},0,y);
    if(includeTrace&&model.TraceVisible){if(!string.IsNullOrEmpty(model.TraceInk))Put(canvas,new InkPresenter{Strokes=DecodeInk(model.TraceInk),Width=model.TraceWidth,Height=model.TraceHeight,Opacity=.38},Math.Max(0,(940-model.TraceWidth)/2),35);else if(model.Template!="none")Put(canvas,new TraceArt(model.Template,p,model.TraceWidth,model.TraceHeight),Math.Max(0,(940-model.TraceWidth)/2),35);}
    foreach(var fill in model.Images){var picture=new Image{Source=DecodeNotebookImage(fill.Png),Width=fill.Width,Height=fill.Height};Put(canvas,picture,fill.X,fill.Y);}
    Put(canvas,new InkPresenter{Width=940,Height=model.Height,Strokes=DecodeInk(model.Ink)},0,0);foreach(var text in model.Texts){var label=NotebookTextBlock(text);label.Width=text.Width;Put(canvas,label,text.X,text.Y);}
+   return canvas;
+  }
+  BitmapSource RenderNotebookPage(bool mask=false,bool includeTrace=true){
+   FlushNotebook();var model=CurrentNotebookPage;var canvas=NotebookPageCanvas(mask,includeTrace);
    canvas.Measure(new Size(940,model.Height));canvas.Arrange(new Rect(0,0,940,model.Height));canvas.UpdateLayout();double scale=mask?1:model.Height<=6000?1.5:1;var bitmap=new RenderTargetBitmap((int)(940*scale),(int)(model.Height*scale),96*scale,96*scale,PixelFormats.Pbgra32);bitmap.Render(canvas);bitmap.Freeze();return bitmap;
   }
   void WriteNotebookImage(string filename){var bitmap=RenderNotebookPage();BitmapEncoder encoder=filename.EndsWith(".jpg",StringComparison.OrdinalIgnoreCase)||filename.EndsWith(".jpeg",StringComparison.OrdinalIgnoreCase)?(BitmapEncoder)new JpegBitmapEncoder{QualityLevel=95}:new PngBitmapEncoder();encoder.Frames.Add(BitmapFrame.Create(bitmap));using(var file=new FileStream(filename,FileMode.Create,FileAccess.Write))encoder.Save(file);}

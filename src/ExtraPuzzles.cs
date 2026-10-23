@@ -5,18 +5,18 @@ using System.Windows;
 namespace LittleNotebook {
  public sealed partial class ExtraPuzzle {
   public static readonly string[] Keys={"crates","pour","code"};
-  public readonly string Kind;public readonly int Level;public int LastFrom=-1,LastTo=-1,LastColour=-1,LastAmount,PreviousPlayer=-1;public int W,H,Selected=-1,Moves,Player,Colours,Limit,Focus,Last=-1;public bool Won,Over;public double Feedback;public string Message="";
+  public readonly string Kind;public readonly int Level;public int LastFrom=-1,LastTo=-1,LastColour=-1,LastAmount,NewCompletedTube=-1,PreviousPlayer=-1;public int W,H,Selected=-1,Moves,Player,Colours,Limit,Focus,Last=-1;public bool Won,Over;public double Feedback;public string Message="";
   public int[] Cells,Goal;public List<int[]> Guesses=new List<int[]>(),Scores=new List<int[]>();public List<List<int>> Tubes=new List<List<int>>();public List<int> Solution=new List<int>();
   readonly Stack<State> undo=new Stack<State>();
   sealed class State {public int[] Cells;public int Selected,Player,Moves;public List<List<int>> Tubes;public int Guesses;}
   void Save(){undo.Push(new State{Cells=(int[])Cells.Clone(),Selected=Selected,Player=Player,Moves=Moves,Tubes=Tubes.Select(t=>t.ToList()).ToList(),Guesses=Guesses.Count});}
-  public bool Undo(){if(undo.Count==0)return false;var s=undo.Pop();Cells=s.Cells;Selected=s.Selected;Player=s.Player;Moves=s.Moves;Tubes=s.Tubes;while(Guesses.Count>s.Guesses){Guesses.RemoveAt(Guesses.Count-1);Scores.RemoveAt(Scores.Count-1);}CancelCrateSearch();Deadlocked=false;Won=Over=false;LastFrom=LastTo=PreviousPlayer=-1;Message="";Feedback=.2;return true;}
+  public bool Undo(){if(undo.Count==0)return false;var s=undo.Pop();Cells=s.Cells;Selected=Kind=="pour"?-1:s.Selected;Player=s.Player;Moves=s.Moves;Tubes=s.Tubes;while(Guesses.Count>s.Guesses){Guesses.RemoveAt(Guesses.Count-1);Scores.RemoveAt(Scores.Count-1);}CancelCrateSearch();Deadlocked=false;Won=Over=false;LastFrom=LastTo=PreviousPlayer=NewCompletedTube=-1;Message="";Feedback=.2;return true;}
   public ExtraPuzzle(string kind,int level,int seed){Kind=kind;Level=level;var r=new Random(seed);W=H=5;Cells=new int[25];Goal=new int[25];
    if(kind=="crates")MakeCrates(r);
    if(kind=="pour")MakePour(r);
    if(kind=="code"){Colours=Math.Min(8,5+(level-1)/6);W=Math.Min(6,4+(level-1)/12);H=1;Cells=Enumerable.Repeat(-1,W).ToArray();Goal=Enumerable.Range(0,W).Select(x=>r.Next(Colours)).ToArray();Limit=Math.Max(8,12-(level-1)/10);}
   }
-  public bool Input(int index,bool alternate=false){if(Won||Over||Deadlocked)return false;Feedback=.22;LastFrom=LastTo=-1;Last=index;Message="";
+  public bool Input(int index,bool alternate=false){if(Won||Over||Deadlocked)return false;Feedback=.22;LastFrom=LastTo=NewCompletedTube=-1;Last=index;Message="";
    if(Kind=="code"){if(index>=100){int colour=index-100;if(colour<Colours){Save();Cells[Focus]=colour;Focus=(Focus+1)%W;return true;}return false;}if(index==99)return Guess();if(index>=0&&index<W){Focus=index;return true;}return false;}
    if(Kind=="pour")return Pour(index);
    if(index<0||index>=Cells.Length)return false;Focus=index;
@@ -43,13 +43,14 @@ namespace LittleNotebook {
     if(score>best){best=score;bestTubes=Tubes.Select(t=>t.ToList()).ToList();bestProof=proof.AsEnumerable().Reverse().ToList();}
    }Tubes=bestTubes;Solution=bestProof;Cells=new int[W];Goal=new int[W];
   }
+  public bool IsTubeComplete(int index){return index>=0&&index<Tubes.Count&&Tubes[index].Count==4&&Tubes[index].All(c=>c==Tubes[index][0]);}
   bool Pour(int to){
    if(to<0||to>=Tubes.Count)return false;
    if(Selected<0){if(Tubes[to].Count==0)return false;Selected=to;Feedback=0;return true;}
    int from=Selected;if(from==to){Selected=-1;Feedback=0;return true;}
-   if(Tubes[from].Count==0||Tubes[to].Count==4||Tubes[to].Count>0&&Tubes[to].Last()!=Tubes[from].Last()){Message="blocked";Feedback=.22;return false;}
+   if(Tubes[from].Count==0||Tubes[to].Count==4){Message="blocked";Feedback=.22;return false;}
    Save();int colour=Tubes[from].Last(),amount=1;while(amount<Tubes[from].Count&&Tubes[from][Tubes[from].Count-1-amount]==colour)amount++;amount=Math.Min(amount,4-Tubes[to].Count);
-   LastFrom=from;LastTo=to;LastColour=colour;LastAmount=amount;Tubes[from].RemoveRange(Tubes[from].Count-amount,amount);Tubes[to].AddRange(Enumerable.Repeat(colour,amount));Selected=-1;Moves++;Feedback=.34;Won=Tubes.All(t=>t.Count==0||t.Count==4&&t.All(c=>c==t[0]));return true;
+   LastFrom=from;LastTo=to;LastColour=colour;LastAmount=amount;Tubes[from].RemoveRange(Tubes[from].Count-amount,amount);Tubes[to].AddRange(Enumerable.Repeat(colour,amount));Selected=-1;Moves++;Feedback=.34;if(IsTubeComplete(to))NewCompletedTube=to;Won=Tubes.All(t=>t.Count==0||t.Count==4&&t.All(c=>c==t[0]));return true;
   }
   bool Guess(){if(Cells.Any(c=>c<0))return false;Save();int exact=Enumerable.Range(0,W).Count(i=>Cells[i]==Goal[i]),all=Enumerable.Range(0,Colours).Sum(c=>Math.Min(Cells.Count(x=>x==c),Goal.Count(x=>x==c)));Guesses.Add((int[])Cells.Clone());Scores.Add(new[]{exact,all-exact});Moves++;Won=exact==W;Over=!Won&&Moves>=Limit;return true;}
  }

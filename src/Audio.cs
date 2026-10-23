@@ -80,6 +80,7 @@ namespace LittleNotebook {
   public void MiniTune(MiniMelody tune){if(!MiniPlaybackEnabled||tune==null)return;OpenMiniPaused(miniReplay,Resolve("minigames/tune-"+tune.Id+".wav"));miniSong=true;ApplyVolume();PlayMini(miniReplay,.40,"song-"+tune.Id);}
   public void InterruptMiniNotes(){foreach(var player in miniNotes.Concat(miniPlayers)){miniRunning.Remove(player);player.Pause();player.IsMuted=true;player.Volume=0;}}
   public void MiniWin(){MiniClip("clear",.28);}
+  public void MiniTubeComplete(){MiniClip("pulse",.20);}
   public void MiniPulseWin(){MiniClip("pulse",.28);}
   public void PauseMiniSounds(){if(disposed||miniPaused)return;miniPaused=true;foreach(var player in miniRunning.ToArray())player.Pause();}
   public void ResumeMiniSounds(){if(disposed||!miniPaused)return;miniPaused=false;if(settings.Sound)foreach(var player in miniRunning.ToArray()){player.Play();player.IsMuted=silentProbe;}else StopMiniSounds();}

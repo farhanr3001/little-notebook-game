@@ -4,10 +4,10 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
-[assembly:AssemblyVersion("0.8.1.0")]
-[assembly:AssemblyFileVersion("0.8.1.0")]
+[assembly:AssemblyVersion("0.8.2.0")]
+[assembly:AssemblyFileVersion("0.8.2.0")]
 namespace LittleNotebook {
- public static class AppInfo {public const string Version="0.8.1",ProductId="5C35749C-14DE-49BC-AED7-E462359A73A4",Repository="farhanr3001/little-notebook-game";public static void SetIdentity(bool updater=false){try{SetCurrentProcessExplicitAppUserModelID(updater?"Farhan.LittleNotebook.Update":"Farhan.LittleNotebook");}catch{}}[DllImport("shell32.dll")]static extern int SetCurrentProcessExplicitAppUserModelID([MarshalAs(UnmanagedType.LPWStr)]string appId);}
+ public static class AppInfo {public const string Version="0.8.2",ProductId="5C35749C-14DE-49BC-AED7-E462359A73A4",Repository="farhanr3001/little-notebook-game";public static void SetIdentity(bool updater=false){try{SetCurrentProcessExplicitAppUserModelID(updater?"Farhan.LittleNotebook.Update":"Farhan.LittleNotebook");}catch{}}[DllImport("shell32.dll")]static extern int SetCurrentProcessExplicitAppUserModelID([MarshalAs(UnmanagedType.LPWStr)]string appId);}
  public static class AppPaths {
   public static string DataDirectory{get;private set;}
   public static string InstallDirectory{get{return AppDomain.CurrentDomain.BaseDirectory.TrimEnd(Path.DirectorySeparatorChar);}}

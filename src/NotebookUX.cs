@@ -20,21 +20,10 @@ namespace LittleNotebook {public partial class MainWindow {
  }
  void SetNotebookZoom(double value,Point? anchor=null){
   if(notebookBoard==null||notebookScroll==null)return;value=Math.Max(.025,Math.Min(3,value));double old=notebookZoom;Point at=anchor??new Point(notebookScroll.ViewportWidth/2,notebookScroll.ViewportHeight/2);double x=(notebookScroll.HorizontalOffset+at.X)*value/old-at.X,y=(notebookScroll.VerticalOffset+at.Y)*value/old-at.Y;
-  notebookZoom=value;notebookBoard.LayoutTransform=new ScaleTransform(value,value);notebookScroll.UpdateLayout();notebookScroll.ScrollToHorizontalOffset(Math.Max(0,x));notebookScroll.ScrollToVerticalOffset(Math.Max(0,y));if(notebookZoomLabel!=null)notebookZoomLabel.Text=Math.Round(value*100)+"%";
+  notebookZoom=value;notebookBoard.LayoutTransform=new ScaleTransform(value,value);notebookScroll.UpdateLayout();notebookScroll.ScrollToHorizontalOffset(Math.Max(0,x));notebookScroll.ScrollToVerticalOffset(Math.Max(0,y));if(notebookPan!=null&&notebookPan.Active)notebookPan.Rebase(Mouse.GetPosition(notebookScroll));if(notebookZoomLabel!=null)notebookZoomLabel.Text=Math.Round(value*100)+"%";
  }
  void FitNotebook(){SetNotebookZoom(Math.Min(938.0/940,347.0/CurrentNotebookPage.Height));notebookScroll.ScrollToHorizontalOffset(0);notebookScroll.ScrollToVerticalOffset(0);}
  void StopNotebookTrace(){FinishNotebookText();BeginNotebookChange();CurrentNotebookPage.Template="none";CurrentNotebookPage.TraceInk="";CurrentNotebookPage.TracePhoto="";RefreshNotebookGuide();CommitNotebookChange();}
- void CompareNotebookTrace(){
-  FinishNotebookText();var model=CurrentNotebookPage;var drawing=RenderNotebookPage(false,false);Modal(T("Compare your tracing","قارن رسمك بالقالب"),c=>{
-   Label(c,T("Reference","المرجع"),95,101,20,282).TextAlignment=TextAlignment.Center;Label(c,T("Your drawing","رسمك"),409,101,20,282).TextAlignment=TextAlignment.Center;
-   var guide=new Canvas{Width=940,Height=model.Height,Background=B(p.Paper)};
-   FrameworkElement source=!string.IsNullOrEmpty(model.TracePhoto)?(FrameworkElement)new Image{Source=DecodeNotebookImage(model.TracePhoto),Width=model.TraceWidth,Height=model.TraceHeight,Stretch=Stretch.Fill}:!string.IsNullOrEmpty(model.TraceInk)?new InkPresenter{Width=model.TraceWidth,Height=model.TraceHeight,Strokes=DecodeInk(model.TraceInk)}:(FrameworkElement)new TraceArt(model.Template,p,model.TraceWidth,model.TraceHeight);
-   Put(guide,source,Math.Max(0,(940-model.TraceWidth)/2),35);
-   var left=new Viewbox{Width=286,Height=418,Child=guide,Stretch=Stretch.Uniform};var right=new Image{Source=drawing,Width=286,Height=418,Stretch=Stretch.Uniform};
-   Put(c,new Border{Width=294,Height=426,Child=left,BorderBrush=B(p.Line),BorderThickness=new Thickness(1),Background=B(p.Paper)},88,146);Put(c,new Border{Width=294,Height=426,Child=right,BorderBrush=B(p.Line),BorderThickness=new Thickness(1)},408,146);
-   Label(c,T("Close this preview to carry on drawing.","أغلق المعاينة لمتابعة الرسم."),96,595,16,596).TextAlignment=TextAlignment.Center;Btn(c,T("Continue tracing","متابعة التتبّع"),230,641,CloseModal,340,46,true);
-  },733);
- }
  FrameworkElement ColourWheelIcon(double size){var canvas=new Canvas{Width=size,Height=size};Color[] colours={Colors.Coral,Colors.Gold,Colors.YellowGreen,Colors.Turquoise,Colors.CornflowerBlue,Colors.MediumPurple,Colors.HotPink,Colors.OrangeRed};
   for(int i=0;i<colours.Length;i++){double a=i*Math.PI/4,b=(i+1)*Math.PI/4,r=size*.46;Point center=new Point(size/2,size/2),from=center+new Vector(Math.Cos(a)*r,Math.Sin(a)*r),to=center+new Vector(Math.Cos(b)*r,Math.Sin(b)*r);var geometry=new StreamGeometry();using(var g=geometry.Open()){g.BeginFigure(center,true,true);g.LineTo(from,true,false);g.ArcTo(to,new Size(r,r),0,false,SweepDirection.Clockwise,true,false);}canvas.Children.Add(new Path{Data=geometry,Fill=B(colours[i]),IsHitTestVisible=false});}
   Put(canvas,new Ellipse{Width=size*.3,Height=size*.3,Fill=B(p.Paper),Stroke=B(p.Ink),StrokeThickness=.7},size*.35,size*.35);canvas.Children.Add(new Ellipse{Width=size,Height=size,Stroke=B(p.Ink),StrokeThickness=1});return canvas;

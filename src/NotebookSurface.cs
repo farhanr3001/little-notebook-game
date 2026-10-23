@@ -67,8 +67,8 @@ namespace LittleNotebook {
 
    Put(body,new Border{Width=962,Height=369,Child=sheet,BorderBrush=B(p.Line),BorderThickness=new Thickness(1)},8,267);
    ResizeNotebookSurface();RefreshNotebookGuide();ConfigureNotebookTool(notebookTool);
-   notebookStatus=Label(body,T("Saved locally","محفوظ محلياً"),13,646,12,490);
-   Label(body,T("Drag to place · Shift+Enter: new text line","اسحب للوضع · Shift+Enter: سطر جديد"),505,646,12,440).TextAlignment=TextAlignment.Right;
+   notebookStatus=Label(body,T("Saved locally","محفوظ محلياً"),13,646,12,340);notebookStatus.FlowDirection=FlowDirection.LeftToRight;notebookStatus.TextAlignment=TextAlignment.Left;
+   var notebookHint=Label(body,T("Drag to place · Shift+Enter: new text line","اسحب للوضع · Shift+Enter: سطر جديد"),505,646,12,440);notebookHint.FlowDirection=FlowDirection.LeftToRight;notebookHint.TextAlignment=TextAlignment.Right;
    if(paperDesignDraft!=null){Btn(body,T("Cancel paper changes","إلغاء تغييرات الورقة"),35,695,()=>FinishPaperEditor(false),338,45);Btn(body,T("Save background paper","حفظ ورقة الخلفية"),519,695,()=>FinishPaperEditor(true),420,45,true);}else{
    var previous=Button(T("‹ Previous","‹ السابقة"),()=>TurnNotebookPage(-1),162,45);previous.IsEnabled=Profile.NotebookIndex>0;Put(body,previous,9,695);
    Label(body,T("Page ","صفحة ")+(Profile.NotebookIndex+1)+" / "+Profile.Notebook.Count,192,704,18,195).TextAlignment=TextAlignment.Center;

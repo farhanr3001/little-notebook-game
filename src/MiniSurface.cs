@@ -125,9 +125,9 @@ namespace LittleNotebook {
    DrawLadybug(dc,ball,MouseDashBoard.PlayerRadius,board.Facing*180/Math.PI+90,palette);
    if(Session.Phase=="holding"||Session.Phase=="waiting")dc.DrawEllipse(null,Pen(palette.Gold,1.8),ball,16,16);
    if(board.Hit)dc.DrawEllipse(null,Pen(Color.FromRgb(188,91,83),2),ball,21,21);
-   if(!board.Started){Label(dc,ar?"أمسك أي موضع للبدء":"Hold anywhere to begin",new Point(Width/2,Height/2-27),24);Label(dc,ar?"حرّك الكرة وتجنّب النقاط · اتركها للإيقاف":"Guide your ladybug past the pests · let go to pause",new Point(Width/2,Height/2+9),14);}
+   if(!board.Started){Label(dc,ar?"أمسك أي موضع للبدء":"Hold anywhere to begin",new Point(Width/2,Height/2-27),24);Label(dc,ar?"حرّك الدعسوقة وتجنّب الحشرات · اتركها للإيقاف":"Guide your ladybug past the pests · let go to pause",new Point(Width/2,Height/2+9),14);}
    else if(Session.Phase=="holding"){
-    dc.DrawRoundedRectangle(Brush(palette.Paper),Pen(palette.Line,1),new Rect(Width/2-145,13,290,36),9,9);Label(dc,ar?"أمسك الكرة للمتابعة":"Hold your ladybug to continue",new Point(Width/2,31),14);
+    dc.DrawRoundedRectangle(Brush(palette.Paper),Pen(palette.Line,1),new Rect(Width/2-145,13,290,36),9,9);Label(dc,ar?"أمسك الدعسوقة للمتابعة":"Hold your ladybug to continue",new Point(Width/2,31),14);
    }
   }
   static double Distance(Point point,Point a,Point b){Vector line=b-a;double t=line.LengthSquared==0?0:Math.Max(0,Math.Min(1,Vector.Multiply(point-a,line)/line.LengthSquared));return (point-(a+line*t)).Length;}

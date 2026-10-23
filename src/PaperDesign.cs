@@ -23,7 +23,7 @@ namespace LittleNotebook {
   void PaperDesignView(PaperDesign draft){
    if(draft.Holes==null)draft.Holes=Enumerable.Repeat("holes",11).ToList();while(draft.Holes.Count<11)draft.Holes.Add("holes");
    Modal(T("Background paper","تصميم ورقة الخلفية"),c=>{
-    RefreshPaperPreview(c,draft);var reset=Button("↻",()=>PaperDesignView(PaperDesign.ForTheme(Profile.Settings.Theme)),40,39);reset.ToolTip=T("Reset to this theme’s default paper","استعادة ورقة المظهر الافتراضية");Put(c,reset,663,25);
+    RefreshPaperPreview(c,draft);c.Children.OfType<TextBlock>().First().Width=540;var reset=Button("↻",()=>PaperDesignView(PaperDesign.ForTheme(Profile.Settings.Theme)),40,39);reset.ToolTip=T("Reset to this theme’s default paper","استعادة ورقة المظهر الافتراضية");Put(c,reset,663,25);
     Label(c,T("Choose your paper, rules and each binding decoration.","اختر الورقة والخطوط والزينة عند كل ثقب."),96,102,17,600);
     string[] labels={T("Paper colour","لون الورقة"),T("Line colour","لون الخطوط"),T("Margin colour","لون الهامش")};string[] values={draft.PaperColor,draft.LineColor,draft.MarginColor};
     for(int i=0;i<3;i++){int index=i;Label(c,labels[i],99+i*201,151,16,194);var color=Button("",()=>NotebookColorWheel((Color)ColorConverter.ConvertFromString(values[index]),selected=>{if(index==0)draft.PaperColor=selected.ToString();if(index==1)draft.LineColor=selected.ToString();if(index==2)draft.MarginColor=selected.ToString();PaperDesignView(draft);}),184,43);color.Background=(Brush)new BrushConverter().ConvertFromString(values[i]);Put(c,color,98+i*201,185);}

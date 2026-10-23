@@ -1,4 +1,4 @@
-﻿"""Create installer payload and hash-verified update component packs. Never ship saves."""
+"""Create installer payload and hash-verified update component packs. Never ship saves."""
 from pathlib import Path
 from zipfile import ZipFile, ZIP_DEFLATED
 import argparse, hashlib, json, shutil, re
@@ -53,7 +53,12 @@ for name,items in groups.items():
    for path,relative in items:z.write(path,relative)
   with ZipFile(target) as z:assert z.testzip() is None
  packages.append(dict(name=name,url=base+name,sha256=digest(target),size=target.stat().st_size))
-manifest=dict(version=args.version,repository='farhanr3001/little-notebook-game',notes='Ten new minigames: Light Garden, Pocket Queens, Crate Garden, Pebble Solitaire, Thread Untangle, Colour Pour, Codebreaker, Domino Patch, Marble Glide and Flood Garden. Procedural levels, undo, accessible colour labels, mouse and keyboard controls, increasing challenges and saved checkpoints. Picture Patches now has a centred timer, saved times and moves, a records page and a nearby preview eye. Existing progress, notebook and music are preserved.',files=records,packs=packages)
+note_file=root/'RELEASE_NOTES.md'
+note_lines=note_file.read_text(encoding='utf-8-sig').splitlines() if note_file.exists() else []
+notes='\n'.join(line[2:] for line in note_lines if line.startswith('- ')) if note_lines and note_lines[0].strip().endswith(args.version) else ''
+if not notes:notes=f'Little Notebook {args.version}: improvements and fixes. Your character, notebook, records and imported music are preserved.'
+manifest=dict(version=args.version,repository='farhanr3001/little-notebook-game',notes=notes,files=records,packs=packages)
+
 for dest in [payload/'payload-manifest.json',release/'update-manifest.json']:dest.write_text(json.dumps(manifest,ensure_ascii=False,indent=2),encoding='utf-8')
 assert not any('profile.json' in x['path'] or x['path'].startswith('data/') for x in records)
 print(f'PASS: {len(records)} managed files, {len(packages)} verified component packs. No user saves in payload.')

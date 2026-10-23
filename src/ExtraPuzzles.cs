@@ -56,7 +56,9 @@ namespace LittleNotebook {
   void Flood(int colour){foreach(int at in Region())Cells[at]=colour;}
   int FloodSize(int colour){var old=(int[])Cells.Clone();Flood(colour);int n=Region().Count;Cells=old;return n;}
   public int Crossings(){int count=0;for(int a=0;a<Edges.Count;a++)for(int b=a+1;b<Edges.Count;b++)if(EdgesCross(a,b))count++;return count;}
-  public bool EdgesCross(int a,int b){var x=Edges[a];var y=Edges[b];if(x.Intersect(y).Any())return false;Point p=Points[x[0]],q=Points[x[1]],u=Points[y[0]],v=Points[y[1]];Func<Point,Point,Point,double> cross=(i,j,k)=>Vector.CrossProduct(j-i,k-i);Func<Point,Point,Point,bool> on=(a1,b1,c1)=>Math.Abs(cross(a1,b1,c1))<.01&&c1.X>=Math.Min(a1.X,b1.X)-.01&&c1.X<=Math.Max(a1.X,b1.X)+.01&&c1.Y>=Math.Min(a1.Y,b1.Y)-.01&&c1.Y<=Math.Max(a1.Y,b1.Y)+.01;return cross(p,q,u)*cross(p,q,v)<0&&cross(u,v,p)*cross(u,v,q)<0||on(p,q,u)||on(p,q,v)||on(u,v,p)||on(u,v,q);}
+  static double Cross(Point a,Point b,Point c){return Vector.CrossProduct(b-a,c-a);}
+  static bool OnSegment(Point a,Point b,Point c){return Math.Abs(Cross(a,b,c))<.01&&c.X>=Math.Min(a.X,b.X)-.01&&c.X<=Math.Max(a.X,b.X)+.01&&c.Y>=Math.Min(a.Y,b.Y)-.01&&c.Y<=Math.Max(a.Y,b.Y)+.01;}
+  public bool EdgesCross(int a,int b){var x=Edges[a];var y=Edges[b];if(x[0]==y[0]||x[0]==y[1]||x[1]==y[0]||x[1]==y[1])return false;Point p=Points[x[0]],q=Points[x[1]],u=Points[y[0]],v=Points[y[1]];return Cross(p,q,u)*Cross(p,q,v)<0&&Cross(u,v,p)*Cross(u,v,q)<0||OnSegment(p,q,u)||OnSegment(p,q,v)||OnSegment(u,v,p)||OnSegment(u,v,q);}
   public void BeginDrag(int index){if(Kind!="untangle"||Won)return;Save();Selected=index;}
   public void Drag(Point point){if(Kind=="untangle"&&Selected>=0){Points[Selected]=new Point(Math.Max(30,Math.Min(650,point.X)),Math.Max(30,Math.Min(380,point.Y)));Feedback=.1;}}
   public void EndDrag(){if(Kind!="untangle"||Selected<0)return;Selected=-1;Moves++;Won=Crossings()==0&&!Points.Where((p,i)=>Points.Where((q,j)=>j!=i).Any(q=>(p-q).Length<22)).Any();Feedback=.3;}

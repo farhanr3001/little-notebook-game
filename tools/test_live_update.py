@@ -22,7 +22,7 @@ try:
  data=app/'user-data-test'
  profile=json.loads((root/'test-output/revision-profile.json').read_text(encoding='utf-8-sig'))
  profile.update(Name='Update preservation fixture',Coins=777,StackBest=23)
- profile['MiniGames']={key:dict(Level=17 if key=='arrows' else 4,Seed=81623+index,BestCompleted=16 if key=='arrows' else 3,Completed=21,Failures=2,BestSeconds=62.8 if key=='mousedash' else 0,LastSeconds=48.2 if key=='mousedash' else 0) for index,key in enumerate(['arrows','signal','pulse','lanterns','tiles','echo','maze','mousedash'])}
+ profile['MiniGames']={key:dict(Level=17 if key=='arrows' else 4,Seed=81623+index,BestCompleted=16 if key=='arrows' else 3,Completed=21,Failures=2,BestSeconds=62.8 if key=='mousedash' else 0,LastSeconds=48.2 if key=='mousedash' else 0,LastMoves=21,BestMoves=19,Results=[dict(Level=3,Moves=21,Seconds=52.1,Date='2026-10-23T10:00:00Z')]) for index,key in enumerate(['arrows','tiles','maze','mousedash','lights','queens','crates','pegs','untangle','pour','code','domino','glide','flood','signal','pulse','lanterns','echo'])}
  profile['Settings'].update(Language='en',Music=False,Sound=False,AutoReadQuestions=False,Volume=0,CustomMusic=['data/music/preserve.wav'],MusicTitles={'data/music/preserve.wav':'My preserved music name'})
  (data/'profile.json').write_text(json.dumps(profile,ensure_ascii=False),encoding='utf-8')
  (data/'music').mkdir(exist_ok=True);shutil.copy2(app/'assets/click.wav',data/'music/preserve.wav');(data/'music/preserve.bin').write_bytes(b'preserve imported music')

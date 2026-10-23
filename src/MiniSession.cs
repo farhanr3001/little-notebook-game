@@ -9,7 +9,7 @@ namespace LittleNotebook {
   public double Wait,Elapsed,FeedbackTime;public bool WrongFeedback;
   public ArrowBoard Arrows;public SignalBoard Signal;public SlidingBoard Tiles;public MazeBoard Maze;
   public MouseDashBoard Dash;
-  public PaperStackBoard Stack;
+  public PaperStackBoard Stack;public ExtraPuzzle Extra;
   public MiniMelody Melody;public int MelodyStep;
   public sealed class Flight {public int Index;public bool Blocked;public double Time,Duration,Distance;}
   public readonly System.Collections.Generic.List<Flight> Flights=new System.Collections.Generic.List<Flight>();
@@ -40,11 +40,13 @@ namespace LittleNotebook {
     case "pulse":PulseKey='E';ResetPulse();break;
     case "mousedash":Dash=new MouseDashBoard(seed);Phase="waiting";break;
     case "stack":Stack=new PaperStackBoard(seed);Phase="ready";break;
-    default:throw new ArgumentException("Unknown minigame.");
+    default:if(ExtraPuzzle.Keys.Contains(kind)){Extra=new ExtraPuzzle(kind,Level,seed);break;}throw new ArgumentException("Unknown minigame.");
    }
   }
+  public bool ExtraInput(int index){if(Extra==null||Phase!="playing")return false;bool used=Extra.Input(index);Moves=Extra.Moves;CheckExtra();return used;}
+  public void CheckExtra(){if(Extra==null)return;Moves=Extra.Moves;if(Extra.Won)Win();else if(Extra.Over&&Phase!="failed")Fail();}
   void Sound(int note){if(Note!=null)Note(note);}
-  void Win(){if(Phase=="complete"||Phase=="failed")return;Phase="complete";Wait=Kind=="pulse"?.5:Melody!=null?Melody.Duration+.35:1.65;QueuedArrow=-1;if(Won!=null)Won();}
+  void Win(){if(Phase=="complete"||Phase=="failed")return;Phase="complete";Wait=Kind=="tiles"?4:Kind=="pulse"?.5:Melody!=null?Melody.Duration+.35:1.65;QueuedArrow=-1;if(Won!=null)Won();}
   void Fail(){Phase="failed";QueuedArrow=-1;Highlight=-1;if(Lost!=null)Lost();}
   void Wrong(){WrongFeedback=true;FeedbackTime=.42;Sound(-1);Lives--;if(Lives<=0)Fail();}
   public bool StackTap(){if(Stack==null||Phase=="failed")return false;int before=Stack.Score;if(!Stack.Tap())return false;Phase="playing";Moves++;if(Stack.Phase=="miss")Sound(-1);else if(Stack.Score>before)Sound(Stack.Perfect?Math.Min(7,1+Stack.Streak):0);return true;}
@@ -88,7 +90,8 @@ namespace LittleNotebook {
    if(Charge>=1){Latch++;if(Latch>=3)Win();else{Phase="latch";Wait=.15;Sound(2+Latch*2);}}return true;
   }
   public void Tick(double seconds){
-   if(seconds<=0||double.IsNaN(seconds)||double.IsInfinity(seconds)||Phase=="failed")return;double dt=Math.Min(.1,seconds);bool mazeMoving=Maze!=null&&MoveTime<MazeStepSeconds;Elapsed+=dt;TurnTime+=dt;MoveTime+=dt;
+   if(seconds<=0||double.IsNaN(seconds)||double.IsInfinity(seconds)||Phase=="failed")return;double dt=Math.Min(.1,seconds);bool mazeMoving=Maze!=null&&MoveTime<MazeStepSeconds;if(Phase!="complete")Elapsed+=dt;TurnTime+=dt;MoveTime+=dt;
+   if(Extra!=null){Extra.Feedback=Math.Max(0,Extra.Feedback-dt);if(Phase=="complete"){Wait-=dt;if(Wait<=0){Wait=double.MaxValue;if(Next!=null)Next();}}else CheckExtra();return;}
    if(Dash!=null){if(Phase=="playing"){Dash.Tick(dt);if(Dash.Hit){Sound(-1);Fail();}}return;}
    if(Stack!=null){Stack.Tick(dt);if(Stack.Over)Fail();return;}
    if(FeedbackTime>0){FeedbackTime=Math.Max(0,FeedbackTime-dt);if(FeedbackTime==0&&Kind=="echo"&&Phase=="playing")Highlight=-1;}

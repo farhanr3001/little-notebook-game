@@ -3,15 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 
 namespace LittleNotebook {
+ public sealed class MiniFinish {public int Level,Moves;public double Seconds;public string Date;}
  public sealed class MiniProgress {
-  public int Level=1,Seed,BestCompleted,Completed,Failures;public double BestSeconds,LastSeconds;
+  public int Level=1,Seed,BestCompleted,Completed,Failures;public double BestSeconds,LastSeconds;public int LastMoves,BestMoves;public List<MiniFinish> Results=new List<MiniFinish>();
  }
  public static class MiniCatalog {
-  public static readonly string[] Keys={"arrows","stack","tiles","maze","mousedash"};
+  public static readonly string[] Keys={"arrows","stack","tiles","maze","mousedash","lights","queens","crates","pegs","untangle","pour","code","domino","glide","flood"};
   public static void Normalize(Profile profile){
    if(profile.MiniGames==null)profile.MiniGames=new Dictionary<string,MiniProgress>();
    profile.StackBest=Math.Max(0,profile.StackBest);if(profile.Settings.SelectedMiniGame=="lanterns")profile.Settings.SelectedMiniGame="stack";
    foreach(string key in Keys.Where(k=>k!="stack")){MiniProgress value;if(!profile.MiniGames.TryGetValue(key,out value)||value==null)profile.MiniGames[key]=value=new MiniProgress();
+    if(value.Results==null)value.Results=new List<MiniFinish>();
     value.Level=Math.Max(1,Math.Min(100000,value.Level));value.BestCompleted=Math.Max(0,value.BestCompleted);
     if(value.Seed==0)value.Seed=Guid.NewGuid().GetHashCode()|1;
     if(double.IsNaN(value.BestSeconds)||double.IsInfinity(value.BestSeconds)||value.BestSeconds<0)value.BestSeconds=0;

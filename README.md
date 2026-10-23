@@ -1,4 +1,4 @@
-# Little Notebook
+﻿# Little Notebook
 
 A cosy learning and puzzle game for Windows, with a notebook to draw in and a little radio to keep you company.
 
@@ -8,7 +8,7 @@ Play English, maths, puzzles and general-knowledge questions. Choose your topics
 
 Between rounds, write or draw in your notebook, try tracing pictures, and listen to your own music. Import several music files together or add audio from a public YouTube/TikTok link.
 
-Take a break with five minigames, including Arrow Escape, Paper Stack, Picture Patches, Ladybug Trail and Ladybug Dodge. Puzzle levels and survival records save automatically. Clear arrows to play piano melodies across 100 arrangements. Click past the replay or let the next round start automatically. Piece together animal photographs in Picture Patches.
+Take a break with fifteen minigames, including Arrow Escape, Paper Stack, Picture Patches and ten new logic and strategy puzzles. Puzzle levels and survival records save automatically. Clear arrows to play piano melodies across 100 arrangements. Click past the replay or let the next round start automatically. Piece together animal photographs in Picture Patches, with a nearby preview and saved times and moves.
 
 ## Install
 

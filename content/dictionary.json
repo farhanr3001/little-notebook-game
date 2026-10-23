@@ -1,0 +1,830 @@
+[
+  {
+    "Category": "everyday",
+    "Word": "you",
+    "Pronunciation": "yoo",
+    "Arabic": "أنت",
+    "Definition": "The person being spoken to.",
+    "DefinitionAr": "الشخص الذي نتحدث إليه.",
+    "Example": "You are very kind."
+  },
+  {
+    "Category": "everyday",
+    "Word": "right",
+    "Pronunciation": "ryt",
+    "Arabic": "صحيح",
+    "Definition": "Correct; without a mistake.",
+    "DefinitionAr": "صحيح ولا يحتوي على خطأ.",
+    "Example": "You are right about that."
+  },
+  {
+    "Category": "everyday",
+    "Word": "small",
+    "Pronunciation": "smawl",
+    "Arabic": "صغير",
+    "Definition": "Little in size.",
+    "DefinitionAr": "صغير الحجم.",
+    "Example": "We have a small garden."
+  },
+  {
+    "Category": "everyday",
+    "Word": "please",
+    "Pronunciation": "pleez",
+    "Arabic": "من فضلك",
+    "Definition": "A polite word used when asking.",
+    "DefinitionAr": "كلمة مهذبة عند طلب شيء.",
+    "Example": "Please close the door."
+  },
+  {
+    "Category": "everyday",
+    "Word": "thank you",
+    "Pronunciation": "thank yoo",
+    "Arabic": "شكراً",
+    "Definition": "Words that show you are grateful.",
+    "DefinitionAr": "عبارة للتعبير عن الامتنان.",
+    "Example": "Thank you for helping me."
+  },
+  {
+    "Category": "everyday",
+    "Word": "sorry",
+    "Pronunciation": "SOR-ee",
+    "Arabic": "آسف",
+    "Definition": "A word used to apologise.",
+    "DefinitionAr": "كلمة للاعتذار عن خطأ.",
+    "Example": "I am sorry I am late."
+  },
+  {
+    "Category": "everyday",
+    "Word": "hello",
+    "Pronunciation": "heh-LOH",
+    "Arabic": "مرحباً",
+    "Definition": "A greeting when you meet someone.",
+    "DefinitionAr": "تحية عند مقابلة شخص.",
+    "Example": "Hello, how are you?"
+  },
+  {
+    "Category": "everyday",
+    "Word": "goodbye",
+    "Pronunciation": "good-BYE",
+    "Arabic": "إلى اللقاء",
+    "Definition": "Words used when leaving.",
+    "DefinitionAr": "تحية نقولها عند المغادرة.",
+    "Example": "Goodbye, see you tomorrow."
+  },
+  {
+    "Category": "everyday",
+    "Word": "maybe",
+    "Pronunciation": "MAY-bee",
+    "Arabic": "ربما",
+    "Definition": "Possibly, but not certainly.",
+    "DefinitionAr": "شيء محتمل ولكنه غير مؤكد.",
+    "Example": "Maybe we can go tomorrow."
+  },
+  {
+    "Category": "everyday",
+    "Word": "because",
+    "Pronunciation": "bih-KOZ",
+    "Arabic": "لأن",
+    "Definition": "A word that introduces a reason.",
+    "DefinitionAr": "كلمة نذكر بعدها السبب.",
+    "Example": "I stayed home because it rained."
+  },
+  {
+    "Category": "everyday",
+    "Word": "really",
+    "Pronunciation": "REE-uh-lee",
+    "Arabic": "حقاً",
+    "Definition": "Truly; used to show surprise or emphasis.",
+    "DefinitionAr": "كلمة للتأكيد أو إظهار الدهشة.",
+    "Example": "I really like this song."
+  },
+  {
+    "Category": "everyday",
+    "Word": "together",
+    "Pronunciation": "tuh-GETH-er",
+    "Arabic": "معاً",
+    "Definition": "With another person or people.",
+    "DefinitionAr": "بصحبة شخص أو أشخاص آخرين.",
+    "Example": "We cook together."
+  },
+  {
+    "Category": "feelings",
+    "Word": "happy",
+    "Pronunciation": "HAP-ee",
+    "Arabic": "سعيد",
+    "Definition": "Feeling pleased or joyful.",
+    "DefinitionAr": "يشعر بالفرح والسرور.",
+    "Example": "I am happy to see you."
+  },
+  {
+    "Category": "feelings",
+    "Word": "sad",
+    "Pronunciation": "sad",
+    "Arabic": "حزين",
+    "Definition": "Feeling unhappy.",
+    "DefinitionAr": "يشعر بالحزن وعدم السعادة.",
+    "Example": "She felt sad yesterday."
+  },
+  {
+    "Category": "feelings",
+    "Word": "tired",
+    "Pronunciation": "ty-erd",
+    "Arabic": "متعب",
+    "Definition": "Needing rest or sleep.",
+    "DefinitionAr": "بحاجة إلى الراحة أو النوم.",
+    "Example": "I am tired after work."
+  },
+  {
+    "Category": "feelings",
+    "Word": "excited",
+    "Pronunciation": "ik-SY-tid",
+    "Arabic": "متحمس",
+    "Definition": "Very happy about something coming.",
+    "DefinitionAr": "يشعر بالحماس لشيء قادم.",
+    "Example": "I am excited about our trip."
+  },
+  {
+    "Category": "feelings",
+    "Word": "worried",
+    "Pronunciation": "WUR-eed",
+    "Arabic": "قلق",
+    "Definition": "Thinking something bad may happen.",
+    "DefinitionAr": "يخشى أن يحدث شيء سيئ.",
+    "Example": "He is worried about the test."
+  },
+  {
+    "Category": "feelings",
+    "Word": "calm",
+    "Pronunciation": "kahm",
+    "Arabic": "هادئ",
+    "Definition": "Relaxed and not worried.",
+    "DefinitionAr": "مرتاح وغير قلق.",
+    "Example": "The music makes me feel calm."
+  },
+  {
+    "Category": "feelings",
+    "Word": "proud",
+    "Pronunciation": "prowd",
+    "Arabic": "فخور",
+    "Definition": "Pleased with something you have done.",
+    "DefinitionAr": "سعيد بما حققه من إنجاز.",
+    "Example": "I am proud of your drawing."
+  },
+  {
+    "Category": "feelings",
+    "Word": "shy",
+    "Pronunciation": "shy",
+    "Arabic": "خجول",
+    "Definition": "Nervous around other people.",
+    "DefinitionAr": "يشعر بالخجل أمام الآخرين.",
+    "Example": "I was shy at first."
+  },
+  {
+    "Category": "feelings",
+    "Word": "lonely",
+    "Pronunciation": "LOHN-lee",
+    "Arabic": "وحيد",
+    "Definition": "Unhappy because you feel alone.",
+    "DefinitionAr": "حزين بسبب الشعور بالوحدة.",
+    "Example": "Call me if you feel lonely."
+  },
+  {
+    "Category": "feelings",
+    "Word": "comfortable",
+    "Pronunciation": "KUMF-ter-bul",
+    "Arabic": "مرتاح",
+    "Definition": "Relaxed and physically at ease.",
+    "DefinitionAr": "يشعر بالراحة الجسدية والنفسية.",
+    "Example": "This chair is comfortable."
+  },
+  {
+    "Category": "people",
+    "Word": "friend",
+    "Pronunciation": "frend",
+    "Arabic": "صديق",
+    "Definition": "Someone you know and like.",
+    "DefinitionAr": "شخص تعرفه وتحبه وتثق به.",
+    "Example": "My friend lives nearby."
+  },
+  {
+    "Category": "people",
+    "Word": "family",
+    "Pronunciation": "FAM-uh-lee",
+    "Arabic": "عائلة",
+    "Definition": "People related to you.",
+    "DefinitionAr": "الأشخاص الذين تربطك بهم صلة قرابة.",
+    "Example": "My family is at home."
+  },
+  {
+    "Category": "people",
+    "Word": "kind",
+    "Pronunciation": "kynd",
+    "Arabic": "لطيف",
+    "Definition": "Caring and helpful to others.",
+    "DefinitionAr": "يهتم بالآخرين ويساعدهم.",
+    "Example": "That was kind of you."
+  },
+  {
+    "Category": "people",
+    "Word": "honest",
+    "Pronunciation": "ON-ist",
+    "Arabic": "صادق",
+    "Definition": "Telling the truth.",
+    "DefinitionAr": "يقول الحقيقة ولا يكذب.",
+    "Example": "Please be honest with me."
+  },
+  {
+    "Category": "people",
+    "Word": "patient",
+    "Pronunciation": "PAY-shunt",
+    "Arabic": "صبور",
+    "Definition": "Able to wait without getting upset.",
+    "DefinitionAr": "يستطيع الانتظار دون انزعاج.",
+    "Example": "Thank you for being patient."
+  },
+  {
+    "Category": "people",
+    "Word": "neighbour",
+    "Pronunciation": "NAY-ber",
+    "Arabic": "جار",
+    "Definition": "Someone who lives near you.",
+    "DefinitionAr": "شخص يسكن بالقرب منك.",
+    "Example": "Our neighbour has a cat."
+  },
+  {
+    "Category": "people",
+    "Word": "someone",
+    "Pronunciation": "SUM-wun",
+    "Arabic": "شخص ما",
+    "Definition": "A person whose name is not given.",
+    "DefinitionAr": "شخص لم نذكر اسمه.",
+    "Example": "Someone is at the door."
+  },
+  {
+    "Category": "people",
+    "Word": "everyone",
+    "Pronunciation": "EV-ree-wun",
+    "Arabic": "الجميع",
+    "Definition": "All the people in a group.",
+    "DefinitionAr": "كل الأشخاص في مجموعة.",
+    "Example": "Everyone enjoyed the game."
+  },
+  {
+    "Category": "home",
+    "Word": "room",
+    "Pronunciation": "room",
+    "Arabic": "غرفة",
+    "Definition": "A separate space inside a building.",
+    "DefinitionAr": "جزء منفصل داخل المبنى.",
+    "Example": "My room is quiet."
+  },
+  {
+    "Category": "home",
+    "Word": "kitchen",
+    "Pronunciation": "KICH-in",
+    "Arabic": "مطبخ",
+    "Definition": "The room where food is prepared.",
+    "DefinitionAr": "الغرفة التي نعد فيها الطعام.",
+    "Example": "She is in the kitchen."
+  },
+  {
+    "Category": "home",
+    "Word": "window",
+    "Pronunciation": "WIN-doh",
+    "Arabic": "نافذة",
+    "Definition": "An opening with glass in a wall.",
+    "DefinitionAr": "فتحة زجاجية في الجدار للضوء والهواء.",
+    "Example": "Open the window, please."
+  },
+  {
+    "Category": "home",
+    "Word": "blanket",
+    "Pronunciation": "BLANG-kit",
+    "Arabic": "بطانية",
+    "Definition": "A thick cover that keeps you warm.",
+    "DefinitionAr": "غطاء سميك يحافظ على الدفء.",
+    "Example": "This blanket is soft."
+  },
+  {
+    "Category": "home",
+    "Word": "pillow",
+    "Pronunciation": "PIL-oh",
+    "Arabic": "وسادة",
+    "Definition": "A soft support for your head.",
+    "DefinitionAr": "شيء ناعم تضع رأسك عليه عند النوم.",
+    "Example": "I need another pillow."
+  },
+  {
+    "Category": "home",
+    "Word": "clean",
+    "Pronunciation": "kleen",
+    "Arabic": "نظيف",
+    "Definition": "Without dirt.",
+    "DefinitionAr": "خالٍ من الأوساخ.",
+    "Example": "The room is clean now."
+  },
+  {
+    "Category": "home",
+    "Word": "quiet",
+    "Pronunciation": "KWY-ut",
+    "Arabic": "هادئ",
+    "Definition": "Making little or no noise.",
+    "DefinitionAr": "قليل الضوضاء أو بلا ضوضاء.",
+    "Example": "It is quiet here."
+  },
+  {
+    "Category": "home",
+    "Word": "light",
+    "Pronunciation": "lyt",
+    "Arabic": "ضوء",
+    "Definition": "What makes things visible.",
+    "DefinitionAr": "ما يساعدنا على رؤية الأشياء.",
+    "Example": "Turn on the light."
+  },
+  {
+    "Category": "food",
+    "Word": "hungry",
+    "Pronunciation": "HUNG-gree",
+    "Arabic": "جائع",
+    "Definition": "Needing or wanting food.",
+    "DefinitionAr": "يحتاج إلى الطعام أو يرغب فيه.",
+    "Example": "I am hungry now."
+  },
+  {
+    "Category": "food",
+    "Word": "thirsty",
+    "Pronunciation": "THUR-stee",
+    "Arabic": "عطشان",
+    "Definition": "Needing or wanting a drink.",
+    "DefinitionAr": "يحتاج إلى الشرب.",
+    "Example": "Are you thirsty?"
+  },
+  {
+    "Category": "food",
+    "Word": "breakfast",
+    "Pronunciation": "BREK-fust",
+    "Arabic": "فطور",
+    "Definition": "The first meal of the day.",
+    "DefinitionAr": "أول وجبة في اليوم.",
+    "Example": "I eat breakfast at eight."
+  },
+  {
+    "Category": "food",
+    "Word": "dinner",
+    "Pronunciation": "DIN-er",
+    "Arabic": "عشاء",
+    "Definition": "The main meal, often in the evening.",
+    "DefinitionAr": "وجبة رئيسية تكون غالباً في المساء.",
+    "Example": "Dinner is ready."
+  },
+  {
+    "Category": "food",
+    "Word": "delicious",
+    "Pronunciation": "dih-LISH-us",
+    "Arabic": "لذيذ",
+    "Definition": "Very pleasant to taste.",
+    "DefinitionAr": "طعمه جميل جداً.",
+    "Example": "This cake is delicious."
+  },
+  {
+    "Category": "food",
+    "Word": "sweet",
+    "Pronunciation": "sweet",
+    "Arabic": "حلو",
+    "Definition": "Having a taste like sugar.",
+    "DefinitionAr": "له طعم يشبه السكر.",
+    "Example": "The tea is too sweet."
+  },
+  {
+    "Category": "food",
+    "Word": "water",
+    "Pronunciation": "WAW-ter",
+    "Arabic": "ماء",
+    "Definition": "The clear liquid we drink.",
+    "DefinitionAr": "السائل الشفاف الذي نشربه.",
+    "Example": "Can I have some water?"
+  },
+  {
+    "Category": "food",
+    "Word": "share",
+    "Pronunciation": "shair",
+    "Arabic": "يشارك",
+    "Definition": "To give part of something to someone.",
+    "DefinitionAr": "يعطي جزءاً مما لديه لشخص آخر.",
+    "Example": "We can share this cake."
+  },
+  {
+    "Category": "time",
+    "Word": "today",
+    "Pronunciation": "tuh-DAY",
+    "Arabic": "اليوم",
+    "Definition": "The day happening now.",
+    "DefinitionAr": "اليوم الذي نعيشه الآن.",
+    "Example": "I am free today."
+  },
+  {
+    "Category": "time",
+    "Word": "tomorrow",
+    "Pronunciation": "tuh-MOR-oh",
+    "Arabic": "غداً",
+    "Definition": "The day after today.",
+    "DefinitionAr": "اليوم الذي يأتي بعد اليوم.",
+    "Example": "I will call tomorrow."
+  },
+  {
+    "Category": "time",
+    "Word": "yesterday",
+    "Pronunciation": "YES-ter-day",
+    "Arabic": "أمس",
+    "Definition": "The day before today.",
+    "DefinitionAr": "اليوم الذي سبق اليوم.",
+    "Example": "It rained yesterday."
+  },
+  {
+    "Category": "time",
+    "Word": "later",
+    "Pronunciation": "LAY-ter",
+    "Arabic": "لاحقاً",
+    "Definition": "At a time after now.",
+    "DefinitionAr": "في وقت يأتي بعد الآن.",
+    "Example": "See you later."
+  },
+  {
+    "Category": "time",
+    "Word": "early",
+    "Pronunciation": "UR-lee",
+    "Arabic": "مبكر",
+    "Definition": "Before the usual or expected time.",
+    "DefinitionAr": "قبل الوقت المعتاد أو المتوقع.",
+    "Example": "I woke up early."
+  },
+  {
+    "Category": "time",
+    "Word": "already",
+    "Pronunciation": "awl-RED-ee",
+    "Arabic": "بالفعل",
+    "Definition": "Before now or sooner than expected.",
+    "DefinitionAr": "حدث من قبل أو أبكر مما توقعنا.",
+    "Example": "I have already eaten."
+  },
+  {
+    "Category": "time",
+    "Word": "always",
+    "Pronunciation": "AWL-wayz",
+    "Arabic": "دائماً",
+    "Definition": "Every time.",
+    "DefinitionAr": "في كل مرة.",
+    "Example": "You always make me smile."
+  },
+  {
+    "Category": "time",
+    "Word": "sometimes",
+    "Pronunciation": "SUM-tymz",
+    "Arabic": "أحياناً",
+    "Definition": "On some occasions, but not always.",
+    "DefinitionAr": "في بعض الأوقات وليس دائماً.",
+    "Example": "I sometimes draw at night."
+  },
+  {
+    "Category": "time",
+    "Word": "minute",
+    "Pronunciation": "MIN-it",
+    "Arabic": "دقيقة",
+    "Definition": "A period of sixty seconds.",
+    "DefinitionAr": "مدة تساوي ستين ثانية.",
+    "Example": "Wait one minute, please."
+  },
+  {
+    "Category": "time",
+    "Word": "soon",
+    "Pronunciation": "soon",
+    "Arabic": "قريباً",
+    "Definition": "After a short time.",
+    "DefinitionAr": "بعد وقت قصير.",
+    "Example": "I will be home soon."
+  },
+  {
+    "Category": "conversation",
+    "Word": "understand",
+    "Pronunciation": "un-der-STAND",
+    "Arabic": "يفهم",
+    "Definition": "To know what something means.",
+    "DefinitionAr": "يعرف معنى شيء أو كيف يحدث.",
+    "Example": "I understand the question."
+  },
+  {
+    "Category": "conversation",
+    "Word": "explain",
+    "Pronunciation": "ik-SPLAYN",
+    "Arabic": "يشرح",
+    "Definition": "To make something clear.",
+    "DefinitionAr": "يوضح شيئاً ليسهل فهمه.",
+    "Example": "Can you explain that again?"
+  },
+  {
+    "Category": "conversation",
+    "Word": "remember",
+    "Pronunciation": "rih-MEM-ber",
+    "Arabic": "يتذكر",
+    "Definition": "To bring something back to mind.",
+    "DefinitionAr": "يستحضر شيئاً في ذهنه.",
+    "Example": "I remember your birthday."
+  },
+  {
+    "Category": "conversation",
+    "Word": "forget",
+    "Pronunciation": "fer-GET",
+    "Arabic": "ينسى",
+    "Definition": "To stop remembering something.",
+    "DefinitionAr": "لا يستطيع تذكر شيء.",
+    "Example": "Do not forget your keys."
+  },
+  {
+    "Category": "conversation",
+    "Word": "believe",
+    "Pronunciation": "bih-LEEV",
+    "Arabic": "يصدق",
+    "Definition": "To think something is true.",
+    "DefinitionAr": "يعتقد أن شيئاً صحيح.",
+    "Example": "I believe you."
+  },
+  {
+    "Category": "conversation",
+    "Word": "agree",
+    "Pronunciation": "uh-GREE",
+    "Arabic": "يوافق",
+    "Definition": "To have the same opinion.",
+    "DefinitionAr": "له الرأي نفسه أو يقبل الاقتراح.",
+    "Example": "I agree with your idea."
+  },
+  {
+    "Category": "conversation",
+    "Word": "question",
+    "Pronunciation": "KWES-chun",
+    "Arabic": "سؤال",
+    "Definition": "Something you ask to get information.",
+    "DefinitionAr": "ما نطرحه لطلب معلومة.",
+    "Example": "Can I ask a question?"
+  },
+  {
+    "Category": "conversation",
+    "Word": "answer",
+    "Pronunciation": "AN-ser",
+    "Arabic": "إجابة",
+    "Definition": "A reply to a question.",
+    "DefinitionAr": "رد على سؤال.",
+    "Example": "That is the right answer."
+  },
+  {
+    "Category": "conversation",
+    "Word": "listen",
+    "Pronunciation": "LIS-un",
+    "Arabic": "يستمع",
+    "Definition": "To pay attention to a sound.",
+    "DefinitionAr": "ينتبه إلى صوت أو كلام.",
+    "Example": "Listen to this song."
+  },
+  {
+    "Category": "conversation",
+    "Word": "repeat",
+    "Pronunciation": "rih-PEET",
+    "Arabic": "يكرر",
+    "Definition": "To say or do something again.",
+    "DefinitionAr": "يقول أو يفعل الشيء مرة أخرى.",
+    "Example": "Please repeat the word."
+  },
+  {
+    "Category": "conversation",
+    "Word": "mean",
+    "Pronunciation": "meen",
+    "Arabic": "يعني",
+    "Definition": "To have a particular meaning.",
+    "DefinitionAr": "يدل على معنى معين.",
+    "Example": "What does this word mean?"
+  },
+  {
+    "Category": "conversation",
+    "Word": "probably",
+    "Pronunciation": "PROB-uh-blee",
+    "Arabic": "على الأرجح",
+    "Definition": "Very likely, but not certain.",
+    "DefinitionAr": "شيء محتمل جداً ولكنه غير مؤكد.",
+    "Example": "I will probably stay home."
+  },
+  {
+    "Category": "actions",
+    "Word": "wait",
+    "Pronunciation": "wayt",
+    "Arabic": "ينتظر",
+    "Definition": "To stay until something happens.",
+    "DefinitionAr": "يبقى حتى يحدث شيء.",
+    "Example": "Please wait for me."
+  },
+  {
+    "Category": "actions",
+    "Word": "choose",
+    "Pronunciation": "chooz",
+    "Arabic": "يختار",
+    "Definition": "To pick one thing from several.",
+    "DefinitionAr": "ينتقي شيئاً من بين عدة أشياء.",
+    "Example": "Choose your favourite colour."
+  },
+  {
+    "Category": "actions",
+    "Word": "help",
+    "Pronunciation": "help",
+    "Arabic": "يساعد",
+    "Definition": "To make something easier for someone.",
+    "DefinitionAr": "يسهّل أمراً على شخص آخر.",
+    "Example": "Can you help me?"
+  },
+  {
+    "Category": "actions",
+    "Word": "learn",
+    "Pronunciation": "lern",
+    "Arabic": "يتعلم",
+    "Definition": "To gain knowledge or a new skill.",
+    "DefinitionAr": "يكتسب معرفة أو مهارة جديدة.",
+    "Example": "I want to learn English."
+  },
+  {
+    "Category": "actions",
+    "Word": "try",
+    "Pronunciation": "try",
+    "Arabic": "يحاول",
+    "Definition": "To make an effort to do something.",
+    "DefinitionAr": "يبذل جهداً لفعل شيء.",
+    "Example": "I will try again."
+  },
+  {
+    "Category": "actions",
+    "Word": "need",
+    "Pronunciation": "need",
+    "Arabic": "يحتاج",
+    "Definition": "To require something.",
+    "DefinitionAr": "يكون بحاجة إلى شيء.",
+    "Example": "I need a little rest."
+  },
+  {
+    "Category": "actions",
+    "Word": "want",
+    "Pronunciation": "wont",
+    "Arabic": "يريد",
+    "Definition": "To wish to have or do something.",
+    "DefinitionAr": "يرغب في امتلاك شيء أو فعله.",
+    "Example": "I want to draw today."
+  },
+  {
+    "Category": "actions",
+    "Word": "bring",
+    "Pronunciation": "bring",
+    "Arabic": "يحضر",
+    "Definition": "To carry something to a place.",
+    "DefinitionAr": "ينقل شيئاً إلى مكان.",
+    "Example": "Bring your notebook."
+  },
+  {
+    "Category": "hobbies",
+    "Word": "draw",
+    "Pronunciation": "draw",
+    "Arabic": "يرسم",
+    "Definition": "To make a picture using lines.",
+    "DefinitionAr": "يصنع صورة باستخدام الخطوط.",
+    "Example": "I like to draw cats."
+  },
+  {
+    "Category": "hobbies",
+    "Word": "paint",
+    "Pronunciation": "paynt",
+    "Arabic": "يلوّن",
+    "Definition": "To make a picture using paint.",
+    "DefinitionAr": "يصنع صورة باستخدام الألوان.",
+    "Example": "She likes to paint flowers."
+  },
+  {
+    "Category": "hobbies",
+    "Word": "sketch",
+    "Pronunciation": "skech",
+    "Arabic": "رسم مبدئي",
+    "Definition": "A quick drawing with few details.",
+    "DefinitionAr": "رسم سريع بتفاصيل قليلة.",
+    "Example": "This is a sketch of my cat."
+  },
+  {
+    "Category": "hobbies",
+    "Word": "story",
+    "Pronunciation": "STOR-ee",
+    "Arabic": "قصة",
+    "Definition": "A description of events.",
+    "DefinitionAr": "حكاية تصف أحداثاً.",
+    "Example": "Tell me a story."
+  },
+  {
+    "Category": "hobbies",
+    "Word": "music",
+    "Pronunciation": "MYOO-zik",
+    "Arabic": "موسيقى",
+    "Definition": "Sounds arranged to make a tune.",
+    "DefinitionAr": "أصوات مرتبة لتكوين لحن.",
+    "Example": "I listen to music while drawing."
+  },
+  {
+    "Category": "hobbies",
+    "Word": "favourite",
+    "Pronunciation": "FAY-ver-it",
+    "Arabic": "مفضّل",
+    "Definition": "Liked more than the others.",
+    "DefinitionAr": "محبوب أكثر من غيره.",
+    "Example": "What is your favourite anime?"
+  },
+  {
+    "Category": "hobbies",
+    "Word": "beautiful",
+    "Pronunciation": "BYOO-tih-ful",
+    "Arabic": "جميل",
+    "Definition": "Very pleasant to look at.",
+    "DefinitionAr": "منظره جميل وممتع.",
+    "Example": "Your drawing is beautiful."
+  },
+  {
+    "Category": "hobbies",
+    "Word": "improve",
+    "Pronunciation": "im-PROOV",
+    "Arabic": "يتحسن",
+    "Definition": "To become better.",
+    "DefinitionAr": "يصبح أفضل من قبل.",
+    "Example": "Practice helps you improve."
+  },
+  {
+    "Category": "travel",
+    "Word": "near",
+    "Pronunciation": "neer",
+    "Arabic": "قريب",
+    "Definition": "Not far away.",
+    "DefinitionAr": "ليس بعيداً.",
+    "Example": "The shop is near my house."
+  },
+  {
+    "Category": "travel",
+    "Word": "far",
+    "Pronunciation": "far",
+    "Arabic": "بعيد",
+    "Definition": "At a long distance.",
+    "DefinitionAr": "على مسافة طويلة.",
+    "Example": "The station is far away."
+  },
+  {
+    "Category": "travel",
+    "Word": "ticket",
+    "Pronunciation": "TIK-it",
+    "Arabic": "تذكرة",
+    "Definition": "A pass that lets you travel or enter.",
+    "DefinitionAr": "ورقة أو تصريح للسفر أو الدخول.",
+    "Example": "I bought a train ticket."
+  },
+  {
+    "Category": "travel",
+    "Word": "arrive",
+    "Pronunciation": "uh-RYV",
+    "Arabic": "يصل",
+    "Definition": "To reach a place.",
+    "DefinitionAr": "يبلغ مكاناً بعد السفر إليه.",
+    "Example": "We arrive at six."
+  },
+  {
+    "Category": "travel",
+    "Word": "leave",
+    "Pronunciation": "leev",
+    "Arabic": "يغادر",
+    "Definition": "To go away from a place.",
+    "DefinitionAr": "يذهب بعيداً عن مكان.",
+    "Example": "I need to leave soon."
+  },
+  {
+    "Category": "travel",
+    "Word": "lost",
+    "Pronunciation": "lost",
+    "Arabic": "تائه",
+    "Definition": "Unable to find the right way.",
+    "DefinitionAr": "لا يعرف الطريق الصحيح.",
+    "Example": "I think we are lost."
+  },
+  {
+    "Category": "travel",
+    "Word": "straight",
+    "Pronunciation": "strayt",
+    "Arabic": "مستقيم",
+    "Definition": "Continuing in the same direction.",
+    "DefinitionAr": "يمتد في الاتجاه نفسه دون انعطاف.",
+    "Example": "Go straight, then turn left."
+  },
+  {
+    "Category": "travel",
+    "Word": "journey",
+    "Pronunciation": "JUR-nee",
+    "Arabic": "رحلة",
+    "Definition": "Travel from one place to another.",
+    "DefinitionAr": "انتقال من مكان إلى آخر.",
+    "Example": "Have a safe journey."
+  }
+]

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
@@ -28,7 +28,7 @@ namespace LittleNotebook {
    if(slot.Topic=="math")candidates=Enumerable.Range(0,24).Select(i=>bank.MathQuestion(slot.Level,slot.Category)).ToList();else candidates=bank.Questions.Where(q=>q.Topic==slot.Topic&&q.Difficulty==slot.Level&&QuestionCatalog.Category(q)==slot.Category).ToList();
    if(candidates.Count==0)throw new InvalidDataException("No questions for selected filter");var fresh=candidates.Where(q=>!used.Contains(q.Id)).ToList();if(fresh.Count==0){foreach(var q in candidates)used.Remove(q.Id);fresh=candidates;}var pool=fresh.Where(q=>q.Id!=previous).ToList();if(pool.Count==0)pool=fresh;
    double total=pool.Sum(q=>HistoryWeight(history,q.Id)),pick=bank.Random.NextDouble()*total;Question chosen=pool.Last();foreach(var q in pool){pick-=HistoryWeight(history,q.Id);if(pick<=0){chosen=q;break;}}used.Add(chosen.Id);previous=chosen.Id;
-   return new Question{Id=chosen.Id,Topic=chosen.Topic,Kind=chosen.Kind,Category=chosen.Category,PromptEn=chosen.PromptEn,PromptAr=chosen.PromptAr,Stem=chosen.Stem,Answer=chosen.Answer,HintEn=chosen.HintEn,HintAr=chosen.HintAr,ExplainEn=chosen.ExplainEn,ExplainAr=chosen.ExplainAr,Image=chosen.Image,Speech=chosen.Speech,Translation=chosen.Translation,Pairs=chosen.Pairs==null?null:chosen.Pairs.ToArray(),Difficulty=chosen.Difficulty,Options=chosen.Options==null?null:chosen.Options.OrderBy(x=>bank.Random.Next()).ToArray()};
+   return new Question{Id=chosen.Id,Topic=chosen.Topic,Kind=chosen.Kind,Category=chosen.Category,PromptEn=chosen.PromptEn,PromptAr=chosen.PromptAr,Stem=chosen.Stem,Answer=chosen.Answer,HintEn=chosen.HintEn,HintAr=chosen.HintAr,ExplainEn=chosen.ExplainEn,ExplainAr=chosen.ExplainAr,Image=chosen.Image,Speech=chosen.Speech,Translation=chosen.Translation,PairArabic=chosen.PairArabic==null?null:chosen.PairArabic.ToArray(),PairMeanings=chosen.PairMeanings==null?null:chosen.PairMeanings.ToArray(),Pairs=chosen.Pairs==null?null:chosen.Pairs.ToArray(),Difficulty=chosen.Difficulty,Options=chosen.Options==null?null:chosen.Options.OrderBy(x=>bank.Random.Next()).ToArray()};
   }
  }
 }

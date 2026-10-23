@@ -69,3 +69,7 @@ The private importer bundles yt-dlp 2026.10.21 and its default dependencies/EJS,
 ## Original minigame assets
 
 The minigame badges and boards are original vector drawing code. Mouse Dash uses an original ball-and-dots board; no video frames, artwork, branding or audio from the gameplay reference are shipped. The piano notes and completion arrangements are rendered by `tools/make_minigame_audio.py` from the Salamander C4 piano sample credited above (Alexander Holm, CC BY 3.0). `content/minigame-melodies.json` contains this project’s simple arrangements of Beethoven’s **Ode to Joy** theme and the traditional **Twinkle, Twinkle** and **Frère Jacques** melodies. Each cleared arrow plays the next note regardless of arrow selection order, and a complete arrangement plays after the round. No third-party game artwork or recordings are included.
+
+Picture Patches animal photographs: public domain / CC0, credited with source pages in assets/pictures/credits.json. Additional Garden melodies are original arrangements created for Little Notebook.
+
+Anime tracing portraits in assets/tracings were generated with the built-in imagegen tool as simplified fan illustrations. Character names and designs belong to their respective owners; prompts and asset names are in assets/tracings/prompts.json. Learner dictionary definitions, examples, sound guides and Arabic text were written for this game.

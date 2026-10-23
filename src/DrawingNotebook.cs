@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -20,11 +20,11 @@ namespace LittleNotebook {
    if(PointerStarting!=null&&PointerStarting(e.GetPosition(this))){externalGesture=true;CaptureMouse();e.Handled=true;return;}
    if(EditingMode==InkCanvasEditingMode.Ink||EditingMode==InkCanvasEditingMode.EraseByPoint){if(Starting!=null)Starting();}
    if(EditingMode!=InkCanvasEditingMode.Ink||e.StylusDevice!=null){base.OnPreviewMouseLeftButtonDown(e);return;}
-   filtered=e.GetPosition(this);mouseStroke=new Stroke(new StylusPointCollection(new[]{new StylusPoint(filtered.X,filtered.Y)}),DefaultDrawingAttributes.Clone());Strokes.Add(mouseStroke);CaptureMouse();e.Handled=true;
+   filtered=e.GetPosition(this);mouseStroke=new Stroke(new StylusPointCollection(new[]{new StylusPoint(filtered.X,filtered.Y)}),DefaultDrawingAttributes.Clone());mouseStroke.DrawingAttributes.FitToCurve=false;Strokes.Add(mouseStroke);CaptureMouse();e.Handled=true;
   }
   void Append(Point raw,bool final){
-   if(mouseStroke==null)return;raw.X=Math.Max(0,Math.Min(ActualWidth,raw.X));raw.Y=Math.Max(0,Math.Min(ActualHeight,raw.Y));double distance=(raw-filtered).Length;double alpha=final?1:distance>8?.82:.60;Point next=new Point(filtered.X+(raw.X-filtered.X)*alpha,filtered.Y+(raw.Y-filtered.Y)*alpha);int steps=Math.Max(1,(int)Math.Ceiling((next-filtered).Length/2));
-   for(int n=1;n<=steps;n++){double t=n/(double)steps;mouseStroke.StylusPoints.Add(new StylusPoint(filtered.X+(next.X-filtered.X)*t,filtered.Y+(next.Y-filtered.Y)*t));}filtered=next;
+   if(mouseStroke==null)return;raw.X=Math.Max(0,Math.Min(ActualWidth,raw.X));raw.Y=Math.Max(0,Math.Min(ActualHeight,raw.Y));double distance=(raw-filtered).Length;double alpha=final?1:distance>8?.82:.60;Point next=new Point(filtered.X+(raw.X-filtered.X)*alpha,filtered.Y+(raw.Y-filtered.Y)*alpha);if(distance<.7&&!final)return;int steps=1;
+   for(int n=1;n<=steps;n++){double t=n/(double)steps;mouseStroke.StylusPoints.Add(new StylusPoint(filtered.X+(next.X-filtered.X)*t,filtered.Y+(next.Y-filtered.Y)*t));}filtered=next;if(mouseStroke.StylusPoints.Count>=96){var attr=mouseStroke.DrawingAttributes.Clone();mouseStroke=new Stroke(new StylusPointCollection(new[]{new StylusPoint(filtered.X,filtered.Y)}),attr);Strokes.Add(mouseStroke);}
   }
   protected override void OnPreviewMouseMove(MouseEventArgs e){if(PointerMoving!=null)PointerMoving(e.GetPosition(this));if(externalGesture){e.Handled=true;return;}if(mouseStroke!=null&&e.LeftButton==MouseButtonState.Pressed){Append(e.GetPosition(this),false);e.Handled=true;}else base.OnPreviewMouseMove(e);}
   protected override void OnPreviewMouseLeftButtonUp(MouseButtonEventArgs e){if(externalGesture){externalGesture=false;if(PointerEnding!=null)PointerEnding(e.GetPosition(this));ReleaseMouseCapture();e.Handled=true;return;}if(mouseStroke!=null){Append(e.GetPosition(this),true);mouseStroke=null;ReleaseMouseCapture();e.Handled=true;if(Committed!=null)Committed();}else{base.OnPreviewMouseLeftButtonUp(e);if(EditingMode==InkCanvasEditingMode.EraseByPoint&&Committed!=null)Committed();}}
@@ -40,7 +40,7 @@ namespace LittleNotebook {
   NotebookPage CurrentNotebookPage{get{return paperDesignDraft??Profile.Notebook[Profile.NotebookIndex];}}
   void FlushNotebook(){if(notebookInk==null||Profile==null)return;var model=paperDesignDraft!=null&&paperDesignDraft.Id==notebookPageId?paperDesignDraft:Profile.Notebook.FirstOrDefault(x=>x.Id==notebookPageId);if(model!=null){SyncNotebookTexts();model.Ink=EncodeInk(notebookInk.Strokes);}}
   string NotebookSnapshot(){FlushNotebook();return new System.Web.Script.Serialization.JavaScriptSerializer{MaxJsonLength=int.MaxValue}.Serialize(CurrentNotebookPage);}
-  void BeginNotebookChange(){notebookPending=NotebookSnapshot();}
+  void BeginNotebookChange(){notebookSaveTimer.Stop();notebookPending=NotebookSnapshot();}
   void CommitNotebookChange(){
    if(notebookPending!=null&&notebookPending!=NotebookSnapshot()){notebookUndo.Add(notebookPending);if(notebookUndo.Count>40)notebookUndo.RemoveAt(0);notebookRedo.Clear();}notebookPending=null;FlushNotebook();if(notebookStatus!=null)notebookStatus.Text=T("Saving…","جارٍ الحفظ…");notebookSaveTimer.Stop();notebookSaveTimer.Start();
   }

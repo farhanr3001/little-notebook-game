@@ -11,6 +11,8 @@ namespace LittleNotebook {
   public MouseDashBoard Dash;
   public PaperStackBoard Stack;
   public MiniMelody Melody;public int MelodyStep;
+  public sealed class Flight {public int Index;public bool Blocked;public double Time,Duration,Distance;}
+  public readonly System.Collections.Generic.List<Flight> Flights=new System.Collections.Generic.List<Flight>();
   public int ActiveArrow=-1,QueuedArrow=-1;public bool ArrowBlocked;public double ArrowAnimation,ArrowDuration,ArrowDistance;
   public readonly double[] ExitBounds={double.NaN,double.NaN,double.NaN,double.NaN};
   public int TurningCell=-1,TurningMask;public double TurnTime=1;
@@ -55,13 +57,13 @@ namespace LittleNotebook {
   public bool MoveDash(double x,double y){if(Dash==null||Phase!="playing")return false;bool moved=Dash.Move(x,y);if(Dash.Hit){Sound(-1);Fail();}return moved;}
   public bool ArrowTap(int index){
    if(Arrows==null||index<0||index>=Arrows.Arrows.Count||Arrows.Arrows[index].Removed)return false;
-   if(Phase=="arrow"){if(index!=ActiveArrow&&QueuedArrow<0)QueuedArrow=index;return false;}
+   Flights.RemoveAll(f=>f.Index==index&&f.Blocked);if(Flights.Any(f=>f.Index==index))return false;
    if(Phase!="playing")return false;ActiveArrow=index;int distance;ArrowBlocked=Arrows.Blocker(index,out distance)>=0;
    var arrow=Arrows.Arrows[index];double flight=distance+arrow.Cells.Count+1.2;
    if(!double.IsNaN(ExitBounds[arrow.Direction])){double head=24+((arrow.Direction%2==0?arrow.Head/Arrows.Size:arrow.Head%Arrows.Size)+.5)*42;double toEdge=(arrow.Direction==1||arrow.Direction==2?ExitBounds[arrow.Direction]-head:head-ExitBounds[arrow.Direction])/42;flight=Math.Max(.1,toEdge)+arrow.Cells.Count-.5;}
    ArrowDistance=ArrowBlocked?Math.Max(.15,distance-.12):flight;
-   ArrowDuration=ArrowBlocked?.42:.055+ArrowDistance/Math.Max(21,Arrows.Size*.65);ArrowAnimation=0;Phase="arrow";Moves++;
-   Sound(ArrowBlocked?-1:Melody.Notes[MelodyStep++%Melody.Notes.Length]);if(ArrowBlocked){Lives--;WrongFeedback=true;FeedbackTime=.42;}return true;
+   ArrowDuration=ArrowBlocked?.42:.055+ArrowDistance/Math.Max(21,Arrows.Size*.65);ArrowAnimation=0;Phase="playing";Moves++;Flights.Add(new Flight{Index=index,Blocked=ArrowBlocked,Duration=ArrowDuration,Distance=ArrowDistance});if(!ArrowBlocked)arrow.Removed=true;
+   Sound(ArrowBlocked?-1:Melody.Notes[MelodyStep++%Melody.Notes.Length]);if(ArrowBlocked){Lives--;WrongFeedback=true;FeedbackTime=.42;if(Lives<=0)Fail();}return true;
   }
   public double ArrowTravel{get{double t=Math.Min(1,ArrowAnimation/ArrowDuration);if(ArrowBlocked){double v=t<.44?t/.44:(1-t)/.56;return ArrowDistance*Math.Sin(Math.Max(0,v)*Math.PI/2);}double ramp=Math.Min(.18,.055/ArrowDuration);return ArrowDistance*(t<ramp?t*t/(2*ramp):t-ramp/2)/(1-ramp/2);}}
   public bool RotateSignal(int cell){if(Signal==null||Phase!="playing"||cell<0||cell>=Signal.Masks.Length)return false;if(TurnTime<.14){QueuedSignal=cell;return false;}TurningCell=cell;TurningMask=Signal.Masks[cell];TurnTime=0;Signal.Rotate(cell);Moves++;if(Signal.Solved)Win();return true;}
@@ -99,10 +101,8 @@ namespace LittleNotebook {
     }
    }
    if(Phase=="complete"){Wait-=dt;if(Wait<=0){Wait=double.MaxValue;if(Next!=null)Next();}return;}
-   if(Phase=="arrow"){
-    ArrowAnimation+=dt;if(ArrowAnimation<ArrowDuration)return;int finished=ActiveArrow;ActiveArrow=-1;
-    if(ArrowBlocked){if(Lives<=0){Fail();return;}}else Arrows.Arrows[finished].Removed=true;
-    Phase="playing";if(Arrows.Remaining==0){Win();return;}int queued=QueuedArrow;QueuedArrow=-1;if(queued>=0)ArrowTap(queued);return;
+   if(Arrows!=null&&Flights.Count>0){
+    foreach(var f in Flights)f.Time+=dt;Flights.RemoveAll(f=>f.Time>=f.Duration);if(Flights.Count==0){ActiveArrow=-1;if(Arrows.Remaining==0)Win();}return;
    }
    if(Kind=="echo"&&Phase=="showing"){
     Wait-=dt;if(Wait>0)return;

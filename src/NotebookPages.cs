@@ -24,8 +24,9 @@ namespace LittleNotebook {
   Question Lesson(string en,string ar,string stem,string answer,string ex,string exAr){return new Question{Id="lesson:"+en,Topic="math",Kind="choice",PromptEn=en,PromptAr=ar,Stem=stem,Answer=answer,ExplainEn=ex,ExplainAr=exAr};}
   void Study(){
    Header(T("STUDY","الدراسة"),T("Study mode","وضع الدراسة"),T("Review questions and explanations without a timer or lives.","راجع الأسئلة والشروح دون مؤقت أو محاولات محدودة."));
-   string[] topics={"english","math","puzzles","general","mistakes"};
-   for(int i=0;i<5;i++){string t=topics[i];Btn(body,t=="mistakes"?T("My mistakes","أخطائي")+" ("+UnresolvedMistakes().Count+")":Topic(t),9+i*190,135,()=>{studyTopic=t;studyIndex=0;studyRevealed=false;Build();},178,47,studyTopic==t);}
+   StudyNavigation();if(studyTopic=="dictionary"){DictionaryView();return;}var outer=body;var inner=new Canvas{Width=960,Height=760};body=inner;try{StudyCardContent();}finally{body=outer;}inner.LayoutTransform=new ScaleTransform(.77,.85);Put(body,inner,Ar?0:205,20);
+  }
+  void StudyCardContent(){
    var list=StudyQuestions();
    if(list.Count==0){Label(body,T("No mistakes to review.","صفحة جديدة!\nلا توجد أخطاء للمراجعة."),135,321,29,725).TextAlignment=TextAlignment.Center;return;}
    studyIndex=Math.Max(0,Math.Min(studyIndex,list.Count-1));var q=list[studyIndex];

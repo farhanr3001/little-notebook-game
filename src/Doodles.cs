@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Media;
@@ -36,6 +36,7 @@ namespace LittleNotebook {
  }
  public class TraceArt:FrameworkElement{
   string kind;Palette p;public TraceArt(string kind,Palette p,double w,double h){this.kind=kind;this.p=p;Width=w;Height=h;IsHitTestVisible=false;Opacity=.38;}
-  protected override void OnRender(DrawingContext d){Doodles.Draw(d,kind,Width,Height,p,true);}
+  static readonly Dictionary<string,System.Windows.Media.Imaging.BitmapSource> anime=new Dictionary<string,System.Windows.Media.Imaging.BitmapSource>();
+  protected override void OnRender(DrawingContext d){if(kind.StartsWith("anime-")){System.Windows.Media.Imaging.BitmapSource image;if(!anime.TryGetValue(kind,out image)){image=Sketch.Asset("tracings/"+kind.Substring(6)+".png");anime[kind]=image;}double scale=Math.Min(Width/image.PixelWidth,Height/image.PixelHeight);d.DrawImage(image,new Rect((Width-image.PixelWidth*scale)/2,(Height-image.PixelHeight*scale)/2,image.PixelWidth*scale,image.PixelHeight*scale));return;}Doodles.Draw(d,kind,Width,Height,p,true);}
  }
 }

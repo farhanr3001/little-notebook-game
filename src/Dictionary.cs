@@ -1,0 +1,34 @@
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Web.Script.Serialization;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
+namespace LittleNotebook {
+ public sealed class DictionaryWord {public string Category,Word,Pronunciation,Arabic,Definition,DefinitionAr,Example;}
+ public static class LearnerDictionary {
+  public static readonly DictionaryWord[] Words=new JavaScriptSerializer().Deserialize<DictionaryWord[]>(File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory,"content/dictionary.json")));
+  static readonly Dictionary<string,string> repairs=new Dictionary<string,string>{{"you","yuo"},{"right","ryt"},{"small","smol"},{"please","plz"},{"thank you","thank u"},{"sorry","sory"},{"because","becoz"},{"really","realy"},{"together","togethr"},{"happy","hapy"},{"tired","tierd"},{"excited","exited"},{"worried","woryed"},{"comfortable","comfterble"},{"friend","frend"},{"honest","onest"},{"patient","pashent"},{"neighbour","naybor"},{"someone","sumone"},{"everyone","evryone"},{"kitchen","kichin"},{"quiet","qwiet"},{"light","lyt"},{"hungry","hungri"},{"thirsty","thursty"},{"breakfast","brekfast"},{"delicious","delishus"},{"tomorrow","tomorow"},{"yesterday","yesturday"},{"already","alredy"},{"sometimes","sumtimes"},{"minute","minit"},{"understand","understend"},{"explain","explane"},{"remember","remembr"},{"forget","forgit"},{"believe","beleev"},{"question","kwestion"},{"answer","anser"},{"listen","lissen"},{"repeat","repeet"},{"probably","probly"},{"wait","wayt"},{"choose","chooz"},{"learn","lern"},{"need","ned"},{"want","wont"},{"bring","brng"},{"draw","drow"},{"paint","paynt"},{"story","storry"},{"music","muzik"},{"favourite","favorit"},{"beautiful","butiful"},{"improve","improov"},{"near","neer"},{"straight","strayt"},{"journey","jurney"}};
+  public static IEnumerable<Question> Questions(){
+   for(int level=0;level<3;level++)foreach(string category in new[]{"spelling-repair","dictionary"}){
+    var pool=category=="spelling-repair"?Words.Where(w=>repairs.ContainsKey(w.Word)).ToArray():Words;
+    var ranked=pool.Where(w=>level==0?w.Word.Length<=6:level==1?w.Word.Length>=4&&w.Word.Length<=9:w.Word.Length>=7).ToArray();if(ranked.Length>=4)pool=ranked;
+    for(int i=0;i<24;i++){var chosen=Enumerable.Range(0,4).Select(k=>pool[(i*4+k+level*7)%pool.Length]).ToArray();yield return new Question{Id=category+"-"+level+"-"+i,Topic="english",Kind="pairs",Category=category,Difficulty=level,PromptEn=category=="dictionary"?"Match each word to its meaning":"Match the sound spelling to the correct word",PromptAr=category=="dictionary"?"صِل كل كلمة بمعناها":"صِل الكتابة حسب الصوت بالإملاء الصحيح",Answer="paired",HintEn="Look at the whole word and compare every letter.",HintAr="انظر إلى الكلمة كاملة وقارن الحروف.",ExplainEn=string.Join("\n",chosen.Select(w=>w.Word+": "+w.Definition)),ExplainAr=string.Join("\n",chosen.Select(w=>w.Word+": "+w.DefinitionAr)),Pairs=chosen.Select(w=>category=="dictionary"?w.Word+"|"+w.Definition:repairs[w.Word]+"|"+w.Word).ToArray(),PairArabic=chosen.Select(w=>w.DefinitionAr).ToArray(),PairMeanings=chosen.Select(w=>w.Definition).ToArray()};}
+   }
+  }
+ }
+ public partial class MainWindow {
+  string dictionaryCategory="all",dictionarySearch="";
+  string DictionaryCategory(string key){switch(key){case "all":return T("All words","كل الكلمات");case "everyday":return T("Everyday","يوميات");case "feelings":return T("Feelings","المشاعر");case "people":return T("People","الأشخاص");case "home":return T("Home","المنزل");case "food":return T("Food & drink","الطعام والشراب");case "time":return T("Time","الوقت");case "conversation":return T("Conversation","المحادثة");case "actions":return T("Actions","الأفعال");case "hobbies":return T("Hobbies","الهوايات");default:return T("Travel","السفر");}}
+  void StudyNavigation(){string[] topics={"dictionary","english","math","puzzles","general","mistakes"};for(int i=0;i<topics.Length;i++){string topic=topics[i];var button=Button(topic=="dictionary"?T("Dictionary","القاموس"):topic=="mistakes"?T("My mistakes","أخطائي"):Topic(topic),()=>{studyTopic=topic;studyIndex=0;studyRevealed=false;Build();},177,45,topic==studyTopic);button.FontSize=16;Put(body,button,Ar?780:8,139+i*57);}}
+  void DictionaryView(){
+   double x=Ar?8:206;var search=new TextBox{Width=724,Height=37,FontSize=19,Padding=new Thickness(9,3,9,3),Text=dictionarySearch,Background=B(p.Paper),Foreground=B(p.Ink),BorderBrush=B(p.Ink),FlowDirection=FlowDirection.LeftToRight};System.Windows.Automation.AutomationProperties.SetName(search,T("Search English or Arabic words","ابحث عن كلمة بالإنجليزية أو العربية"));Put(body,search,x,137);
+   Label(body,T("Search a word · sound guides are approximate; use Listen for audio.","ابحث عن كلمة · دليل النطق تقريبي؛ اضغط استماع لسماع النطق."),x,179,13,724);
+   var categories=new WrapPanel{Width=730};foreach(string category in new[]{"all"}.Concat(LearnerDictionary.Words.Select(w=>w.Category).Distinct())){string key=category;var b=Button(DictionaryCategory(key),()=>{dictionaryCategory=key;Build();},139,31,key==dictionaryCategory);b.FontSize=13;b.Margin=new Thickness(0,0,5,5);categories.Children.Add(b);}Put(body,categories,x,208);
+   var entries=new StackPanel{Width=703};var scroll=new ScrollViewer{Width=730,Height=404,Content=entries,VerticalScrollBarVisibility=ScrollBarVisibility.Auto,HorizontalScrollBarVisibility=ScrollBarVisibility.Disabled};StylePaperScroll(scroll);Put(body,scroll,x,333);
+   Action refresh=()=>{entries.Children.Clear();string query=dictionarySearch.Trim();var words=LearnerDictionary.Words.Where(w=>(dictionaryCategory=="all"||dictionaryCategory==w.Category)&&(query.Length==0||w.Word.IndexOf(query,StringComparison.OrdinalIgnoreCase)>=0||w.Arabic.Contains(query)||w.DefinitionAr.Contains(query))).OrderBy(w=>w.Word).ToArray();foreach(var word in words){var item=word;var card=new Canvas{Width=686,Height=158};Label(card,item.Word,12,5,25,470,true).FlowDirection=FlowDirection.LeftToRight;Label(card,"/ "+item.Pronunciation+" /",13,39,15,470).FlowDirection=FlowDirection.LeftToRight;var listen=Button(T("Listen ♫","استماع ♫"),()=>audio.Speak(item.Word),126,35);Put(card,listen,546,12);Label(card,Ar?item.Arabic+" — "+item.DefinitionAr:item.Definition,13,67,17,657);Label(card,"“"+item.Example+"”",13,110,17,657,true).FlowDirection=FlowDirection.LeftToRight;var border=new Border{Width=696,Height=162,Background=B(p.Paper),BorderBrush=B(p.Line),BorderThickness=new Thickness(1),CornerRadius=new CornerRadius(8),Child=card,Margin=new Thickness(0,0,0,10)};entries.Children.Add(border);}if(words.Length==0)entries.Children.Add(Text(T("No words found. Try another search.","لا توجد نتائج. جرّب كلمة أخرى."),19,680));scroll.ScrollToTop();};search.TextChanged+=(s,e)=>{dictionarySearch=search.Text;refresh();};refresh();
+  }
+ }
+}

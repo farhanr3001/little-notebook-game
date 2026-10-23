@@ -1,0 +1,32 @@
+[
+  {
+    "file": "animal-0.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:Youngkitten.JPG",
+    "license": "Public domain / CC0; see source page",
+    "title": "Youngkitten.JPG"
+  },
+  {
+    "file": "animal-1.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:Guinea%20pig%20young.jpg",
+    "license": "Public domain / CC0; see source page",
+    "title": "Guinea pig young.jpg"
+  },
+  {
+    "file": "animal-2.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:Kitten%20sleeping%20on%20rabbit%27s%20head.jpg",
+    "license": "Public domain / CC0; see source page",
+    "title": "Kitten sleeping on rabbit's head.jpg"
+  },
+  {
+    "file": "animal-3.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:K%C3%A4tzchen.JPG",
+    "license": "Public domain / CC0; see source page",
+    "title": "Kätzchen.JPG"
+  },
+  {
+    "file": "animal-4.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:A%20Guinea%20pig%20and%20its%20carrot.jpg",
+    "license": "Public domain / CC0; see source page",
+    "title": "A Guinea pig and its carrot.jpg"
+  }
+]

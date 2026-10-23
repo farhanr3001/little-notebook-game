@@ -1,4 +1,4 @@
-name: Build Windows release
+﻿name: Build Windows release
 on:
   workflow_dispatch:
 permissions:
@@ -26,7 +26,7 @@ jobs:
       - name: Focused verification
         shell: pwsh
         run: |
-          foreach ($mode in @('--revision-test','--minigame-test','--audio-transition-test','--health-test','--media-test')) {
+          foreach ($mode in @('--revision-test','--learning-additions-test','--minigame-test','--audio-transition-test','--health-test','--media-test')) {
             $run = Start-Process '.\release-build\LittleNotebook.exe' -ArgumentList $mode -Wait -PassThru
             if ($run.ExitCode -ne 0) { throw "Failed $mode" }
           }

@@ -1,0 +1,31 @@
+{
+  "tool": "Built-in imagegen",
+  "style": "Simple head and shoulders anime outline for mouse tracing, 20–35 broad contours per character, few large hair shapes, no strands, wrinkles, shading or hatching; transparent background.",
+  "characters": [
+    {
+      "key": "naruto",
+      "title": "Naruto",
+      "file": "naruto.png"
+    },
+    {
+      "key": "hinata",
+      "title": "Hinata",
+      "file": "hinata.png"
+    },
+    {
+      "key": "howl",
+      "title": "Howl",
+      "file": "howl.png"
+    },
+    {
+      "key": "sophie",
+      "title": "Sophie",
+      "file": "sophie.png"
+    },
+    {
+      "key": "moon-mask",
+      "title": "Sailor Moon & Tuxedo Mask",
+      "file": "moon-mask.png"
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-"""Create installer payload and hash-verified update component packs. Never ship saves."""
+﻿"""Create installer payload and hash-verified update component packs. Never ship saves."""
 from pathlib import Path
 from zipfile import ZipFile, ZIP_DEFLATED
 import argparse, hashlib, json, shutil, re
@@ -53,7 +53,7 @@ for name,items in groups.items():
    for path,relative in items:z.write(path,relative)
   with ZipFile(target) as z:assert z.testzip() is None
  packages.append(dict(name=name,url=base+name,sha256=digest(target),size=target.stat().st_size))
-manifest=dict(version=args.version,repository='farhanr3001/little-notebook-game',notes='Fix unwanted piano bursts at minigame starts, next rounds and Mouse Dash hold/resume. Piano voices stay closed in non-piano games and muted/paused until explicitly played. Keep radio gain stable across rounds, silence piano clicks on minigame menu controls, finish clear cues before advancing and clean up late audio events. Saved progress and music are preserved; only application files need updating.',files=records,packs=packages)
+manifest=dict(version=args.version,repository='farhanr3001/little-notebook-game',notes='Faster Arrow Escape with independent animations, larger hit targets, middle-button panning, automatic fit, steeper progression and 100 piano arrangements with click-to-continue replays. Picture Patches animal photo puzzles replace numbered tiles. Ladybug Dodge replaces Mouse Dash graphics. Five games with coloured badges; Echo Keys, Signal Path and Pulse Lock removed. Faster long notebook strokes. Saved progress, records and music are preserved.',files=records,packs=packages)
 for dest in [payload/'payload-manifest.json',release/'update-manifest.json']:dest.write_text(json.dumps(manifest,ensure_ascii=False,indent=2),encoding='utf-8')
 assert not any('profile.json' in x['path'] or x['path'].startswith('data/') for x in records)
 print(f'PASS: {len(records)} managed files, {len(packages)} verified component packs. No user saves in payload.')

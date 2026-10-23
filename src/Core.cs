@@ -103,7 +103,7 @@ namespace LittleNotebook {
  }
  public class Question {
   public string Id, Topic, Kind, PromptEn, PromptAr, Stem, Answer, HintEn, HintAr, ExplainEn, ExplainAr, Image, Speech;
-  public string[] Options,Pairs;
+  public string[] Options,Pairs,PairArabic,PairMeanings;
   public string Translation;
   public string Category;
   public int Difficulty;
@@ -117,7 +117,7 @@ namespace LittleNotebook {
   public QuestionBank(string path, int? seed = null) {
    Random = seed.HasValue ? new Random(seed.Value) : new Random();
    Questions = new JavaScriptSerializer().Deserialize<List<Question>>(File.ReadAllText(path));
-   Validate();
+   Questions.AddRange(LearnerDictionary.Questions());Validate();
   }
   public void Validate() {
    var ids = new HashSet<string>();

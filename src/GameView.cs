@@ -34,7 +34,7 @@ namespace LittleNotebook {
   void GameView(){
    InitInteraction();var q=game.Current;answerButtons.Clear();
    Label(body,Topic(game.Current.Topic)+"  /  "+Difficulty(game.Current.Difficulty),9,0,15,780);
-   Label(body,KindName(q.Kind),9,31,27,840);
+   Label(body,q.Category=="dictionary"||q.Category=="spelling-repair"?CategoryName(q.Category):KindName(q.Kind),9,31,27,840);
    Label(body,T("Question ","سؤال ")+(game.Index+1)+(game.Endless?"":" / "+game.Questions.Count),10,91,18,230);
    if(game.Endless)Label(body,T("∞  All questions","∞  كل الأسئلة"),264,92,18,365);
    else for(int i=0;i<game.Questions.Count;i++){var fill=i<game.Index?p.Accent:i==game.Index?p.Gold:p.Paper;Put(body,new Ellipse{Width=16,Height=16,Fill=B(fill),Stroke=B(p.Ink),StrokeThickness=1.3},245+i*25,102);}
@@ -47,7 +47,7 @@ namespace LittleNotebook {
     Btn(note,T("♫  Listen again","♫  استمع مرة أخرى"),285,74,PlayListeningWord,340,63,true);
     Label(note,T("Listen closely. Replay whenever you like.","استمع جيداً. يمكنك إعادة الاستماع متى شئت."),130,147,14,650).TextAlignment=TextAlignment.Center;
    }
-   else if(q.Kind=="pairs")Label(note,T("Match each word to its meaning. A wrong match uses a life.","صِل كل كلمة بمعناها. المطابقة الخاطئة تستهلك محاولة."),73,75,21,750).TextAlignment=TextAlignment.Center;
+   else if(q.Kind=="pairs")Label(note,q.Category=="spelling-repair"?T("Match each sound spelling to its correct English spelling.","صِل الكتابة حسب الصوت بالإملاء الإنجليزي الصحيح."):T("Match each word to its meaning. A wrong match uses a life.","صِل كل كلمة بمعناها. المطابقة الخاطئة تستهلك محاولة."),73,75,21,750).TextAlignment=TextAlignment.Center;
    else if(q.Kind=="memory")Label(note,T("Turn two cards. Find all the matching pairs.","اقلب بطاقتين واعثر على كل الأزواج المتطابقة."),92,78,21,700).TextAlignment=TextAlignment.Center;
    else if(q.Kind=="order")Label(note,T("Tap the words to build your sentence below.","اضغط على الكلمات لبناء الجملة أدناه."),73,75,21,750).TextAlignment=TextAlignment.Center;
    else Label(note,q.Kind=="search"?string.Join(" · ",searchBoard.Words):q.Stem,54,68,q.Topic=="math"?39:28,784,true).TextAlignment=TextAlignment.Center;
@@ -57,7 +57,7 @@ namespace LittleNotebook {
    var leave=Button(T("Leave round","مغادرة الجولة"),()=>ConfirmLeave(false),186,43);var leaveContent=new StackPanel{Orientation=Orientation.Horizontal};leaveContent.Children.Add(new System.Windows.Shapes.Path{Data=Geometry.Parse("M 2,3 L 14,3 L 14,21 M 2,3 L 10,1 L 10,23 L 2,21 Z M 7,12 L 8,12"),Width=18,Height=24,Stroke=B(p.Ink),StrokeThickness=1.6,Margin=new Thickness(0,0,8,0)});leaveContent.Children.Add(Text(T("Leave round","مغادرة الجولة"),17));leave.Content=leaveContent;Put(body,leave,10,706);
    var hint=Button(T("✧ Hint (","✧ تلميح (")+game.Hints+")",UseHint,177,43);hint.IsEnabled=!game.Answered&&!game.UsedHint&&game.Hints>0;Put(body,hint,211,706);
    if(q.Topic=="math")Btn(body,T("✎ Working paper","✎ ورقة الحل"),401,706,WorkingPaper,223,43);
-   if(game.Answered)Label(body,game.IsOver?T("Showing your results…","جارٍ عرض النتائج…"):T("Next question…","السؤال التالي…"),688,715,16,250).TextAlignment=TextAlignment.Center;
+   if(game.Answered&&(q.Category=="spelling-repair"||q.Category=="dictionary"))Btn(body,T("Continue →","متابعة ←"),688,706,NextQuestion,250,43,true);else if(game.Answered)Label(body,game.IsOver?T("Showing your results…","جارٍ عرض النتائج…"):T("Next question…","السؤال التالي…"),688,715,16,250).TextAlignment=TextAlignment.Center;
    MaybeAutoReadQuestion();
   }
   void RenderInteraction(){
@@ -127,7 +127,7 @@ namespace LittleNotebook {
   }
   void UseHint(){if(!game.Hint())return;responseNote=T("Hint: ","تلميح: ")+game.Current.Hint(Ar);Build();}
   void RenderFeedback(){
-   if(game.Answered){var a=Profile.Attempts.Last();feedbackText.Text=(a.Correct?T("✓ Correct.  ","✓ إجابة صحيحة.  "):a.TimedOut?T("◷ Time's up.  ","◷ انتهى الوقت.  "):T("Incorrect.  ","إجابة غير صحيحة.  "))+game.Current.Explain(Ar);feedbackText.Foreground=B(a.Correct?p.Muted:p.Ink);}
+   if(game.Answered){var a=Profile.Attempts.Last();feedbackText.Text=(a.Correct?T("✓ Correct.  ","✓ إجابة صحيحة.  "):a.TimedOut?T("◷ Time's up.  ","◷ انتهى الوقت.  "):T("Incorrect.  ","إجابة غير صحيحة.  "))+((game.Current.Category=="spelling-repair"||game.Current.Category=="dictionary")?T("Review the matched words above, then continue.","راجع الكلمات المتطابقة أعلاه ثم تابع."):game.Current.Explain(Ar));feedbackText.Foreground=B(a.Correct?p.Muted:p.Ink);}
    else feedbackText.Text=responseNote;
   }
   void Submit(string given,bool timeout){

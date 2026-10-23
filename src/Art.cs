@@ -45,6 +45,7 @@ namespace LittleNotebook {
   }
   protected override void OnRender(DrawingContext d) {
    double w=Width,h=Height;
+   if(Kind=="brain"){d.PushTransform(new ScaleTransform(w/160,h/160));d.DrawGeometry(B(Color.FromRgb(232,154,171)),Pen(P.Ink,3),Geometry.Parse("M80,28 C61,2 40,18 43,38 C15,32 13,65 28,75 C10,91 24,117 43,116 C33,141 66,156 80,137 C94,156 128,141 118,116 C142,117 150,91 132,75 C148,54 132,31 116,38 C119,18 99,2 80,28 Z"));d.DrawGeometry(null,Pen(Color.FromRgb(161,91,115),3),Geometry.Parse("M80,28 L80,137 M43,38 Q62,37 58,60 M28,75 Q58,68 55,89 M43,116 Q62,106 68,126 M116,38 Q98,40 102,61 M132,75 Q104,69 107,91 M118,116 Q100,109 93,126"));d.Pop();return;}
    if(Kind=="desk") {
     d.DrawRectangle(B(P.Desk),null,new Rect(0,0,w,h));var r=new Random(42);
     for(int i=0;i<180;i++){double x=r.NextDouble()*w,y=r.NextDouble()*h;Line(d,x,y,x+r.Next(20,190),y+r.Next(1,4),Color.FromArgb(17,73,48,26),1);}

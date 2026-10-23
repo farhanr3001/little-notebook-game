@@ -6,10 +6,12 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 
 namespace LittleNotebook {
  public sealed partial class MiniSurface:FrameworkElement {
   public readonly MiniSession Session;readonly Palette palette;readonly bool ar,reduced;readonly double textScale;
+  public bool ShowPicture;System.Windows.Media.Imaging.BitmapSource picture;BitmapSource[] pictureTiles;
   public ScrollViewer Viewport;public Action<int> Press;public int Hover=-1;
   public Action<Point> DashDown,DashMove;public Action DashUp;
   Point down;double panX,panY;bool dragging,moved;int downCell=-1;DrawingGroup dots;
@@ -31,14 +33,14 @@ namespace LittleNotebook {
   protected override void OnRender(DrawingContext dc){
    dc.DrawRectangle(Brushes.Transparent,null,new Rect(0,0,Width,Height));
    switch(Session.Kind){case "stack":DrawStack(dc);break;case "mousedash":DrawDash(dc);break;case "arrows":DrawArrows(dc);break;case "signal":DrawSignal(dc);break;case "tiles":DrawTiles(dc);break;case "maze":DrawMaze(dc);break;case "echo":DrawEcho(dc);break;case "pulse":DrawPulse(dc);break;}
-   if(Session.Phase=="complete"&&Session.Kind=="arrows")Label(dc,ar?"أحسنت!":"Beautifully cleared!",new Point(Width/2,Height/2),23);
+   if(Session.Phase=="complete"&&Session.Kind=="arrows"){Label(dc,ar?"أحسنت!":"Beautifully cleared!",new Point(Width/2,Height/2-15),23);Label(dc,ar?"انقر للمتابعة · أو استمع إلى اللحن":"Click to continue · or enjoy the tune",new Point(Width/2,Height/2+22),16);}
   }
   void DrawArrows(DrawingContext dc){
    var board=Session.Arrows;if(dots==null){dots=new DrawingGroup();using(var context=dots.Open())for(int y=0;y<board.Size;y++)for(int x=0;x<board.Size;x++)context.DrawEllipse(Brush(Blend(palette.Accent,.45)),null,Center(y*board.Size+x,board.Size,42,24),1.35,1.35);dots.Freeze();}dc.DrawDrawing(dots);
    for(int i=0;i<board.Arrows.Count;i++){
-    var arrow=board.Arrows[i];if(arrow.Removed)continue;bool active=Session.ActiveArrow==i;double travel=active&&!reduced?Session.ArrowTravel:0;
-    var points=MovingArrow(arrow,board.Size,travel);Color color=active&&Session.ArrowBlocked?Color.FromRgb(192,88,84):palette.Ink;
-    if(i==Hover||(IsKeyboardFocusWithin&&i==Session.SelectedCell)||active)DrawPath(dc,points,Pen(Blend(active&&Session.ArrowBlocked?Color.FromRgb(211,125,111):palette.Gold,.48),8));
+    var arrow=board.Arrows[i];var flight=Session.Flights.FirstOrDefault(f=>f.Index==i);if(arrow.Removed&&flight==null)continue;bool active=flight!=null;double travel=0;if(active&&!reduced){double t=Math.Min(1,flight.Time/flight.Duration);travel=flight.Distance*(flight.Blocked?Math.Sin((t<.44?t/.44:(1-t)/.56)*Math.PI/2):t);}
+    var points=MovingArrow(arrow,board.Size,travel);Color color=active&&flight.Blocked?Color.FromRgb(192,88,84):palette.Ink;
+    if(i==Hover||(IsKeyboardFocusWithin&&i==Session.SelectedCell)||active)DrawPath(dc,points,Pen(Blend(active&&flight.Blocked?Color.FromRgb(211,125,111):palette.Gold,.48),8));
     DrawPath(dc,points,Pen(color,3.2));Point head=points.Last();var direction=new Vector(MiniGrid.Dx[arrow.Direction],MiniGrid.Dy[arrow.Direction]);var normal=new Vector(-direction.Y,direction.X);
     DrawPath(dc,new[]{head-direction*9+normal*5,head,head-direction*9-normal*5},Pen(color,3.2));
    }
@@ -62,9 +64,12 @@ namespace LittleNotebook {
    dc.DrawLine(Pen(palette.Accent,4),new Point(12,inputY),new Point(48,inputY));dc.DrawLine(Pen(lit[board.Destination]&&(board.Masks[board.Destination]&2)!=0?palette.Gold:palette.Ink,4),new Point(50+board.Width*size,outputY),new Point(86+board.Width*size,outputY));
    Label(dc,ar?"من":"IN",new Point(25,inputY-23),12);Label(dc,ar?"إلى":"OUT",new Point(75+board.Width*size,outputY-23),12);
   }
-  void DrawTile(DrawingContext dc,int value,Rect r){r.Inflate(-4,-4);dc.DrawRoundedRectangle(Brush(palette.Light),Pen(palette.Ink,1.5),r,9,9);Label(dc,value.ToString(),new Point(r.X+r.Width/2,r.Y+r.Height/2),27);}
+  void DrawTile(DrawingContext dc,int value,Rect r){
+   if(picture==null){var files=System.IO.Directory.GetFiles(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory,"assets/pictures"),"*.jpg").OrderBy(f=>f).ToArray();picture=Sketch.Asset("pictures/"+System.IO.Path.GetFileName(files[(Session.Level-1)%files.Length]));}
+   r.Inflate(-1,-1);int n=Session.Tiles.Size,index=value-1;double side=Math.Min(picture.PixelWidth,picture.PixelHeight);if(pictureTiles==null)pictureTiles=new BitmapSource[n*n];if(pictureTiles[index]==null){pictureTiles[index]=new CroppedBitmap(picture,new Int32Rect((int)((picture.PixelWidth-side)/2+index%n*side/n),(int)((picture.PixelHeight-side)/2+index/n*side/n),(int)(side/n),(int)(side/n)));pictureTiles[index].Freeze();}dc.DrawImage(pictureTiles[index],r);dc.DrawRectangle(null,Pen(palette.Ink,.8),r);
+  }
   void DrawTiles(DrawingContext dc){
-   var board=Session.Tiles;bool moving=Session.MoveTime<.14&&!reduced;
+   var board=Session.Tiles;if(ShowPicture||Session.Phase=="complete"){for(int cell=0;cell<board.Tiles.Length;cell++)DrawTile(dc,cell+1,CellRect(cell));return;}bool moving=Session.MoveTime<.14&&!reduced;
    for(int cell=0;cell<board.Tiles.Length;cell++){int value=board.Tiles[cell];if(value==0){Rect r=CellRect(cell);r.Inflate(-5,-5);dc.DrawRoundedRectangle(null,Pen(palette.Line,1.2),r,9,9);}else if(!moving||cell!=Session.MovingTo)DrawTile(dc,value,CellRect(cell));}
    if(moving){Rect from=CellRect(Session.MovingFrom),to=CellRect(Session.MovingTo);double t=1-Math.Pow(1-Math.Min(1,Session.MoveTime/.14),3);DrawTile(dc,Session.MovingValue,new Rect(from.X+(to.X-from.X)*t,from.Y+(to.Y-from.Y)*t,from.Width,from.Height));}
   }
@@ -105,29 +110,30 @@ namespace LittleNotebook {
    else Label(dc,"E",center,49);
    for(int i=0;i<3;i++)dc.DrawEllipse(Brush(i<Session.Latch?palette.Gold:palette.Light),Pen(palette.Ink,1),new Point(242+i*28,335),6,6);
   }
+  internal static void DrawPest(DrawingContext dc,Point center,double r){var dark=new SolidColorBrush(Color.FromRgb(101,81,58));var line=new Pen(dark,1);dc.DrawEllipse(new SolidColorBrush(Color.FromArgb(160,173,202,208)),line,center+new Vector(-r*.45,-r*.35),r*.7,r*.45);dc.DrawEllipse(new SolidColorBrush(Color.FromArgb(160,173,202,208)),line,center+new Vector(r*.45,-r*.35),r*.7,r*.45);dc.DrawEllipse(new SolidColorBrush(Color.FromRgb(222,174,67)),line,center,r*.58,r*.75);dc.DrawLine(line,center+new Vector(-r*.5,0),center+new Vector(r*.5,0));dc.DrawEllipse(dark,null,center+new Vector(0,-r*.6),r*.3,r*.3);}
   void DrawDash(DrawingContext dc){
    var board=Session.Dash;dc.DrawRoundedRectangle(null,Pen(Blend(palette.Ink,.35),1.2),new Rect(1,1,Width-2,Height-2),12,12);
    for(int y=25;y<Height;y+=28)for(int x=24;x<Width;x+=28)dc.DrawEllipse(Brush(Blend(palette.Line,.42)),null,new Point(x,y),.8,.8);
    foreach(var dot in board.Obstacles){
     Point center=new Point(dot.X,dot.Y);Color color=Blend(palette.Ink,.56);
     if(dot.Warning>0){var outline=Pen(palette.Gold,1.8);outline.DashStyle=DashStyles.Dash;dc.DrawEllipse(Brush(Blend(palette.Gold,.12)),outline,center,dot.Radius+3,dot.Radius+3);double length=Math.Sqrt(dot.VX*dot.VX+dot.VY*dot.VY);dc.DrawLine(Pen(palette.Gold,1.4),center,center+new Vector(dot.VX/length*14,dot.VY/length*14));}
-    else{if(board.Collision==dot)color=Color.FromRgb(188,91,83);dc.DrawEllipse(Brush(color),null,center,dot.Radius,dot.Radius);}
+    else{if(board.Collision==dot)color=Color.FromRgb(188,91,83);DrawPest(dc,center,dot.Radius);}
    }
    Point ball=new Point(board.X,board.Y);if(!board.Started)ball=new Point(Width/2,Height/2+53);
    Color ballColor=board.Hit?Color.FromRgb(188,91,83):palette.Accent;
-   dc.DrawEllipse(Brush(Blend(palette.Ink,.12)),null,ball+new Vector(1,2),11,11);dc.DrawEllipse(Brush(ballColor),Pen(palette.Ink,1.6),ball,MouseDashBoard.PlayerRadius,MouseDashBoard.PlayerRadius);dc.DrawEllipse(Brush(palette.Paper),null,ball+new Vector(-2,-2),2.3,2.3);
+   DrawLadybug(dc,ball,MouseDashBoard.PlayerRadius,0,palette);
    if(Session.Phase=="holding"||Session.Phase=="waiting")dc.DrawEllipse(null,Pen(palette.Gold,1.8),ball,16,16);
    if(board.Hit)dc.DrawEllipse(null,Pen(Color.FromRgb(188,91,83),2),ball,21,21);
-   if(!board.Started){Label(dc,ar?"أمسك أي موضع للبدء":"Hold anywhere to begin",new Point(Width/2,Height/2-27),24);Label(dc,ar?"حرّك الكرة وتجنّب النقاط · اتركها للإيقاف":"Guide your ball past the dots · let go to pause",new Point(Width/2,Height/2+9),14);}
+   if(!board.Started){Label(dc,ar?"أمسك أي موضع للبدء":"Hold anywhere to begin",new Point(Width/2,Height/2-27),24);Label(dc,ar?"حرّك الكرة وتجنّب النقاط · اتركها للإيقاف":"Guide your ladybug past the pests · let go to pause",new Point(Width/2,Height/2+9),14);}
    else if(Session.Phase=="holding"){
-    dc.DrawRoundedRectangle(Brush(palette.Paper),Pen(palette.Line,1),new Rect(Width/2-145,13,290,36),9,9);Label(dc,ar?"أمسك الكرة للمتابعة":"Hold your ball to continue",new Point(Width/2,31),14);
+    dc.DrawRoundedRectangle(Brush(palette.Paper),Pen(palette.Line,1),new Rect(Width/2-145,13,290,36),9,9);Label(dc,ar?"أمسك الكرة للمتابعة":"Hold your ladybug to continue",new Point(Width/2,31),14);
    }
   }
   static double Distance(Point point,Point a,Point b){Vector line=b-a;double t=line.LengthSquared==0?0:Math.Max(0,Math.Min(1,Vector.Multiply(point-a,line)/line.LengthSquared));return (point-(a+line*t)).Length;}
   public int Hit(Point point){
    if(Session.Stack!=null)return new Rect(0,0,Width,Height).Contains(point)?0:-1;
    if(Session.Dash!=null)return -1;
-   if(Session.Kind=="arrows"){for(int i=Session.Arrows.Arrows.Count-1;i>=0;i--){var arrow=Session.Arrows.Arrows[i];if(arrow.Removed)continue;var path=MovingArrow(arrow,Session.Arrows.Size,i==Session.ActiveArrow&&!reduced?Session.ArrowTravel:0);for(int j=1;j<path.Count;j++)if(Distance(point,path[j-1],path[j])<11)return i;}return -1;}
+   if(Session.Kind=="arrows"){int best=-1;double nearest=16;for(int i=0;i<Session.Arrows.Arrows.Count;i++){var arrow=Session.Arrows.Arrows[i];if(arrow.Removed||Session.Flights.Any(f=>f.Index==i))continue;var path=MovingArrow(arrow,Session.Arrows.Size,0);for(int j=1;j<path.Count;j++){double d=Distance(point,path[j-1],path[j]);if(d<nearest){nearest=d;best=i;}}}return best;}
    if(Session.Kind=="pulse")return (point-new Point(270,172)).Length<155?0:-1;
    if(Session.Kind=="echo"){for(int i=0;i<Session.PadCount;i++)if(PadRect(i).Contains(point))return i;return -1;}
    int width=Session.Kind=="signal"?Session.Signal.Width:Session.Kind=="tiles"?Session.Tiles.Size:Session.Maze.Size,height=Session.Kind=="signal"?Session.Signal.Height:width;
@@ -140,10 +146,13 @@ namespace LittleNotebook {
   public void EndPan(){dragging=false;Cursor=Cursors.Arrow;}
   protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e){
    if(Session.Dash!=null){Focus();if(DashDown!=null)DashDown(e.GetPosition(this));if(Session.Phase=="playing"){CaptureMouse();Cursor=Cursors.None;}e.Handled=true;return;}
+   if(Session.Kind=="arrows"&&Session.Phase=="complete"){if(Press!=null)Press(0);e.Handled=true;return;}
    Focus();int hit=Hit(e.GetPosition(this));bool pan=hit<0||Session.Kind=="maze";
    if(pan&&BeginPan(e.GetPosition(Viewport??(IInputElement)this),hit))CaptureMouse();
    else if(hit>=0&&Press!=null)Press(hit);e.Handled=true;
   }
+  protected override void OnMouseDown(MouseButtonEventArgs e){if(e.ChangedButton==MouseButton.Middle&&Session.Dash==null&&BeginPan(e.GetPosition(Viewport??(IInputElement)this),-1)){CaptureMouse();e.Handled=true;return;}base.OnMouseDown(e);}
+  protected override void OnMouseUp(MouseButtonEventArgs e){if(e.ChangedButton==MouseButton.Middle&&dragging){EndPan();ReleaseMouseCapture();e.Handled=true;return;}base.OnMouseUp(e);}
   protected override void OnMouseMove(MouseEventArgs e){
    if(Session.Dash!=null){if(IsMouseCaptured&&e.LeftButton==MouseButtonState.Pressed&&DashMove!=null)DashMove(e.GetPosition(this));if(Session.Phase!="playing"&&IsMouseCaptured)CancelDashPointer();e.Handled=true;return;}
    if(dragging&&Viewport!=null){MovePan(e.GetPosition(Viewport));e.Handled=true;return;}
@@ -158,6 +167,7 @@ namespace LittleNotebook {
   readonly string kind;readonly Palette palette;
   public MiniGameBadge(string key,Palette colors){kind=key;palette=colors;Width=38;Height=38;IsHitTestVisible=false;}
   protected override void OnRender(DrawingContext dc){
+   if(kind=="mousedash"){MiniSurface.DrawLadybug(dc,new Point(15,23),11,15,palette);MiniSurface.DrawPest(dc,new Point(30,9),7);return;}
    if(kind=="maze"){MiniSurface.DrawLadybug(dc,new Point(17,22),13,30,palette);MiniSurface.DrawLeaf(dc,new Point(30,8),7,palette);return;}
    var paths=new Dictionary<string,string>{
     {"arrows","M15,78 L40,78 L40,51 L73,51 L73,15 M61,27 L73,15 L85,27 M16,18 L38,18 L38,36 M28,26 L38,36 L48,26"},
@@ -168,7 +178,7 @@ namespace LittleNotebook {
     {"echo","M8,19 L92,19 L92,87 L8,87 Z M29,19 L29,87 M50,19 L50,87 M71,19 L71,87 M22,19 L36,19 L36,54 L22,54 Z M64,19 L78,19 L78,54 L64,54 Z"},
     {"maze","M9,9 L90,9 L90,90 L9,90 L9,9 M34,9 L34,36 L63,36 L63,63 L90,63 M9,63 L34,63 L34,90 M63,9 L63,23 M63,78 L63,90 M77,77 L82,82 M82,77 L77,82"},
     {"mousedash","M62,51 A12,12 0 1 1 38,51 A12,12 0 1 1 62,51 M50,28 L50,18 M73,51 L83,51 M27,51 L17,51 M50,74 L50,84 M17,15 A5,5 0 1 1 7,15 A5,5 0 1 1 17,15 M89,19 A5,5 0 1 1 79,19 A5,5 0 1 1 89,19 M86,84 A5,5 0 1 1 76,84 A5,5 0 1 1 86,84 M23,83 A5,5 0 1 1 13,83 A5,5 0 1 1 23,83"}
-   };dc.PushTransform(new ScaleTransform(Width/100,Height/100));dc.DrawGeometry(null,new Pen(new SolidColorBrush(palette.Ink),4){StartLineCap=PenLineCap.Round,EndLineCap=PenLineCap.Round,LineJoin=PenLineJoin.Round},Geometry.Parse(paths[kind]));dc.Pop();
+   };dc.PushTransform(new ScaleTransform(Width/100,Height/100));dc.DrawGeometry(new SolidColorBrush(kind=="stack"?Color.FromRgb(235,193,112):kind=="tiles"?Color.FromRgb(138,187,201):Color.FromRgb(137,174,117)),new Pen(new SolidColorBrush(palette.Ink),4){StartLineCap=PenLineCap.Round,EndLineCap=PenLineCap.Round,LineJoin=PenLineJoin.Round},Geometry.Parse(paths[kind]));dc.Pop();
   }
  }
 }

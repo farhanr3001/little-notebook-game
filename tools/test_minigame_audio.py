@@ -1,4 +1,4 @@
-"""Verify the produced PCM files independently of their synthesis code."""
+﻿"""Verify the produced PCM files independently of their synthesis code."""
 from pathlib import Path
 import json, wave
 import numpy as np
@@ -21,5 +21,5 @@ for tune in tunes:
  assert abs(len(samples)/22050-expected)<=1/22050,'Replay duration does not match score'
  assert len(samples)>22050*5 and np.sqrt(np.mean(samples[:int((expected-1)*22050)]**2))>.015,'Incomplete or silent arrangement'
 read('low.wav');read('clear.wav');read('pulse.wav')
-text='PASS: 14 sampled piano files; eight pitches, PCM format, non-clipping peaks, clean tails and all three complete score/replay durations.\n'
+text=f'PASS: {11+len(tunes)} sampled piano files; eight pitches, PCM format, non-clipping peaks, clean tails and all {len(tunes)} complete score/replay durations.\n'
 (root/'test-output/minigame-audio.txt').write_text(text,encoding='utf-8');print(text)

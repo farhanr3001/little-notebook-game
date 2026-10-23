@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
@@ -12,6 +12,7 @@ using System.Windows.Shapes;
 namespace LittleNotebook {
  public partial class MainWindow {
   Grid notebookBoard;Canvas notebookRules,notebookGhost,notebookActions,notebookSnapGuides;ScrollViewer notebookScroll;Button traceEye,notebookRemoveLength;TextBlock notebookHelp;
+  Shape notebookTip;string notebookTipTool;
   bool notebookGesture;Point notebookPointer;Rect notebookDragBounds;
   void NotebookView(){
    ProfileFeatures.Normalize(Profile);Header(T("NOTEBOOK","دفتر الرسم"),paperDesignDraft!=null?T("Edit background paper","تعديل ورقة الخلفية"):T("My notebook","دفتري"),T("Draw, write and arrange your notes.","ارسم واكتب ورتّب ملاحظاتك."));
@@ -87,8 +88,10 @@ namespace LittleNotebook {
    FinishNotebookText();notebookInk.Select(new StrokeCollection());BeginNotebookChange();notebookShapeStart=point;notebookGesture=true;NotebookPointerMove(point);return true;
   }
   void NotebookPointerMove(Point point){
-   if(notebookGhost==null)return;point=ClampNotebookPoint(point);notebookPointer=point;notebookGhost.Children.Clear();
-   if(new[]{"eraser","pencil","pen","brush","highlighter"}.Contains(notebookTool)){double size=notebookTool=="eraser"?notebookSize*3:notebookInk.DefaultDrawingAttributes.Width;double height=notebookTool=="eraser"?size:notebookInk.DefaultDrawingAttributes.Height;Shape tip=notebookTool=="highlighter"?(Shape)new Rectangle():new Ellipse();tip.Width=Math.Max(2,size);tip.Height=Math.Max(2,height);tip.Stroke=Brushes.Gray;tip.StrokeThickness=1;tip.Fill=new SolidColorBrush(Color.FromArgb(30,255,255,255));Put(notebookGhost,tip,point.X-tip.Width/2,point.Y-tip.Height/2);return;}
+   if(notebookGhost==null)return;point=ClampNotebookPoint(point);notebookPointer=point;
+   if(new[]{"eraser","pencil","pen","brush","highlighter"}.Contains(notebookTool)&&notebookTip!=null&&notebookTipTool==notebookTool&&notebookGhost.Children.Contains(notebookTip)){double width=notebookTool=="eraser"?notebookSize*3:notebookInk.DefaultDrawingAttributes.Width;notebookTip.Width=Math.Max(2,width);notebookTip.Height=Math.Max(2,notebookTool=="highlighter"?notebookInk.DefaultDrawingAttributes.Height:width);Canvas.SetLeft(notebookTip,point.X-notebookTip.Width/2);Canvas.SetTop(notebookTip,point.Y-notebookTip.Height/2);return;}
+   notebookGhost.Children.Clear();
+   if(new[]{"eraser","pencil","pen","brush","highlighter"}.Contains(notebookTool)){double size=notebookTool=="eraser"?notebookSize*3:notebookInk.DefaultDrawingAttributes.Width;double height=notebookTool=="eraser"?size:notebookInk.DefaultDrawingAttributes.Height;Shape tip=notebookTool=="highlighter"?(Shape)new Rectangle():new Ellipse();notebookTip=tip;notebookTipTool=notebookTool;tip.Width=Math.Max(2,size);tip.Height=Math.Max(2,height);tip.Stroke=Brushes.Gray;tip.StrokeThickness=1;tip.Fill=new SolidColorBrush(Color.FromArgb(30,255,255,255));Put(notebookGhost,tip,point.X-tip.Width/2,point.Y-tip.Height/2);return;}
    if(notebookTool=="fill"){Put(notebookGhost,NotebookIcon("fill",24),point.X-12,point.Y-12);return;}
    if((notebookTool.StartsWith("shape:")||notebookTool.StartsWith("stamp:"))&&!notebookGesture){var instruction=Text(notebookTool.StartsWith("shape:")?T("Drag input to create shape","اسحب لإنشاء شكل"):T("Drag input to create stamp","اسحب لإنشاء طابع"),12,245);instruction.Background=B(p.Paper);Put(notebookGhost,instruction,Math.Max(4,Math.Min(690,point.X-112)),Math.Max(2,point.Y-36));return;}
    if(notebookTool.StartsWith("select:")||notebookTool=="text"){

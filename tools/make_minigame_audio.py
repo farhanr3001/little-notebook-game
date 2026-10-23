@@ -1,4 +1,4 @@
-"""Arrange sampled Salamander piano notes and traditional/classical tunes.
+﻿"""Arrange sampled Salamander piano notes and traditional/classical tunes.
 Sample: Alexander Holm, CC BY 3.0, tools/samples/piano-C4.mp3.
 Scores: Beethoven's Ode to Joy theme; traditional Twinkle / Frère Jacques.
 The shared JSON defines both click pitches and the full replay arrangement.
@@ -42,4 +42,4 @@ for tune in tunes:
   length=beats*tune['BeatSeconds'];signal=tone(notes[pitch],min(1.15,length+.22))*(.75 if index%4 else .82)
   at=round(offset*rate);output[at:at+len(signal)]+=signal;offset+=length
  write('tune-'+tune['Id']+'.wav',output)
-print('Created 11 sampled piano cues and 3 complete recognisable melody replays.')
+print(f'Created 11 sampled piano cues and {len(tunes)} complete melody replays.')

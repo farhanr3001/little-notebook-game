@@ -7,7 +7,7 @@ namespace LittleNotebook {
   public int Level=1,Seed,BestCompleted,Completed,Failures;public double BestSeconds,LastSeconds;
  }
  public static class MiniCatalog {
-  public static readonly string[] Keys={"arrows","signal","pulse","stack","tiles","echo","maze","mousedash"};
+  public static readonly string[] Keys={"arrows","stack","tiles","maze","mousedash"};
   public static void Normalize(Profile profile){
    if(profile.MiniGames==null)profile.MiniGames=new Dictionary<string,MiniProgress>();
    profile.StackBest=Math.Max(0,profile.StackBest);if(profile.Settings.SelectedMiniGame=="lanterns")profile.Settings.SelectedMiniGame="stack";
@@ -49,8 +49,8 @@ namespace LittleNotebook {
    finally{for(int i=0;i<Arrows.Count;i++)Arrows[i].Removed=removed[i];}
   }
   public static ArrowBoard Generate(int level,int seed){
-   level=Math.Max(1,level);int n=6+Math.Min(58,level),target=Math.Min(4+Math.Min(level,148)*2,n*n/7);ArrowBoard best=null;double bestScore=-1;
-   for(int pass=0;pass<4;pass++){
+   level=Math.Max(1,level);int n=6+Math.Min(38,level<=3?level:3+(level-3)*2),target=Math.Min(4+Math.Min(level,100)*4,n*n/6);ArrowBoard best=null;double bestScore=-1;
+   for(int pass=0;pass<12;pass++){
     var random=new Random(unchecked(seed+pass*104729));var board=new ArrowBoard{Size=n};var occupied=new bool[n*n];int misses=0;
     while(board.Arrows.Count<target&&misses<Math.Max(700,target*50)){
      int head=random.Next(n*n),direction=random.Next(4),back=MiniGrid.Opposite(direction),first=MiniGrid.Next(head,back,n,n);
@@ -66,9 +66,9 @@ namespace LittleNotebook {
      }
      if(path.Count<3){misses++;continue;}path.Reverse();board.Arrows.Add(new EscapeArrow{Direction=direction,Cells=path});foreach(int cell in path)occupied[cell]=true;misses=0;
     }
-    int blocked=Enumerable.Range(0,board.Arrows.Count).Count(i=>!board.CanExit(i));double score=board.Arrows.Count*1000+blocked;
+    int blocked=Enumerable.Range(0,board.Arrows.Count).Count(i=>!board.CanExit(i));double score=board.Arrows.Count*100+blocked*150;
     if(score>bestScore){best=board;bestScore=score;}
-    if(board.Arrows.Count>=target&&blocked>=target*.25)break;
+    if(board.Arrows.Count>=target&&blocked>=target*(level>3?.70:.25))break;
    }
    if(best==null||best.Arrows.Count==0||best.Solution()==null)throw new InvalidOperationException("Arrow board failed solvability verification.");
    return best;
@@ -102,7 +102,7 @@ namespace LittleNotebook {
   public int Distance{get{return Tiles.Select((v,i)=>v==0?0:Math.Abs(i%Size-(v-1)%Size)+Math.Abs(i/Size-(v-1)/Size)).Sum();}}
   public bool Move(int cell){if(cell<0||cell>=Tiles.Length||Math.Abs(cell%Size-Blank%Size)+Math.Abs(cell/Size-Blank/Size)!=1)return false;Tiles[Blank]=Tiles[cell];Tiles[cell]=0;Blank=cell;Moves++;return true;}
   public static SlidingBoard Generate(int level,int seed){
-   int n=level<8?3:level<25?4:5;var board=new SlidingBoard{Size=n,Tiles=Enumerable.Range(1,n*n).Select(i=>i==n*n?0:i).ToArray(),Blank=n*n-1};var random=new Random(seed);int previous=-1;
+   int n=level<5?3:level<14?4:level<30?5:level<55?6:7;var board=new SlidingBoard{Size=n,Tiles=Enumerable.Range(1,n*n).Select(i=>i==n*n?0:i).ToArray(),Blank=n*n-1};var random=new Random(seed);int previous=-1;
    int minimum=Math.Min(n*n,4+level);for(int i=0;i<Math.Min(600,32+level*8)||board.Distance<minimum;i++){var options=Enumerable.Range(0,4).Select(d=>MiniGrid.Next(board.Blank,d,n,n)).Where(c=>c>=0&&c!=previous).ToList();int next=options[random.Next(options.Count)];board.Scramble.Add(board.Blank);previous=board.Blank;board.Move(next);if(i>=1800&&board.Distance>=4)break;}board.Moves=0;return board;
   }
  }
